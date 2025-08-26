@@ -47,10 +47,10 @@ git commit -m "你的描述" # e.g."create ServerController"
 ---
 push
 ```shell
-git push -u origin main # 提交到main分支上
+git push -u origin develop # 提交到develop分支上
 ```
 
-（如果后面都是像同一个分支e.g.main提交，就可以省略后面的`-u origin main`了，直接`git push`）
+（如果后面都是像同一个分支e.g.develop提交，就可以省略后面的`-u origin develop`了，直接`git push`）
 
 ## git status
 ```shell
@@ -58,7 +58,7 @@ git status # 查看状态
 ```
 
 ## 换行符
-如果出现下面的有关`LF`和`CRLF`的问题
+如果出现类似下面的有关`LF`和`CRLF`的问题
 ```shell
 PS E:\GithubProjs\vCampus> git add .
 warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
@@ -79,7 +79,36 @@ git config --global core.autocrlf true # windows推荐设置
 以develop为主分支，每个人搞自己的模块时在自己的分支模块上开发
 
 例如我创建一个小分支`member/li`
+```shell
+# 先获取最新的develop分支内容
+git checkout develop
+git pull origin develop
 
+# 从develop创建新分支
+git checkout -b member/li
+
+# 开发之后进行提交
+git add .
+git commit -m "develop login panel"
+git push -u origin member/li
+
+# 然后我在github上审核pull requests，如果没冲突都OK之后合并到develop分支上
+# 大概是一两天合并一回，有需要随时跟我说~
+
+# 如果分支用不到了还可以删掉（反正还能重建嘛）
+git branch -d member/li
+```
+
+## 数据库？
+仔细想了一下问题应该不大，因为java应该支持sql语句，也就是可以用java语句操控数据库
+
+比如在UserController里面实现一个UpdateUser()函数
+
+那只要调用了这个函数就会更新数据库的User表，那有需要就调用一下呗
+
+数据库应该有一个较完善的初始化，让大家尽量少一点问题
+
+最终打包部署的数据库最后肯定要再统一整合一遍的，开发的时候就各操作各自的应该没问题
 
 # maven
 POM Project Object Model
@@ -126,6 +155,7 @@ mvn -c
 3.修改本地仓库路径（可选）：
 
 编辑`settings.xml`，找到`<localRepository>`标签，修改为项目相应的路径
+
 e.g.
 ```xml
 <settings>
@@ -136,6 +166,7 @@ e.g.
 ```
 
 4.配置国内镜像（加速下载）：
+
 e.g.阿里云镜像
 ```xml
 <mirror>
@@ -182,3 +213,95 @@ e.g.阿里云镜像
 ## pom.xml文件
 **！！！**
 ~依赖版本管理器，不能随便乱改版本，如有需要一起商议~
+
+
+# 项目架构（文件目录）
+```bash
+vCampus/ # 项目根目录
+├── pom.xml # 父POM，管理所有子模块的公共依赖和配置
+├── vCampus-common/ # 公共模块 (存放客户端和服务器端共用的类)
+│   ├── pom.xml
+│   └── src
+│       ├── main
+│       │   ├── java
+│       │   │   └── com
+│       │   │       └── seu
+│       │   │           └── vcampus
+│       │   │               ├── model/ # 实体类 (必须实现Serializable)
+│       │   │               │   ├── User.java
+│       │   │               │   ├── Student.java
+│       │   │               │   ├── Course.java
+│       │   │               │   ├── Book.java
+│       │   │               │   └── Product.java
+│       │   │               ├── util/ # 工具类
+│       │   │               │   ├── Message.java # 网络传输消息体
+│       │   │               │   └── DBConnector.java # 数据库连接工具 (可选，也可分别放在C/S端)
+│       │   │               └── exception/ # 自定义异常
+│       │   │                   └── AuthenticationException.java
+│       │   └── resources
+│       └── test
+│           └── java
+├── vCampus-server/ # 服务器端模块
+│   ├── pom.xml
+│   └── src
+│       ├── main
+│       │   ├── java
+│       │   │   └── com
+│       │   │       └── seu
+│       │   │           └── vcampus
+│       │   │               ├── ServerMain.java # 服务器主启动类
+│       │   │               ├── controller/ # 控制器层 (处理业务逻辑，调用Service)
+│       │   │               │   ├── UserController.java
+│       │   │               │   ├── CourseController.java
+│       │   │               │   ├── LibraryController.java
+│       │   │               │   └── ShopController.java
+│       │   │               ├── service/ # 服务层接口和实现
+│       │   │               │   ├── IUserService.java
+│       │   │               │   ├── UserServiceImpl.java
+│       │   │               │   ├── ICourseService.java
+│       │   │               │   └── CourseServiceImpl.java
+│       │   │               ├── dao/ # 数据访问层
+│       │   │               │   ├── IUserDao.java
+│       │   │               │   ├── UserDaoImpl.java
+│       │   │               │   ├── ICourseDao.java
+│       │   │               │   └── CourseDaoImpl.java
+│       │   │               └── socket/ # 网络通信层
+│       │   │                   ├── ServerSocketThread.java # 服务端Socket线程
+│       │   │                   └── ClientManager.java # 客户端连接管理池
+│       │   └── resources
+│       │       └── config.properties # 服务器配置文件 (如数据库URL、端口号)
+│       └── test
+│           └── java
+├── vCampus-client/ # 客户端模块
+│   ├── pom.xml
+│   └── src
+│       ├── main
+│       │   ├── java
+│       │   │   └── com
+│       │   │       └── seu
+│       │   │           └── vcampus
+│       │   │               ├── ClientMain.java # 客户端主启动类
+│       │   │               ├── view/ # 视图层 (Swing界面)
+│       │   │               │   ├── panel/
+│       │   │               │   │   ├── LoginPanel.java
+│       │   │               │   │   ├── MainPanel.java
+│       │   │               │   │   ├── CourseSelectionPanel.java
+│       │   │               │   │   ├── LibraryPanel.java
+│       │   │               │   │   └── ShopPanel.java
+│       │   │               │   └── frame/
+│       │   │               │       └── MainFrame.java # 主窗口
+│       │   │               ├── controller/ # 客户端控制器 (监听界面事件，发送请求)
+│       │   │               │   ├── UserController.java
+│       │   │               │   ├── CourseController.java
+│       │   │               │   ├── LibraryController.java
+│       │   │               │   └── ShopController.java
+│       │   │               └── socket/ # 客户端网络通信
+│       │   │                   └── ClientSocketHandler.java
+│       │   └── resources
+│       │       └── images/ # 存放图片资源
+│       └── test
+│           └── java
+└── database/ # 数据库文件目录 (不纳入Maven模块，单独存放)
+    ├── vCampus.accdb # 或 vCampus.mdb / vCampus.sqlite
+    └── init.sql # 数据库初始化脚本 (创建表、插入测试数据)
+```

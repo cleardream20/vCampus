@@ -19,9 +19,10 @@ git branch
 git branch -a
 ```
 
-应该是main分支，如果输出显示master分支，可以改个名改成main分支
+看看有没有develop分支，这个就是开发主分支
+然后切换分支到develop
 ```shell
-git branch -M main
+git checkout develop # checkout切换分支
 ```
 
 ### 推送三部曲
@@ -75,6 +76,9 @@ git config --global core.autocrlf true # windows推荐设置
 ```
 
 ## 团队协作 & 功能分支工作流
+以develop为主分支，每个人搞自己的模块时在自己的分支模块上开发
+
+例如我创建一个小分支`member/li`
 
 
 # maven

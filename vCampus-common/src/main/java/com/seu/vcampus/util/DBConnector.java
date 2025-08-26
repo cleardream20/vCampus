@@ -1,4 +1,7 @@
 package com.seu.vcampus.util;
 
-public class DBConnector {
+import java.io.Serializable;
+
+public class DBConnector implements Serializable {
+
 }

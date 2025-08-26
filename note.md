@@ -30,6 +30,8 @@ git checkout develop # checkout切换分支
 
 添加到缓冲区，写好相应描述，正式提交
 
+（其实还有一个0.`git reset`，取消之前缓冲区暂存的文件，以免全都push上去了）
+
 ---
 add
 ```shell
@@ -98,6 +100,25 @@ git push -u origin member/li
 # 如果分支用不到了还可以删掉（反正还能重建嘛）
 git branch -d member/li
 ```
+
+## 分支切换临时保存
+一个分支的修改没有保存提交，就切换到另一个分支，会出问题
+
+可以临时保存一下修改
+
+e.g.从`member/li`切换到`develop`
+```shell
+# 保存当前未完成的更改
+git stash
+
+# 现在可以切换分支了
+git checkout develop
+
+# 回到 member/li 分支时，恢复保存的更改
+git checkout member/li
+git stash pop
+```
+
 
 ## 数据库？
 仔细想了一下问题应该不大，因为java应该支持sql语句，也就是可以用java语句操控数据库

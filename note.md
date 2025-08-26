@@ -92,7 +92,13 @@ git checkout -b member/li
 # 开发之后进行提交
 git add .
 git commit -m "develop login panel"
-git push -u origin member/li
+git push -u origin member/li # git push / git push origin member/li
+
+# 如果想要merge到develop主分支上
+git checkout develop
+git pull origin develop # 如果有修改的话
+git merge member/li # 尝试把自己的merge上去
+git push origin develop # 推送更新
 
 # 然后我在github上审核pull requests，如果没冲突都OK之后合并到develop分支上
 # 大概是一两天合并一回，有需要随时跟我说~

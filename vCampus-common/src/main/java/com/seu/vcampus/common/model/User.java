@@ -3,46 +3,28 @@ package com.seu.vcampus.common.model;
 import java.io.Serializable;
 
 public class User implements Serializable {
-    private String id;
-    private String name;
-    private String email;
-    private String password;
-    private Integer age;
+    private String cid; // card id 一卡通号
+    private String password; // 密码
+    private String tsid; // sid学生学号 + tid教职工号
+    private Integer email; // 邮箱辅助找回密码
     private String role; // 角色：ST | TC | AD
 
     public User() {}
 
-    public User(String id, String name, String email, String password, Integer age, String role) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
+    public User(String cid, String password, String tsid, Integer email, String role) {
+        this.cid = cid;
         this.password = password;
-        this.age = age;
+        this.tsid = tsid;
+        this.email = email;
         this.role = role;
     }
 
-    public String getId() {
-        return id;
+    public String getCid() {
+        return cid;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setCid(String cid) {
+        this.cid = cid;
     }
 
     public String getPassword() {
@@ -53,12 +35,20 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getTsid() {
+        return tsid;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setTsid(String tsid) {
+        this.tsid = tsid;
+    }
+
+    public Integer getEmail() {
+        return email;
+    }
+
+    public void setEmail(Integer email) {
+        this.email = email;
     }
 
     public String getRole() {
@@ -71,13 +61,10 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id : " + id + '\'' +
-                ", name : " + name + '\'' +
-                ", email : " + email + '\'' +
-                ", password : " + password + '\'' +
-                ", age : " + age + '\'' +
-                ", role : " + role + '\'' +
+        return "Use{" +
+                "cid = " + cid + '\'' +
+                ", tsid = " + tsid + '\'' +
+                ", role = " + role + '\'' +
                 "}";
     }
 }

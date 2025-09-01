@@ -422,7 +422,6 @@ public class LibraryPanel extends JPanel {
             borrowTableModel.addRow(new Object[]{"9787111636665", "Java核心技术", "2023-05-10", "2023-06-10", "在借"});
             borrowTableModel.addRow(new Object[]{"9787302518383", "Python编程", "2023-05-15", "2023-06-15", "在借"});
             borrowTableModel.addRow(new Object[]{"9787115537977", "深入理解计算机系统", "2023-04-20", "2023-05-20", "逾期"});
-
             borrowCountLabel.setText("借阅数量: " + borrowTableModel.getRowCount());
         }
 

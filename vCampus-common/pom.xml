@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.example</groupId>
+        <groupId>com.seu.vcampus</groupId>
         <artifactId>vCampus</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -13,6 +13,14 @@
 
     <artifactId>vCampus-common</artifactId>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- 使用父 POM 中管理的 Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
 
     <name>vCampus-common</name>
     <description>Common classes for both client and server</description>

@@ -125,6 +125,11 @@ git checkout member/li
 git stash pop
 ```
 
+## ssh连接github
+```shell
+git remote set-url origin git@github.com:cleardream20/vCampus.git
+```
+
 ## ??
 
 ## 数据库？

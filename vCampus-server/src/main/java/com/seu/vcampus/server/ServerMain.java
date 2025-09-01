@@ -1,6 +1,7 @@
 package com.seu.vcampus.server;
 
 import com.seu.vcampus.common.model.User;
+import com.seu.vcampus.server.socket.ServerSocketThread;
 
 public class ServerMain {
     public static void main(String[] args) {

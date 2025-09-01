@@ -3,6 +3,7 @@ package com.seu.vcampus.client.view.frame;
 import javax.swing.*;
 import java.awt.*;
 
+import com.seu.vcampus.client.view.panel.MainPanel;
 import com.seu.vcampus.client.view.panel.RegisterPanel;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.client.view.panel.LoginPanel;
@@ -54,10 +55,12 @@ public class MainFrame extends JFrame {
         // 初始化各个面板
         LoginPanel loginPanel = new LoginPanel();
         RegisterPanel registerPanel = new RegisterPanel();
+        MainPanel mainPanel = new MainPanel();
 
         // 添加面板到主容器
         mainPanel.add(loginPanel, "LOGIN");
         mainPanel.add(registerPanel, "REGISTER");
+        mainPanel.add(mainPanel, "MAIN");
 
         add(mainPanel);
     }
@@ -68,15 +71,19 @@ public class MainFrame extends JFrame {
     }
 
     // 具体的面板切换方法
-    public void showLoginPanel() {
-        showPanel("LOGIN");
-    }
+    public void showLoginPanel() { showPanel("LOGIN"); }
 
     public void showRegisterPanel() { showPanel("REGISTER"); }
 
-    public void showLibraryPanel() {
-        showPanel("LIBRARY");
+    public void showMainPanel(User user) {
+        currentUser = user;
+        showPanel("MAIN");
     }
 
-    public void showMainPanel(User user) { showPanel("MAIN"); }
+    public void showUserCenterPanel(User user) {
+        currentUser = user;
+        showPanel("USERCENTER");
+    }
+
+    public void showLibraryPanel() { showPanel("LIBRARY"); }
 }

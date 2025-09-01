@@ -4,9 +4,6 @@ import com.seu.vcampus.common.model.User;
 
 public class ServerMain {
     public static void main(String[] args) {
-        User user = new User(
-
-        );
-        System.out.println(user);
+          
     }
 }

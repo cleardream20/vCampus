@@ -11,11 +11,12 @@ public class Book implements Serializable {
     private int totalCopies;
     private int availableCopies;
     private String location;
+    private String imagePath;
 
     public Book() {}
 
     public Book(String isbn, String title, String author, String publisher,
-                int publishYear, int totalCopies, int availableCopies, String location) {
+                int publishYear, int totalCopies, int availableCopies, String location,String imagePath) {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
@@ -24,6 +25,7 @@ public class Book implements Serializable {
         this.totalCopies = totalCopies;
         this.availableCopies = availableCopies;
         this.location = location;
+        this.imagePath=imagePath;
     }
 
     // Getters and Setters
@@ -50,6 +52,9 @@ public class Book implements Serializable {
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
     @Override
     public String toString() {

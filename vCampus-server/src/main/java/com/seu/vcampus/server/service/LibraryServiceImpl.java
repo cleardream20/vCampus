@@ -18,11 +18,11 @@ public class LibraryServiceImpl implements ILibraryService {
     }
 
     private void initializeMockData() {
-        books.add(new Book("9787111636665", "Java核心技术", "Cay S. Horstmann", "机械工业出版社", 2020, 10, 7, "A区3排"));
-        books.add(new Book("9787302518383", "Python编程", "Mark Lutz", "中国电力出版社", 2019, 5, 0, "B区5排"));
-        books.add(new Book("9787115537977", "深入理解计算机系统", "Randal E.Bryant", "机械工业出版社", 2021, 8, 5, "C区2排"));
-        books.add(new Book("9787121382061", "算法导论", "Thomas H.Cormen", "电子工业出版社", 2020, 15, 12, "A区1排"));
-        books.add(new Book("9787115480655", "数据库系统概念", "Abraham Silberschatz", "机械工业出版社", 2019, 6, 4, "B区3排"));
+        books.add(new Book("9787111636665", "Java核心技术", "Cay S. Horstmann", "机械工业出版社", 2020, 10, 7, "A区3排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+        books.add(new Book("9787302518383", "Python编程", "Mark Lutz", "中国电力出版社", 2019, 5, 0, "B区5排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+        books.add(new Book("9787115537977", "深入理解计算机系统", "Randal E.Bryant", "机械工业出版社", 2021, 8, 5, "C区2排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+        books.add(new Book("9787121382061", "算法导论", "Thomas H.Cormen", "电子工业出版社", 2020, 15, 12, "A区1排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+        books.add(new Book("9787115480655", "数据库系统概念", "Abraham Silberschatz", "机械工业出版社", 2019, 6, 4, "B区3排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
     }
 
     @Override

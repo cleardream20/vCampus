@@ -4,18 +4,41 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>com.seu.vcampus</groupId>
     <artifactId>vCampus</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging> <!-- 关键1：必须声明为pom打包方式 -->
+    <packaging>pom</packaging>
 
+    <!-- 建议：统一项目属性 -->
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lombok.version>1.18.30</lombok.version>
+        <java.version>21</java.version>
     </properties>
 
-    <!-- 关键2：声明子模块 -->
+    <!-- 关键：依赖管理（所有子模块共享） -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- 其他可能用到的依赖（可选） -->
+            <!-- <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.15.2</version>
+            </dependency> -->
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 子模块 -->
     <modules>
         <module>vCampus-common</module>
         <module>vCampus-server</module>

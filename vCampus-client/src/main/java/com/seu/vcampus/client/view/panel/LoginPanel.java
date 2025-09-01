@@ -21,7 +21,7 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
     private static final Font DEFAULT_FONT = new Font("微软雅黑", Font.PLAIN, 14);
     private static final Font TITLE_FONT = new Font("微软雅黑", Font.BOLD, 18);
 
-    public LoginPanel() { // ✅ 不再需要传入 mainFrame
+    public LoginPanel() {
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -138,12 +138,11 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
                     lblStatus.setText("登录成功");
                     lblStatus.setForeground(Color.GREEN);
 
-                    // ✅ 登录成功：使用单例 MainFrame，切换到主界面
+                    // 登录成功：使用单例 MainFrame，切换到主界面
                     SwingUtilities.invokeLater(() -> {
                         MainFrame mainFrame = MainFrame.getInstance();
                         mainFrame.showMainPanel(user); // 设置当前用户
-                        mainFrame.showLibraryPanel();  // 切换到主功能面板（如图书馆）
-                        // 或者 mainFrame.showDashboardPanel();
+                        // mainFrame.show...()
                     });
 
                 } catch (InterruptedException | ExecutionException ex) {
@@ -165,7 +164,7 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
 
     @Override
     public void refreshPanel(User user) {
-        // ✅ 清空登录表单
+        // 清空登录表单
         txtCid.setText("");
         txtPassword.setText("");
         lblStatus.setText("请输入一卡通号和密码");

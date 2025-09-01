@@ -157,7 +157,10 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
     }
 
     private void attemptRegister() {
-        JOptionPane.showMessageDialog(this, "注册功能正在开发中", "提示", JOptionPane.INFORMATION_MESSAGE);
+//        JOptionPane.showMessageDialog(this, "注册功能正在开发中", "提示", JOptionPane.INFORMATION_MESSAGE);
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showPanel("REGISTER");
+        });
     }
 
     @Override
@@ -171,6 +174,6 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
 
     @Override
     public String getPanelName() {
-        return "Login";
+        return "LOGIN";
     }
 }

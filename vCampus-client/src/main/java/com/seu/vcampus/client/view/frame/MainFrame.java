@@ -2,6 +2,8 @@ package com.seu.vcampus.client.view.frame;
 
 import javax.swing.*;
 import java.awt.*;
+
+import com.seu.vcampus.client.view.panel.RegisterPanel;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.client.view.panel.LoginPanel;
 import lombok.Getter;
@@ -51,11 +53,11 @@ public class MainFrame extends JFrame {
 
         // 初始化各个面板
         LoginPanel loginPanel = new LoginPanel();
-        // 初始化其他面板...
+        RegisterPanel registerPanel = new RegisterPanel();
 
         // 添加面板到主容器
         mainPanel.add(loginPanel, "LOGIN");
-        // 添加其他面板...
+        mainPanel.add(registerPanel, "REGISTER");
 
         add(mainPanel);
     }
@@ -70,13 +72,11 @@ public class MainFrame extends JFrame {
         showPanel("LOGIN");
     }
 
+    public void showRegisterPanel() { showPanel("REGISTER"); }
+
     public void showLibraryPanel() {
         showPanel("LIBRARY");
     }
 
-    public void showMainPanel(User user) {
-        this.currentUser = user;
-        setTitle("虚拟校园系统 - " + user.getTsid());
-        // 这里可以切换到主功能面板
-    }
+    public void showMainPanel(User user) { showPanel("MAIN"); }
 }

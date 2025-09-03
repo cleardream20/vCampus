@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.client.view.panel.LoginPanel;
+import com.seu.vcampus.client.view.panel.StudentPanel.STPanel;
 import lombok.Getter;
 
 /**
@@ -51,10 +52,12 @@ public class MainFrame extends JFrame {
 
         // 初始化各个面板
         LoginPanel loginPanel = new LoginPanel();
+        STPanel stPanel = new STPanel();
         // 初始化其他面板...
 
         // 添加面板到主容器
         mainPanel.add(loginPanel, "LOGIN");
+        mainPanel.add(stPanel, "ST");
         // 添加其他面板...
 
         add(mainPanel);
@@ -68,6 +71,10 @@ public class MainFrame extends JFrame {
     // 具体的面板切换方法
     public void showLoginPanel() {
         showPanel("LOGIN");
+    }
+
+    public void showSTPanel() {
+        showPanel("ST");
     }
 
     public void showLibraryPanel() {

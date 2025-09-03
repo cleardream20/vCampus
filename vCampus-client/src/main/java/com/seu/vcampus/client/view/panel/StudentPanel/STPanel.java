@@ -5,9 +5,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.seu.vcampus.client.controller.StudentController;
+import com.seu.vcampus.client.controller.Student.STController;
 import com.seu.vcampus.client.view.NavigatablePanel;
-import com.seu.vcampus.client.view.frame.MainFrame;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
 
@@ -29,7 +28,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
 //        User user = MainFrame.getInstance().getCurrentUser();
         User user = new User();
         String userId = user.getCid();
-        StudentController controller = new StudentController();
+        STController controller = new STController();
         this.currentStudent = controller.getStudent(userId);
         initializeUI();
         setFieldsEditable(false);
@@ -45,49 +44,92 @@ public class STPanel extends JPanel implements NavigatablePanel {
         titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 18));
         add(titleLabel, BorderLayout.NORTH);
 
-        // 表单面板
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        // 表单面板 - 使用GridBagLayout
+        JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); // 组件间距
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
 
-        // 姓名
-        formPanel.add(new JLabel("姓名:"));
-        nameField = new JTextField(currentStudent.getName());
-        formPanel.add(nameField);
+        // 第一行: 姓名
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        formPanel.add(new JLabel("姓名:"), gbc);
 
-        // 邮箱
-        formPanel.add(new JLabel("邮箱:"));
-        emailField = new JTextField(currentStudent.getEmail());
-        formPanel.add(emailField);
+        gbc.gridx = 1;
+        nameField = new JTextField(currentStudent.getName(), 20);
+        formPanel.add(nameField, gbc);
 
-        // 电话
-        formPanel.add(new JLabel("电话:"));
-        phoneField = new JTextField(currentStudent.getPhone());
-        formPanel.add(phoneField);
+        // 第二行: 邮箱
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        formPanel.add(new JLabel("邮箱:"), gbc);
 
-        // 性别
-        formPanel.add(new JLabel("性别:"));
-        sexField = new JTextField(currentStudent.getSex());
-        formPanel.add(sexField);
+        gbc.gridx = 1;
+        emailField = new JTextField(currentStudent.getEmail(), 20);
+        formPanel.add(emailField, gbc);
 
-        // 出生日期
-        formPanel.add(new JLabel("出生日期:"));
-        birthdayField = new JTextField(currentStudent.getBirthday());
-        formPanel.add(birthdayField);
+        // 第三行: 电话
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        formPanel.add(new JLabel("电话:"), gbc);
 
-        // 地址
-        formPanel.add(new JLabel("地址:"));
-        addressField = new JTextField(currentStudent.getAddress());
-        formPanel.add(addressField);
+        gbc.gridx = 1;
+        phoneField = new JTextField(currentStudent.getPhone(), 20);
+        formPanel.add(phoneField, gbc);
 
-        // 身份证号
-        formPanel.add(new JLabel("身份证号:"));
-        nidField = new JTextField(currentStudent.getNid());
-        formPanel.add(nidField);
+        // 第四行: 性别
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        formPanel.add(new JLabel("性别:"), gbc);
 
-        // 入学日期
-        formPanel.add(new JLabel("入学日期:"));
-        endateField = new JTextField(currentStudent.getEndate());
-        formPanel.add(endateField);
+        gbc.gridx = 1;
+        sexField = new JTextField(currentStudent.getSex(), 20);
+        formPanel.add(sexField, gbc);
+
+        // 第五行: 出生日期
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        formPanel.add(new JLabel("出生日期:"), gbc);
+
+        gbc.gridx = 1;
+        birthdayField = new JTextField(currentStudent.getBirthday(), 20);
+        formPanel.add(birthdayField, gbc);
+
+        // 第六行: 地址
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        formPanel.add(new JLabel("地址:"), gbc);
+
+        gbc.gridx = 1;
+        addressField = new JTextField(currentStudent.getAddress(), 20);
+        formPanel.add(addressField, gbc);
+
+        // 第七行: 身份证号
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        formPanel.add(new JLabel("身份证号:"), gbc);
+
+        gbc.gridx = 1;
+        nidField = new JTextField(currentStudent.getNid(), 20);
+        formPanel.add(nidField, gbc);
+
+        // 第八行: 入学日期
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        formPanel.add(new JLabel("入学日期:"), gbc);
+
+        gbc.gridx = 1;
+        endateField = new JTextField(currentStudent.getEndate(), 20);
+        formPanel.add(endateField, gbc);
+
+        // 添加空白组件以推动左侧标签右对齐
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        formPanel.add(Box.createGlue(), gbc);
 
         add(formPanel, BorderLayout.CENTER);
 
@@ -131,7 +173,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
                 currentStudent.setEndate(endateField.getText());
 
                 // 这里调用服务器接口提交修改
-                // boolean success = submitChangesToServer(currentStudent);
+                 boolean success = true;
 
                 // 假设提交成功
                 JOptionPane.showMessageDialog(STPanel.this,
@@ -169,7 +211,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
         endateField.setEditable(editable);
 
         // 更改背景色以提示编辑状态
-        Color bgColor = editable ? new Color(240, 240, 240) : Color.WHITE;
+        Color bgColor = editable ? Color.WHITE : new Color(240, 240, 240);
         nameField.setBackground(bgColor);
         emailField.setBackground(bgColor);
         phoneField.setBackground(bgColor);
@@ -188,7 +230,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
     @Override
     public void refreshPanel(User user) {
         String userId = user.getCid();
-        StudentController controller = new StudentController();
+        STController controller = new STController();
         Student student = controller.getStudent(userId);
         this.currentStudent = student;
 

@@ -23,6 +23,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
     private JButton modifyButton;
     private JButton submitButton;
     private JButton refreshButton;
+    private JButton backButton; // 添加返回按钮
 
     public STPanel() {
 //        User user = MainFrame.getInstance().getCurrentUser();
@@ -39,10 +40,26 @@ public class STPanel extends JPanel implements NavigatablePanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
+        // 添加返回按钮到左上角
+        backButton = new JButton("返回");
+        backButton.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        backButton.setMargin(new Insets(2, 5, 2, 5));
+
+        // 创建顶部面板，包含返回按钮和标题
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(backButton, BorderLayout.WEST);
+
         // 标题
         JLabel titleLabel = new JLabel("学生个人信息", JLabel.CENTER);
         titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 18));
-        add(titleLabel, BorderLayout.NORTH);
+        topPanel.add(titleLabel, BorderLayout.CENTER);
+
+        // 添加顶部面板到主面板
+        add(topPanel, BorderLayout.NORTH);
+
+        // 创建内容面板，用于放置表单
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0)); // 添加顶部空白，实现下移效果
 
         // 表单面板 - 使用GridBagLayout
         JPanel formPanel = new JPanel(new GridBagLayout());
@@ -131,7 +148,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
         gbc.weighty = 1.0;
         formPanel.add(Box.createGlue(), gbc);
 
-        add(formPanel, BorderLayout.CENTER);
+        contentPanel.add(formPanel, BorderLayout.CENTER);
 
         // 按钮面板
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
@@ -143,46 +160,43 @@ public class STPanel extends JPanel implements NavigatablePanel {
         buttonPanel.add(submitButton);
         buttonPanel.add(refreshButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // 将内容面板添加到主面板
+        add(contentPanel, BorderLayout.CENTER);
 
         // 添加事件监听
         setupEventListeners();
     }
 
     private void setupEventListeners() {
-        modifyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setFieldsEditable(true);
-                modifyButton.setEnabled(false);
-                submitButton.setEnabled(true);
-            }
+        modifyButton.addActionListener(e -> {
+            setFieldsEditable(true);
+            modifyButton.setEnabled(false);
+            submitButton.setEnabled(true);
         });
 
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 更新学生对象
-                currentStudent.setName(nameField.getText());
-                currentStudent.setEmail(emailField.getText());
-                currentStudent.setPhone(phoneField.getText());
-                currentStudent.setSex(sexField.getText());
-                currentStudent.setBirthday(birthdayField.getText());
-                currentStudent.setAddress(addressField.getText());
-                currentStudent.setNid(nidField.getText());
-                currentStudent.setEndate(endateField.getText());
+        submitButton.addActionListener(e -> {
+            // 更新学生对象
+            currentStudent.setName(nameField.getText());
+            currentStudent.setEmail(emailField.getText());
+            currentStudent.setPhone(phoneField.getText());
+            currentStudent.setSex(sexField.getText());
+            currentStudent.setBirthday(birthdayField.getText());
+            currentStudent.setAddress(addressField.getText());
+            currentStudent.setNid(nidField.getText());
+            currentStudent.setEndate(endateField.getText());
 
-                // 这里调用服务器接口提交修改
-                 boolean success = true;
+            // 这里调用服务器接口提交修改
+            boolean success = true;
 
-                // 假设提交成功
-                JOptionPane.showMessageDialog(STPanel.this,
-                        "修改申请已提交，等待审核", "提示", JOptionPane.INFORMATION_MESSAGE);
+            // 假设提交成功
+            JOptionPane.showMessageDialog(STPanel.this,
+                    "修改申请已提交，等待审核", "提示", JOptionPane.INFORMATION_MESSAGE);
 
-                setFieldsEditable(false);
-                modifyButton.setEnabled(true);
-                submitButton.setEnabled(false);
-            }
+            setFieldsEditable(false);
+            modifyButton.setEnabled(true);
+            submitButton.setEnabled(false);
         });
 
         refreshButton.addActionListener(new ActionListener() {
@@ -197,6 +211,13 @@ public class STPanel extends JPanel implements NavigatablePanel {
                 JOptionPane.showMessageDialog(STPanel.this,
                         "页面已刷新", "提示", JOptionPane.INFORMATION_MESSAGE);
             }
+        });
+
+        // 添加返回按钮的事件监听
+        backButton.addActionListener(e -> {
+            // 这里实现返回逻辑，例如返回到上一个界面
+            // 可能需要调用主框架的导航方法
+            System.out.println("返回按钮被点击");
         });
     }
 
@@ -224,7 +245,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
 
     @Override
     public String getPanelName() {
-        return "Student";
+        return "StudentST";
     }
 
     @Override

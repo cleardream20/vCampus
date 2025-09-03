@@ -1,4 +1,4 @@
 package com.seu.vcampus.server.dao;
 
-public class BookDao {
+public interface BookDao {
 }

@@ -21,6 +21,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+        <!-- UCanAccess JDBC Driver for Access DB -->
+        <dependency>
+            <groupId>net.sf.ucanaccess</groupId>
+            <artifactId>ucanaccess</artifactId>
+            <version>5.0.1</version> <!-- 推荐使用 5.x 支持 .accdb -->
+        </dependency>
     </dependencies>
 
     <name>vCampus-common</name>

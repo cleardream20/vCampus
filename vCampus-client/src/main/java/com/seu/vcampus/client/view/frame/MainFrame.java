@@ -55,12 +55,12 @@ public class MainFrame extends JFrame {
         // 初始化各个面板
         LoginPanel loginPanel = new LoginPanel();
         RegisterPanel registerPanel = new RegisterPanel();
-        MainPanel mainPanel = new MainPanel();
+        MainPanel userMainPanel = new MainPanel();
 
         // 添加面板到主容器
         mainPanel.add(loginPanel, "LOGIN");
         mainPanel.add(registerPanel, "REGISTER");
-        mainPanel.add(mainPanel, "MAIN");
+        mainPanel.add(userMainPanel, "MAIN");
 
         add(mainPanel);
     }
@@ -76,8 +76,16 @@ public class MainFrame extends JFrame {
     public void showRegisterPanel() { showPanel("REGISTER"); }
 
     public void showMainPanel(User user) {
-        currentUser = user;
-        showPanel("MAIN");
+        this.currentUser = user;
+        // 获取 MainPanel 实例并刷新
+        Component[] components = mainPanel.getComponents();
+        for (Component comp : components) {
+            if (comp instanceof MainPanel) {
+                ((MainPanel) comp).refreshPanel(user);
+                break;
+            }
+        }
+        cardLayout.show(mainPanel, "MAIN");
     }
 
     public void showUserCenterPanel(User user) {

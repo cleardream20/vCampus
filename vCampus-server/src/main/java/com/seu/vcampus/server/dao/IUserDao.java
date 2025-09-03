@@ -1,4 +1,4 @@
 package com.seu.vcampus.server.dao;
 
-public class IUserDao {
+public interface IUserDao {
 }

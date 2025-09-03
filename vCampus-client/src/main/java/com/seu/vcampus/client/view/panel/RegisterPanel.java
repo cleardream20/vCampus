@@ -39,7 +39,7 @@ public class RegisterPanel extends JPanel implements NavigatablePanel {
         add(lblTitle, gbc);
 
         // 一卡通号
-        txtCid = new JTextField(15);  // ✅ 先创建并赋值
+        txtCid = new JTextField(15);  // 先创建并赋值
         addLabeledField("一卡通号:", txtCid, gbc, 1, 0, 1);  // 再添加到界面
 
         // 姓名

@@ -1,4 +1,5 @@
 package com.seu.vcampus.server.controller;
+import com.seu.vcampus.common.model.BorrowRecord;
 import com.seu.vcampus.server.service.ILibraryService;
 import com.seu.vcampus.server.service.LibraryServiceImpl;
 import com.seu.vcampus.common.util.Message;
@@ -24,6 +25,12 @@ public class LibraryController {
                 List<Book> books = libraryService.searchBooks(keyword);
                 response.setStatus(Message.STATUS_SUCCESS);
                 response.setData(books);
+            } else if (LibraryMessage.BORROW_BOOKS.equals(request.getType())) {
+                String UserID = (String) request.getData();
+                List<BorrowRecord> borrowRecords = libraryService.getBorrowRecordsByUserId(UserID);
+                response.setStatus(Message.STATUS_SUCCESS);
+                response.setData(borrowRecords);
+
             } else {
                 response.setStatus(Message.STATUS_ERROR);
                 response.setData("未知的请求类型: " + request.getType());

@@ -1,6 +1,7 @@
 package com.seu.vcampus.client.controller;
 
 import com.seu.vcampus.common.model.Book;
+import com.seu.vcampus.common.model.BorrowRecord;
 import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.LibraryMessage;
@@ -43,6 +44,22 @@ public class LibraryController {
             return Collections.emptyList();
         }
     }
+
+    public List<BorrowRecord> getBorrowRecordsByUserId (String UserID){
+        Message request = new Message();
+        request.setType(LibraryMessage.BORROW_BOOKS);
+        request.setData(UserID);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return (List<BorrowRecord>) response.getData();
+        } else {
+            System.err.println("搜索借阅图书列表失败: " + response.getData());
+            return Collections.emptyList();
+        }
+    }
+
 
     public void close() {
         socketHandler.close();

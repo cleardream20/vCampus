@@ -1,8 +1,12 @@
 package com.seu.vcampus.client.view.panel;
 
 import com.seu.vcampus.client.controller.LibraryController;
-import com.seu.vcampus.common.model.Book;
+import com.seu.vcampus.common.model.*;
 import com.seu.vcampus.common.util.ImageLoader;
+import com.seu.vcampus.client.view.NavigatablePanel;
+import com.seu.vcampus.client.view.frame.MainFrame;
+
+
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,9 +17,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class LibraryPanel extends JPanel {
+public class LibraryPanel extends JPanel implements NavigatablePanel {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -32,51 +38,162 @@ public class LibraryPanel extends JPanel {
 
     // 客户端控制器
     private LibraryController libraryController;
-
     // 界面组件
 
     private JLabel statusLabel;
-    private JTable bookTable;
-    private DefaultTableModel bookTableModel;
+
     private JTabbedPane tabbedPane;
-    private BookSearchPanel bookSearchPanel;
-    private MyLibraryPanel myLibraryPanel;
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
+    private User currentUser;
+    private JMenuBar menuBar;
+
+    private void init_User(){
+        currentUser=new User();
+        currentUser.setRole("AD");
+        currentUser.setName("张三");
+        currentUser.setCid("20210001");
+        currentUser.setPassword("123456");
+    }
 
 
     public LibraryPanel() {
-        setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(10, 10, 10, 10));
-
         // 初始化客户端控制器
         libraryController = new LibraryController();
+        init_User();
 
-        initComponents();
+        setLayout(new BorderLayout());
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        // 添加主面板（初始为空）
+        mainPanel.add(new JPanel(), "MAIN");
+
+        add(mainPanel, BorderLayout.CENTER);
+
+        showMainPanel();
+
     }
 
-    private void initComponents() {
-        // 创建选项卡面板
+    private void showMainPanel() {
+        JPanel mainContent = new JPanel(new BorderLayout());
         tabbedPane = new JTabbedPane();
 
-        // 创建图书检索面板
-        bookSearchPanel = new BookSearchPanel();
+        // 添加通用面板（所有用户都有）
+        tabbedPane.addTab("图书检索", new BookSearchPanel());
+        tabbedPane.addTab("我的图书馆", new MyLibraryPanel());
+        tabbedPane.addTab("管理员界面", new AdminPanel());
+        // 创建菜单栏
+        createMenuBar();
 
-        // 创建我的图书馆面板
-        myLibraryPanel = new MyLibraryPanel();
+        mainContent.add(tabbedPane, BorderLayout.CENTER);
 
-        // 添加选项卡
-        tabbedPane.addTab("图书检索", bookSearchPanel);
-        tabbedPane.addTab("我的图书馆", myLibraryPanel);
+        // 更新主面板
+        mainContent.add(menuBar,BorderLayout.NORTH);
+        mainPanel.add(mainContent, "MAIN");
 
-        // 添加到主面板
-        add(tabbedPane, BorderLayout.CENTER);
+        // 显示主面板
+        cardLayout.show(mainPanel, "MAIN");
     }
+
+    private void createMenuBar() {
+        menuBar = new JMenuBar();
+
+        JMenu systemMenu = new JMenu("系统");
+        JMenuItem logoutItem = new JMenuItem("退出登录");
+        logoutItem.addActionListener(e -> {
+//            currentUser = null;
+////            showLoginPanel();
+        });
+
+        JMenuItem exitItem = new JMenuItem("退出系统");
+        exitItem.addActionListener(e -> System.exit(0));
+
+        systemMenu.add(logoutItem);
+
+        systemMenu.add(exitItem);
+
+        menuBar.add(systemMenu);
+    }
+
+    private String getUserInfo() {
+        if (currentUser instanceof Admin) {
+            return "管理员: " + currentUser.getName();
+        } else if (currentUser instanceof Student) {
+            return "学生: " + currentUser.getName();
+        } else if (currentUser instanceof Teacher) {
+            return "教师: " + currentUser.getName();
+        }
+        return "用户: " + currentUser.getName();
+    }
+
+
+    @Override
+    public void refreshPanel(User user) {
+
+    }
+
+    @Override
+    public String getPanelName() {
+        return "LIBRARY";
+    }
+
+
+
+
+    // 内部类：管理员面板
+    private class AdminPanel extends JPanel {
+        public AdminPanel() {
+            setLayout(new BorderLayout());
+
+            // 创建工具栏
+            JToolBar toolBar = new JToolBar();
+            toolBar.setFloatable(false);
+
+            JButton addButton = new JButton("添加图书");
+            JButton editButton = new JButton("修改图书");
+            JButton deleteButton = new JButton("删除图书");
+            JButton refreshButton = new JButton("刷新");
+
+            toolBar.add(addButton);
+            toolBar.add(editButton);
+            toolBar.add(deleteButton);
+            toolBar.addSeparator();
+            toolBar.add(refreshButton);
+
+            // 创建图书表格
+            String[] columns = {"ISBN", "书名", "作者", "出版社", "年份", "可借数量", "位置"};
+            DefaultTableModel model = new DefaultTableModel(columns, 0);
+
+            // 添加模拟数据
+            model.addRow(new Object[]{"9787111636665", "Java核心技术", "Cay S. Horstmann", "机械工业出版社", 2020, 7, "A区3排"});
+            model.addRow(new Object[]{"9787302518383", "Python编程", "Mark Lutz", "中国电力出版社", 2019, 0, "B区5排"});
+            model.addRow(new Object[]{"9787115537977", "深入理解计算机系统", "Randal E.Bryant", "机械工业出版社", 2021, 5, "C区2排"});
+
+            JTable bookTable = new JTable(model);
+            bookTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            bookTable.getTableHeader().setReorderingAllowed(false);
+            bookTable.setRowHeight(30);
+
+            JScrollPane scrollPane = new JScrollPane(bookTable);
+
+            // 添加到面板
+            add(toolBar, BorderLayout.NORTH);
+            add(scrollPane, BorderLayout.CENTER);
+        }
+    }
+
+    //搜索界面
     private class BookSearchPanel extends JPanel{
         private JTextField searchField;
         private JComboBox<String> searchTypeCombo;
         private JButton searchButton;
         private JButton resetButton;
-        private List<Book> books; // 添加成员变量
 
+
+        private List<Book> books; // 添加成员变量
+        private JTable bookTable;
+        private DefaultTableModel bookTableModel;
 
 
 
@@ -165,6 +282,7 @@ public class LibraryPanel extends JPanel {
             bookTable.getColumnModel().getColumn(5).setPreferredWidth(80);  // 总数量
             bookTable.getColumnModel().getColumn(6).setPreferredWidth(80);  // 可借数量
             bookTable.getColumnModel().getColumn(7).setPreferredWidth(100); // 位置
+           //鼠标双击事件
 
             bookTable.addMouseListener(new MouseAdapter() {
                 @Override
@@ -247,8 +365,6 @@ public class LibraryPanel extends JPanel {
             statusLabel.setText("重置成功，显示所有图书");
         }
 
-
-
         /**
          * 更新图书表格
          */
@@ -287,17 +403,17 @@ public class LibraryPanel extends JPanel {
                         "错误", JOptionPane.ERROR_MESSAGE);
             }
         }
-
-
-
-
-
     }
+    //我的图书馆
     private class MyLibraryPanel extends  JPanel{
         private JTable borrowTable;
         private DefaultTableModel borrowTableModel;
+
+
         private JTable reservationTable;
         private DefaultTableModel reservationTableModel;
+
+
         private JPanel accountPanel;
         private JLabel userNameLabel;
         private JLabel userIdLabel;
@@ -306,12 +422,17 @@ public class LibraryPanel extends JPanel {
         private JButton renewButton;
         private JButton returnButton;
         private JButton cancelReservationButton;
+
+
+        private List<BorrowRecord> borrowRecords;
+
+
         public MyLibraryPanel() {
             setLayout(new BorderLayout());
             setBorder(new EmptyBorder(10, 10, 10, 10));
             initComponents();
             loadUserData();
-            loadBorrowRecords();
+            loadBorrowRecords(currentUser.getCid());
             loadReservations();
         }
         private void initComponents() {
@@ -408,21 +529,27 @@ public class LibraryPanel extends JPanel {
 
         private void loadUserData() {
             // 模拟用户数据
-            userNameLabel.setText("姓名: " + "张三");
-            userIdLabel.setText("学号: " + "2132000001");
+            userNameLabel.setText("姓名: " + currentUser.getName());
+            userIdLabel.setText("学号: " + currentUser.getCid());
             borrowCountLabel.setText("借阅数量: 3");
             reservationCountLabel.setText("预约数量: 2");
         }
 
-        public void loadBorrowRecords() {
-            // 模拟借阅记录数据
+
+        public void loadBorrowRecords(String UserID) {
+            this.borrowRecords = libraryController.getBorrowRecordsByUserId(UserID); // 保存图书列表
             borrowTableModel.setRowCount(0);
 
-            // 添加模拟数据
-            borrowTableModel.addRow(new Object[]{"9787111636665", "Java核心技术", "2023-05-10", "2023-06-10", "在借"});
-            borrowTableModel.addRow(new Object[]{"9787302518383", "Python编程", "2023-05-15", "2023-06-15", "在借"});
-            borrowTableModel.addRow(new Object[]{"9787115537977", "深入理解计算机系统", "2023-04-20", "2023-05-20", "逾期"});
-            borrowCountLabel.setText("借阅数量: " + borrowTableModel.getRowCount());
+            for (BorrowRecord borrows : borrowRecords) {
+                Object[] rowData = {
+                        borrows.getBookIsbn(),
+                        borrows.getBookTitle(),
+                        borrows.getBorrowDate(),
+                        borrows.getDueDate(),
+                        borrows.getStatus()
+                };
+                borrowTableModel.addRow(rowData);
+            }
         }
 
         public void loadReservations() {
@@ -448,7 +575,7 @@ public class LibraryPanel extends JPanel {
         }
     }
 
-
+    //书籍详情
     public class BookDetailDialog extends JDialog {
         private Book book;
 
@@ -565,19 +692,5 @@ public class LibraryPanel extends JPanel {
             }
         }
     }
-
-    private JButton createOperationButton(String text) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(80, 35));
-        button.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                    text + "功能尚未实现",
-                    "功能未完成",
-                    JOptionPane.INFORMATION_MESSAGE);
-        });
-        return button;
-    }
-
-
 
 }

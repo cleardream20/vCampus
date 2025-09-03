@@ -338,3 +338,56 @@ vCampus/ # 项目根目录
     ├── vCampus.accdb # 或 vCampus.mdb / vCampus.sqlite
     └── init.sql # 数据库初始化脚本 (创建表、插入测试数据)
 ```
+
+## 类间关系
+### 5x关系
+继承 → 组合 → 聚合 → 关联 → 依赖
+
+| 关系 | 含义 | 速记 |
+|----|----|----|
+| 继承 | 基类派生类 | is-a|
+| 组合 | 强烈的拥有关系，部分-整体不可分割 | has-a（不可分）|
+| 聚合 | 较弱的拥有关系，部分可以独立于整体存在 | has-a（可分）|
+| 关联 | 知道/链接到/有关系，e.g.老师-学生教学关系 | knows-a |
+| 依赖 |（临时）使用 |use-a|
+
+### Common:
+Student, Teacher, Admin 继承自 User
+
+Course -> Teacher（老师负责授课）关联
+Course -> Student( List<Student> ) 聚合（可分）
+
+Student -> List<Course> 聚合（可分）
+
+Book / Product
+
+Client / Server controllers/... -> models  组合
+
+
+### Client
+主类：
+ClientMain:
+ClientMain  拥有MainFrame  组合
+ClientMain  拥有ClientSocketHandler 组合
+
+
+xxxPanel -> MainFrame 组合
+xxxPanel -> NavigatablePanel（接口） 继承
+
+
+xxxPanle  使用 controller方法（e.g. controller.login()） 依赖
+
+xxxController -> 通过 Message & ClientSocketHandler 通信  依赖
+
+### Server:
+主类：
+ServerMain
+ServerMain 启动 ServerSocketThread 组合关系
+ServerSocketThread 拥有 ClientManager 组合
+
+xxxController -> 通过Message & ServerSocketThread 通信  依赖
+xxxController -> xxxService  依赖
+xxxService 通过 xxxDao 与数据库交互  依赖
+xxxDao 依赖 DBConnector  操作数据库  依赖
+
+

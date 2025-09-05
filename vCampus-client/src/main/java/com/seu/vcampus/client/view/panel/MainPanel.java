@@ -8,75 +8,73 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainPanel extends JPanel implements NavigatablePanel {
-    private JButton btnUser;
+    private JButton btnUserCenter;
     private JButton btnStudent;
     private JButton btnCourse;
     private JButton btnLibrary;
     private JButton btnShop;
 
-
     public MainPanel() {
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
+        Font titleFont = new Font("微软雅黑", Font.BOLD, 20);
+        Font btnFont = new Font("微软雅黑", Font.PLAIN, 16);
+        Dimension btnSize = new Dimension(150, 40);
 
         // 标题
-        JLabel lblTitle = new JLabel("vCampus服务大厅", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("微软雅黑", Font.BOLD, 18));
+        JLabel lblTitle = new JLabel("vCampus 服务大厅", SwingConstants.CENTER);
+        lblTitle.setFont(titleFont);
         lblTitle.setOpaque(true);
+        lblTitle.setBackground(new Color(240, 245, 255));
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 4;
+        gbc.fill = GridBagConstraints.CENTER;
         add(lblTitle, gbc);
 
-        // 用户中心按钮
-        JPanel userCenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        String txtUserName = MainFrame.getInstance().getCurrentUser().getName();
-        btnUser = new JButton("您好！ " + txtUserName);
-        btnUser.setFont(new Font("微软雅黑",  Font.BOLD, 18));
-        btnUser.setPreferredSize(new Dimension(90, 30));
-
-        userCenterPanel.add(btnUser);
-        gbc.gridx = 4;
+        // 用户信息区域：先创建按钮，但先不设用户名
+        gbc.gridx = 2;
         gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        add(userCenterPanel, gbc);
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
+        btnUserCenter = new JButton("个人中心 (未登录)");
+        btnUserCenter.setFont(btnFont);
+        btnUserCenter.setPreferredSize(btnSize);
+        add(btnUserCenter, gbc);
 
-        // 子界面按钮
-        JPanel subPanels  = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        Font commonFont = new Font("微软雅黑", Font.BOLD, 18);
-        Dimension commonDimension = new Dimension(90, 30);
+        // 功能按钮...
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+        buttonPanel.setBackground(Color.WHITE);
+
         btnStudent = new JButton("学生学籍管理");
-        btnStudent.setFont(commonFont);
-        btnStudent.setPreferredSize(commonDimension);
-
         btnCourse = new JButton("选课系统");
-        btnCourse.setFont(commonFont);
-        btnCourse.setPreferredSize(commonDimension);
-
         btnLibrary = new JButton("图书馆");
-        btnLibrary.setFont(commonFont);
-        btnLibrary.setPreferredSize(commonDimension);
-
         btnShop = new JButton("商店");
-        btnShop.setFont(commonFont);
-        btnShop.setPreferredSize(commonDimension);
 
-        subPanels.add(btnStudent);
-        subPanels.add(btnCourse);
-        subPanels.add(btnLibrary);
-        subPanels.add(btnShop);
+        JButton[] buttons = {btnStudent, btnCourse, btnLibrary, btnShop};
+        for (JButton btn : buttons) {
+            btn.setFont(btnFont);
+            btn.setPreferredSize(btnSize);
+            btn.setFocusPainted(false);
+            buttonPanel.add(btn);
+        }
 
         gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.gridwidth = 2;
+        gbc.gridy = 1;
+        gbc.gridwidth = 4;
+        gbc.fill = GridBagConstraints.CENTER;
         gbc.anchor = GridBagConstraints.CENTER;
-        add(subPanels, gbc);
+        add(buttonPanel, gbc);
 
         // 事件监听
-        btnUser.addActionListener(e -> attemptEnterUserCenter());
+        btnUserCenter.addActionListener(e -> attemptEnterUserCenter());
         btnStudent.addActionListener(e -> attemptEnterStudent());
     }
 
@@ -87,12 +85,16 @@ public class MainPanel extends JPanel implements NavigatablePanel {
 
     private void attemptEnterStudent() {
 //        MainFrame mainFrame = MainFrame.getInstance();
-//        mainFrame.showStudentPanel();
+//        mainFrame.showStudentPanel(); // 取消注释并调用
     }
 
     @Override
     public void refreshPanel(User user) {
-
+        if (user != null) {
+            btnUserCenter.setText("个人中心 (" + user.getName() + ")");
+        } else {
+            btnUserCenter.setText("个人中心 (未登录)");
+        }
     }
 
     @Override

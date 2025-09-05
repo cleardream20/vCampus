@@ -1,4 +1,4 @@
 package com.seu.vcampus.server.service;
 
-public class IUserService {
+public interface UserService {
 }

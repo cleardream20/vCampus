@@ -22,6 +22,7 @@
             <groupId>com.seu.vcampus</groupId>
             <artifactId>vCampus-common</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

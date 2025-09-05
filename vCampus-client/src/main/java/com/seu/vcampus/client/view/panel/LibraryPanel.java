@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
         add(mainPanel, BorderLayout.CENTER);
 
         showMainPanel();
+        addTabChangeListener();
 
     }
 
@@ -141,8 +143,10 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
 
 
 
+
+
     // 内部类：管理员面板
-    private class AdminPanel extends JPanel {
+    private class AdminPanel extends JPanel implements RefreshablePanel {
         public AdminPanel() {
             setLayout(new BorderLayout());
 
@@ -181,10 +185,14 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             add(toolBar, BorderLayout.NORTH);
             add(scrollPane, BorderLayout.CENTER);
         }
+
+        @Override
+        public void refresh() {
+        }
     }
 
     //搜索界面
-    private class BookSearchPanel extends JPanel{
+    private class BookSearchPanel extends JPanel implements RefreshablePanel{
         private JTextField searchField;
         private JComboBox<String> searchTypeCombo;
         private JButton searchButton;
@@ -202,6 +210,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             setBorder(new EmptyBorder(10, 10, 10, 10));
             initComponents();
             loadBooksFromServer();
+
         }
 
         private void initComponents() {
@@ -301,15 +310,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
 
             JScrollPane scrollPane = new JScrollPane(bookTable);
 
-            // 操作按钮面板
-//            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-//            JButton borrowButton = createOperationButton("借阅");
-//            JButton returnButton = createOperationButton("归还");
-//            JButton reserveButton = createOperationButton("预约");
-//
-//            buttonPanel.add(borrowButton);
-//            buttonPanel.add(returnButton);
-//            buttonPanel.add(reserveButton);
+
 
             // 状态栏
             statusLabel = new JLabel("就绪");
@@ -324,7 +325,11 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
 
         private void showBookDetail(Book book) {
             BookDetailDialog detailDialog = new BookDetailDialog(
-                    (Frame) SwingUtilities.getWindowAncestor(this), book);
+                    (Frame) SwingUtilities.getWindowAncestor(this),
+                    book,
+                    LibraryPanel.this.libraryController,  // 使用外部类引用
+                    LibraryPanel.this.currentUser         // 使用外部类引用
+            );
             detailDialog.setVisible(true);
         }
         /**
@@ -403,9 +408,17 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
                         "错误", JOptionPane.ERROR_MESSAGE);
             }
         }
+
+        @Override
+        public void refresh() {
+            loadBooksFromServer();
+        }
+
+
     }
+
     //我的图书馆
-    private class MyLibraryPanel extends  JPanel{
+    private class MyLibraryPanel extends  JPanel implements RefreshablePanel{
         private JTable borrowTable;
         private DefaultTableModel borrowTableModel;
 
@@ -431,9 +444,10 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             setLayout(new BorderLayout());
             setBorder(new EmptyBorder(10, 10, 10, 10));
             initComponents();
-            loadUserData();
+
             loadBorrowRecords(currentUser.getCid());
             loadReservations();
+            loadUserData();
         }
         private void initComponents() {
             // 创建账户信息面板
@@ -504,7 +518,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
 
             returnButton = new JButton("归还");
             returnButton.setEnabled(false);
-//            returnButton.addActionListener(e -> returnBook());
+            returnButton.addActionListener(e -> returnBook());
 
             cancelReservationButton = new JButton("取消预约");
             cancelReservationButton.setEnabled(false);
@@ -531,7 +545,8 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             // 模拟用户数据
             userNameLabel.setText("姓名: " + currentUser.getName());
             userIdLabel.setText("学号: " + currentUser.getCid());
-            borrowCountLabel.setText("借阅数量: 3");
+
+            borrowCountLabel.setText("借阅数量: "+borrowRecords.getLast().getRecordId());
             reservationCountLabel.setText("预约数量: 2");
         }
 
@@ -563,6 +578,53 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             reservationCountLabel.setText("预约数量: " + reservationTableModel.getRowCount());
         }
 
+        // 归还图书方法
+        private void returnBook() {
+            int selectedRow = borrowTable.getSelectedRow();
+            if (selectedRow < 0) {
+                JOptionPane.showMessageDialog(this, "请选择要归还的图书", "提示", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 获取选中的借阅记录
+            BorrowRecord record = borrowRecords.get(selectedRow);
+
+            // 检查是否已归还
+            if ("RETURNED".equals(record.getStatus())) {
+                JOptionPane.showMessageDialog(this, "该书已归还，无需再次操作", "提示", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            int choice = JOptionPane.showConfirmDialog(this,
+                    "确定要归还《" + record.getBookTitle() + "》吗？", "确认归还", JOptionPane.YES_NO_OPTION);
+
+            if (choice == JOptionPane.YES_OPTION) {
+                try {
+                    // 调用服务端归还图书
+                    boolean success = libraryController.returnBook(record.getRecordId());
+
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "归还成功！", "成功", JOptionPane.INFORMATION_MESSAGE);
+
+                        // 更新本地记录状态
+                        record.setStatus("RETURNED");
+                        record.setReturnDate(new Date());
+
+                        // 更新表格显示
+                        borrowTableModel.setValueAt("已归还", selectedRow, 4);
+                        libraryController.getAllBooks();
+                        // 刷新界面
+                        refresh();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "归还失败，请稍后再试", "错误", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "归还失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+
+
         private void updateButtonStates() {
             // 更新借阅操作按钮状态
             int borrowSelectedRow = borrowTable.getSelectedRow();
@@ -573,15 +635,27 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             int reservationSelectedRow = reservationTable.getSelectedRow();
             cancelReservationButton.setEnabled(reservationSelectedRow >= 0);
         }
+
+
+        @Override
+        public void refresh() {
+            loadUserData();
+            loadBorrowRecords(currentUser.getCid());
+            loadReservations();
+        }
     }
 
     //书籍详情
     public class BookDetailDialog extends JDialog {
         private Book book;
+        private LibraryController libraryController;
+        private User currentUser;
 
-        public BookDetailDialog(Frame owner, Book book) {
+        public BookDetailDialog(Frame owner, Book book, LibraryController libraryController, User currentUser) {
             super(owner, "图书详情", true);
             this.book = book;
+            this.libraryController = libraryController;
+            this.currentUser = currentUser;
             setSize(600, 500);
             setLocationRelativeTo(owner);
             initComponents();
@@ -601,7 +675,8 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             // 加载图片
             ImageIcon bookImage = ImageLoader.loadImage(book.getImagePath());
             if (bookImage == null) {
-                bookImage = new ImageIcon(getClass().getResource("D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+                // 使用默认图片
+                bookImage = new ImageIcon(getClass().getResource("/images/default_book.jpg"));
             }
 
             // 缩放图片
@@ -621,20 +696,53 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             addInfoRow(infoPanel, "作者:", book.getAuthor());
             addInfoRow(infoPanel, "出版社:", book.getPublisher());
             addInfoRow(infoPanel, "出版年份:", String.valueOf(book.getPublishYear()));
-            addInfoRow(infoPanel, "可借数量:", String.valueOf(book.getAvailableCopies()));
+
+            // 可借数量行（特殊样式）
+            JLabel copiesLabel = new JLabel(String.valueOf(book.getAvailableCopies()));
+            copiesLabel.setForeground(book.getAvailableCopies() > 0 ? Color.BLACK : Color.RED);
+            addInfoRowWithComponent(infoPanel, "可借数量:", copiesLabel);
+
             addInfoRow(infoPanel, "位置:", book.getLocation());
+
+            // 状态标签
+            JLabel statusLabel = new JLabel();
+            statusLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+            updateStatusLabel(statusLabel);
+            addInfoRowWithComponent(infoPanel, "状态:", statusLabel);
 
             // 按钮面板
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
             JButton borrowButton = createActionButton("借阅");
             JButton reserveButton = createActionButton("预约");
 
+            // 根据可借数量设置按钮状态
+            borrowButton.setEnabled(book.getAvailableCopies() > 0);
+            reserveButton.setEnabled(book.getAvailableCopies() <= 0);
+
             buttonPanel.add(borrowButton);
             buttonPanel.add(reserveButton);
 
             // 添加组件到主面板
             mainPanel.add(imagePanel, BorderLayout.WEST);
-            mainPanel.add(infoPanel, BorderLayout.CENTER);
+
+            JPanel centerPanel = new JPanel(new BorderLayout());
+            centerPanel.add(infoPanel, BorderLayout.NORTH);
+
+            // 添加描述区域
+            JTextArea descriptionArea = new JTextArea();
+            descriptionArea.setText("《" + book.getTitle() + "》是一本经典的计算机科学教材，详细介绍了" + book.getTitle() + "的核心概念和实践应用。");
+            descriptionArea.setLineWrap(true);
+            descriptionArea.setWrapStyleWord(true);
+            descriptionArea.setEditable(false);
+            descriptionArea.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+
+            JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
+            descriptionScroll.setBorder(BorderFactory.createTitledBorder("图书简介"));
+            descriptionScroll.setPreferredSize(new Dimension(0, 150)); // 设置固定高度
+
+            centerPanel.add(descriptionScroll, BorderLayout.CENTER);
+
+            mainPanel.add(centerPanel, BorderLayout.CENTER);
 
             // 添加到对话框
             add(mainPanel, BorderLayout.CENTER);
@@ -651,6 +759,13 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             panel.add(valueField);
         }
 
+        private void addInfoRowWithComponent(JPanel panel, String label, JComponent component) {
+            JLabel labelField = new JLabel(label);
+            labelField.setFont(new Font("微软雅黑", Font.BOLD, 14));
+            panel.add(labelField);
+            panel.add(component);
+        }
+
         private JButton createActionButton(String text) {
             JButton button = new JButton(text);
             button.setPreferredSize(new Dimension(120, 40));
@@ -659,38 +774,162 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             return button;
         }
 
+        private void updateStatusLabel(JLabel statusLabel) {
+            if (book.getAvailableCopies() > 0) {
+                statusLabel.setText("可借阅");
+                statusLabel.setForeground(Color.GREEN);
+            } else {
+                statusLabel.setText("已无库存，无法借阅");
+                statusLabel.setForeground(Color.RED);
+            }
+        }
+
         private void handleAction(ActionEvent e) {
             String action = e.getActionCommand();
             if ("借阅".equals(action)) {
-                if (book.getAvailableCopies() <= 0) {
-                    JOptionPane.showMessageDialog(this, "该书暂无库存，无法借阅", "借阅失败", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                int choice = JOptionPane.showConfirmDialog(this,
-                        "确定要借阅《" + book.getTitle() + "》吗？", "确认借阅", JOptionPane.YES_NO_OPTION);
-
-                if (choice == JOptionPane.YES_OPTION) {
-                    JOptionPane.showMessageDialog(this, "借阅成功！请到'我的图书馆'查看", "借阅成功",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    dispose();
-                }
+                handleBorrowAction();
             } else if ("预约".equals(action)) {
-                if (book.getAvailableCopies() > 0) {
-                    JOptionPane.showMessageDialog(this, "该书有库存，请直接借阅", "预约提示", JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
+//                handleReserveAction();
+            }
+        }
 
-                int choice = JOptionPane.showConfirmDialog(this,
-                        "确定要预约《" + book.getTitle() + "》吗？", "确认预约", JOptionPane.YES_NO_OPTION);
+        private void handleBorrowAction() {
+            if (book.getAvailableCopies() <= 0) {
+                JOptionPane.showMessageDialog(this, "该书暂无库存，无法借阅", "借阅失败",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-                if (choice == JOptionPane.YES_OPTION) {
-                    JOptionPane.showMessageDialog(this, "预约成功！书籍到馆后会通知您", "预约成功",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    dispose();
+            int choice = JOptionPane.showConfirmDialog(this,
+                    "确定要借阅《" + book.getTitle() + "》吗？", "确认借阅", JOptionPane.YES_NO_OPTION);
+
+            if (choice == JOptionPane.YES_OPTION) {
+                try {
+                    // 调用服务端借阅图书
+                    boolean success = libraryController.borrowBook(currentUser.getCid(), book.getIsbn());
+
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "借阅成功！请到'我的图书馆'查看", "借阅成功",
+                                JOptionPane.INFORMATION_MESSAGE);
+
+                        // 更新图书可借数量
+                        book.setAvailableCopies(book.getAvailableCopies() - 1);
+
+                        // 刷新界面状态
+                        refreshUI();
+
+                        // 关闭对话框
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "借阅失败，请稍后再试", "借阅失败",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "借阅失败: " + ex.getMessage(), "错误",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
+
+//        private void handleReserveAction() {
+//            if (book.getAvailableCopies() > 0) {
+//                JOptionPane.showMessageDialog(this, "该书有库存，请直接借阅", "预约提示",
+//                        JOptionPane.INFORMATION_MESSAGE);
+//                return;
+//            }
+//
+//            int choice = JOptionPane.showConfirmDialog(this,
+//                    "确定要预约《" + book.getTitle() + "》吗？", "确认预约", JOptionPane.YES_NO_OPTION);
+//
+//            if (choice == JOptionPane.YES_OPTION) {
+//                try {
+//                    // 调用服务端预约图书
+//                    boolean success = libraryController.reserveBook(currentUser.getCid(), book.getIsbn());
+//
+//                    if (success) {
+//                        JOptionPane.showMessageDialog(this, "预约成功！书籍到馆后会通知您", "预约成功",
+//                                JOptionPane.INFORMATION_MESSAGE);
+//                        dispose();
+//                    } else {
+//                        JOptionPane.showMessageDialog(this, "预约失败，请稍后再试", "预约失败",
+//                                JOptionPane.ERROR_MESSAGE);
+//                    }
+//                } catch (Exception ex) {
+//                    JOptionPane.showMessageDialog(this, "预约失败: " + ex.getMessage(), "错误",
+//                            JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        }
+
+        private void refreshUI() {
+            // 更新所有组件
+            Component[] components = getContentPane().getComponents();
+            for (Component comp : components) {
+                if (comp instanceof JPanel) {
+                    Component[] subComponents = ((JPanel) comp).getComponents();
+                    for (Component subComp : subComponents) {
+                        if (subComp instanceof JPanel) {
+                            Component[] infoComponents = ((JPanel) subComp).getComponents();
+                            for (Component infoComp : infoComponents) {
+                                if (infoComp instanceof JLabel) {
+                                    JLabel label = (JLabel) infoComp;
+                                    if ("可借数量:".equals(label.getText())) {
+                                        // 找到可借数量标签后的值标签
+                                        Component nextComp = ((JPanel) subComp).getComponent(((JPanel) subComp).getComponentZOrder(label) + 1);
+                                        if (nextComp instanceof JLabel) {
+                                            JLabel valueLabel = (JLabel) nextComp;
+                                            valueLabel.setText(String.valueOf(book.getAvailableCopies()));
+                                            valueLabel.setForeground(book.getAvailableCopies() > 0 ? Color.BLACK : Color.RED);
+                                        }
+                                    } else if ("状态:".equals(label.getText())) {
+                                        // 找到状态标签后的值标签
+                                        Component nextComp = ((JPanel) subComp).getComponent(((JPanel) subComp).getComponentZOrder(label) + 1);
+                                        if (nextComp instanceof JLabel) {
+                                            updateStatusLabel((JLabel) nextComp);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 更新按钮状态
+            JPanel buttonPanel = (JPanel) getContentPane().getComponent(1);
+            for (Component comp : buttonPanel.getComponents()) {
+                if (comp instanceof JButton) {
+                    JButton button = (JButton) comp;
+                    if ("借阅".equals(button.getText())) {
+                        button.setEnabled(book.getAvailableCopies() > 0);
+                    } else if ("预约".equals(button.getText())) {
+                        button.setEnabled(book.getAvailableCopies() <= 0);
+                    }
+                }
+            }
+
+            // 重绘界面
+            revalidate();
+            repaint();
+        }
     }
+
+    //切换页面刷新
+    private void addTabChangeListener() {
+        tabbedPane.addChangeListener(e -> {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            if (selectedIndex >= 0) {
+                Component selectedComponent = tabbedPane.getComponentAt(selectedIndex);
+                if (selectedComponent instanceof RefreshablePanel) {
+                    ((RefreshablePanel) selectedComponent).refresh();
+                }
+            }
+        });
+    }
+
+    interface RefreshablePanel {
+        void refresh();
+    }
+
 
 }

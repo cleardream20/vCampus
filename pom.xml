@@ -28,6 +28,13 @@
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/net.sf.ucanaccess/ucanaccess -->
+            <dependency>
+                <groupId>net.sf.ucanaccess</groupId>
+                <artifactId>ucanaccess</artifactId>
+                <version>5.0.1</version>
+                <scope>runtime</scope>
+            </dependency>
 
             <!-- 其他可能用到的依赖（可选） -->
             <!-- <dependency>

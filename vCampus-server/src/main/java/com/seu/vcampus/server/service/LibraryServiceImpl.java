@@ -2,6 +2,8 @@ package com.seu.vcampus.server.service;
 
 import com.seu.vcampus.common.model.Book;
 import com.seu.vcampus.common.model.BorrowRecord;
+import com.seu.vcampus.server.dao.BookDaoImpl;
+import com.seu.vcampus.server.dao.IBookDao;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,6 +29,10 @@ public class LibraryServiceImpl implements ILibraryService {
         books.add(new Book("9787115480655", "数据库系统概念", "Abraham Silberschatz", "机械工业出版社", 2019, 6, 4, "B区3排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
 
         addMockBorrowRecords();
+    }
+    private void addMockBook(){
+        IBookDao bookDao = new BookDaoImpl();
+        books = bookDao.getAllBooks();
     }
 
     private void addMockBorrowRecords() {
@@ -157,10 +163,12 @@ public class LibraryServiceImpl implements ILibraryService {
                 .findFirst();
 
         if (!recordOpt.isPresent()) {
-            return false; // 未找到借书记录
+            System.out.println("未找到可归还的记录: " + recordId);
+            return false; // 未找到借书记录或状态无效
         }
 
         BorrowRecord record = recordOpt.get();
+        System.out.println("处理归还记录: " + record.getBookTitle() + ", ISBN: " + record.getBookIsbn());
 
         // 更新记录状态
         record.setStatus("RETURNED");
@@ -175,6 +183,7 @@ public class LibraryServiceImpl implements ILibraryService {
             // 计算逾期费用（假设每天0.5元）
             double fine = daysOverdue * 0.5;
             record.setFineAmount(fine);
+            System.out.println("逾期天数: " + daysOverdue + ", 费用: " + fine);
         }
 
         // 查找图书
@@ -183,9 +192,13 @@ public class LibraryServiceImpl implements ILibraryService {
                 .findFirst();
 
         if (bookOpt.isPresent()) {
-            // 更新图书可借数量
             Book book = bookOpt.get();
+            System.out.println("归还前可借数量: " + book.getAvailableCopies());
             book.setAvailableCopies(book.getAvailableCopies() + 1);
+            System.out.println("归还后可借数量: " + book.getAvailableCopies());
+        } else {
+            System.out.println("未找到ISBN为 " + record.getBookIsbn() + " 的图书");
+            return false;
         }
 
         return true;

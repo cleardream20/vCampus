@@ -7,6 +7,7 @@ import com.seu.vcampus.common.util.LibraryMessage;
 import com.seu.vcampus.common.model.Book;
 
 import java.util.List;
+import java.util.Map;
 
 public class LibraryController {
     private ILibraryService libraryService = new LibraryServiceImpl();
@@ -25,11 +26,38 @@ public class LibraryController {
                 List<Book> books = libraryService.searchBooks(keyword);
                 response.setStatus(Message.STATUS_SUCCESS);
                 response.setData(books);
-            } else if (LibraryMessage.BORROW_BOOKS.equals(request.getType())) {
+            } else if (LibraryMessage.GET_BORROW_BOOKS.equals(request.getType())) {
                 String UserID = (String) request.getData();
                 List<BorrowRecord> borrowRecords = libraryService.getBorrowRecordsByUserId(UserID);
                 response.setStatus(Message.STATUS_SUCCESS);
                 response.setData(borrowRecords);
+            } else if (LibraryMessage.BORROW_BOOKS.equals(request.getType())) {
+                 //填补
+                Map<String, String> borrowRequest = (Map<String, String>) request.getData();
+                String userId = borrowRequest.get("userId");
+                String isbn = borrowRequest.get("isbn");
+
+                boolean success = libraryService.borrowBook(userId, isbn);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("借阅成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("借阅失败：图书不可用或用户已达借阅上限");
+                }
+
+            } else if (LibraryMessage.RETURN_BOOK.equals(request.getType())) {
+                Long RecordID = (Long) request.getData();
+
+                boolean success = libraryService.returnBook(RecordID);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("归还成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("归还失败");
+                }
+
 
             } else {
                 response.setStatus(Message.STATUS_ERROR);

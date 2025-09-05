@@ -9,6 +9,8 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
+
 public class User implements Serializable {
     private String cid; // card id 一卡通号
     private String password; // 密码

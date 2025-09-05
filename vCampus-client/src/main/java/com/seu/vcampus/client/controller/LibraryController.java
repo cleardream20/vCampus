@@ -7,7 +7,9 @@ import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.LibraryMessage;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LibraryController {
     private ClientSocketHandler socketHandler;
@@ -15,6 +17,8 @@ public class LibraryController {
     public LibraryController() {
         this.socketHandler = new ClientSocketHandler();
     }
+
+
 
     public List<Book> getAllBooks() {
         Message request = new Message();
@@ -47,7 +51,7 @@ public class LibraryController {
 
     public List<BorrowRecord> getBorrowRecordsByUserId (String UserID){
         Message request = new Message();
-        request.setType(LibraryMessage.BORROW_BOOKS);
+        request.setType(LibraryMessage.GET_BORROW_BOOKS);
         request.setData(UserID);
 
         Message response = socketHandler.sendRequest(request);
@@ -59,6 +63,44 @@ public class LibraryController {
             return Collections.emptyList();
         }
     }
+
+    public boolean borrowBook(String userId, String isbn) {
+        // 创建借阅请求数据
+        Map<String, String> borrowRequest = new HashMap<>();
+        borrowRequest.put("userId", userId);
+        borrowRequest.put("isbn", isbn);
+
+        Message request = new Message();
+        request.setType(LibraryMessage.BORROW_BOOKS);
+        request.setData(borrowRequest);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("借阅图书失败: " + response.getData());
+            return false;
+        }
+    }
+
+    public boolean returnBook(Long RecordID) {
+
+        Message request = new Message();
+        request.setType(LibraryMessage.RETURN_BOOK);
+        request.setData(RecordID);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("归还图书失败: " + response.getData());
+            return false;
+        }
+    }
+
+
 
 
     public void close() {

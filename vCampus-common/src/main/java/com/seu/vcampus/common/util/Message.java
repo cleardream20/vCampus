@@ -10,7 +10,18 @@ public class Message implements Serializable {
     private String sender;
     private int status;
     private String description;
-
+    public static final String GET_COURSE_LIST = "GET_COURSE_LIST";
+    public static final String SELECT_COURSE = "SELECT_COURSE";
+    public static final String DROP_COURSE = "DROP_COURSE";
+    public static final String GET_SELECTED_COURSES = "GET_SELECTED_COURSES";
+    public static final String GET_COURSE_SCHEDULE = "GET_COURSE_SCHEDULE";
+    public static final String ADD_COURSE = "ADD_COURSE";
+    public static final String UPDATE_COURSE = "UPDATE_COURSE";
+    public static final String DELETE_COURSE = "DELETE_COURSE";
+    public static final String CONFIGURE_RULE = "CONFIGURE_RULE";
+    public static final String GET_RULE = "GET_RULE";
+    public static final String GENERATE_REPORT = "GENERATE_REPORT";
+    public static final String GET_TEACHING_COURSES = "GET_TEACHING_COURSES";
     public Message() {}
 
     public Message(String type) {

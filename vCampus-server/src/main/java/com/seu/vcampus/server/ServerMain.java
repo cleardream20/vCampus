@@ -1,15 +1,22 @@
 package com.seu.vcampus.server;
 
+import com.seu.vcampus.server.controller.AdminController;
+import com.seu.vcampus.server.controller.CourseController;
 import com.seu.vcampus.server.socket.ServerSocketHandler;
 
 public class ServerMain {
     public static void main(String[] args) {
-        // 初始化内存数据
-        DataManager.initialize();
+        // 1. 初始化控制器
+        AdminController adminController = new AdminController();
+        CourseController courseController = new CourseController();
 
-        // 启动Socket服务器
-        ServerSocketHandler server = new ServerSocketHandler(8888);
+        // 2. 创建服务器并注册控制器
+        ServerSocketHandler server = new ServerSocketHandler(8080);
+        server.addController("ADMIN", adminController);
+        server.addController("COURSE", courseController);
+
+        // 3. 启动服务器
         server.start();
-        System.out.println("服务器已启动，监听端口: 8888");
+        System.out.println("服务器运行中，按Ctrl+C停止...");
     }
 }

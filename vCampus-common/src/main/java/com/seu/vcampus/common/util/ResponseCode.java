@@ -1,22 +1,32 @@
 package com.seu.vcampus.common.util;
 
 public class ResponseCode {
-    // 成功状态码
-    public static final int OK = 200;              // 请求成功
-    public static final int CREATED = 201;         // 创建成功
+    // HTTP标准状态码
+    public static final int OK = 200;
+    public static final int CREATED = 201;
+    public static final int BAD_REQUEST = 400;
+    public static final int UNAUTHORIZED = 401;
+    public static final int FORBIDDEN = 403;
+    public static final int NOT_FOUND = 404;
+    public static final int INTERNAL_SERVER_ERROR = 500;
 
-    // 客户端错误状态码
-    public static final int BAD_REQUEST = 400;     // 请求无效
-    public static final int UNAUTHORIZED = 401;    // 未授权
-    public static final int FORBIDDEN = 403;       // 禁止访问
-    public static final int NOT_FOUND = 404;       // 资源未找到
+    // 业务状态码（课程相关）
+    public static final int COURSE_FULL = 1001;
+    public static final int ALREADY_SELECTED = 1002;
+    public static final int NOT_SELECTED = 1003;
+    public static final int COURSE_CONFLICT = 1004;
+    public static final int CREDIT_LIMIT_EXCEEDED = 1005;
+    public static final int PREREQUISITE_NOT_MET = 1006;
+    public static final int COURSE_NOT_FOUND = 1007;
+    public static final int COURSE_ALREADY_EXISTS = 1008;
 
-    // 服务器错误状态码
-    public static final int INTERNAL_SERVER_ERROR = 500; // 服务器内部错误
-    public static final int SERVICE_UNAVAILABLE = 503;   // 服务不可用
+    // 用户相关
+    public static final int USER_NOT_FOUND = 2001;
 
-    // 业务状态码
-    public static final int COURSE_FULL = 1001;          // 课程已满
-    public static final int ALREADY_SELECTED = 1002;      // 课程已选
-    public static final int NOT_SELECTED = 1003;          // 未选课程
+    // 规则配置相关
+    public static final int RULE_VALIDATION_FAILED = 3001;
+
+    // 通用业务状态
+    public static final int FAIL = 9001;
+    public static final int ALREADY_EXISTS = 9002;
 }

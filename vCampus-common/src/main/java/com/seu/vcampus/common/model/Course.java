@@ -1,150 +1,66 @@
 package com.seu.vcampus.common.model;
 
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class Course implements Serializable {
     private String courseId;
     private String courseName;
+    private String teacherId; // 使用教师ID而不是姓名
+    private String department;
     private Integer credit;
+    private String time; // 格式: "周一 1-2节"
+    private String location;
     private Integer capacity;
-    private Integer selected = 0;
-    private String teacherId;
-    private String schedule;
+    private Integer selectedNum;
+    private String prerequisites; // 先修课程要求
 
-    public List<TimeSlot> parseSchedule() {
-        if (schedule == null || schedule.trim().isEmpty()) {
-            return Collections.emptyList();
-        }
+    // 默认构造函数
+    public Course() {}
 
-        List<TimeSlot> slots = new ArrayList<>();
-        String[] parts = schedule.split(";");
-
-        for (String part : parts) {
-            if (part.length() < 5) continue; // 确保格式正确
-
-            TimeSlot slot = new TimeSlot();
-            slot.setDay(part.substring(0, 3));
-
-            String[] range = part.substring(3).split("-");
-            if (range.length == 2) {
-                try {
-                    slot.setStartSlot(Integer.parseInt(range[0]));
-                    slot.setEndSlot(Integer.parseInt(range[1]));
-                    slots.add(slot);
-                } catch (NumberFormatException e) {
-                    // 忽略格式错误的时间段
-                }
-            }
-        }
-        return slots;
-    }
-
-    public static class TimeSlot implements Serializable {
-        private String day;
-        private int startSlot;
-        private int endSlot;
-
-        public String getDay() {
-            return day;
-        }
-
-        public void setDay(String day) {
-            this.day = day;
-        }
-
-        public int getStartSlot() {
-            return startSlot;
-        }
-
-        public void setStartSlot(int startSlot) {
-            this.startSlot = startSlot;
-        }
-
-        public int getEndSlot() {
-            return endSlot;
-        }
-
-        public void setEndSlot(int endSlot) {
-            this.endSlot = endSlot;
-        }
-
-        @Override
-        public String toString() {
-            return day + startSlot + "-" + endSlot;
-        }
+    // 带参数的构造函数
+    public Course(String courseId, String courseName, String teacherId, String department,
+                  Integer credit, String time, String location, Integer capacity,
+                  Integer selectedNum, String prerequisites) {
+        this.courseId = courseId;
+        this.courseName = courseName;
+        this.teacherId = teacherId;
+        this.department = department;
+        this.credit = credit;
+        this.time = time;
+        this.location = location;
+        this.capacity = capacity;
+        this.selectedNum = selectedNum;
+        this.prerequisites = prerequisites;
     }
 
     // Getters and Setters
-    public String getCourseId() {
-        return courseId;
-    }
+    public String getCourseId() { return courseId; }
+    public void setCourseId(String courseId) { this.courseId = courseId; }
 
-    public void setCourseId(String courseId) {
-        this.courseId = courseId;
-    }
+    public String getCourseName() { return courseName; }
+    public void setCourseName(String courseName) { this.courseName = courseName; }
 
-    public String getCourseName() {
-        return courseName;
-    }
+    public String getTeacherId() { return teacherId; }
+    public void setTeacherId(String teacherId) { this.teacherId = teacherId; }
 
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
 
-    public Integer getCredit() {
-        return credit;
-    }
+    public Integer getCredit() { return credit; }
+    public void setCredit(Integer credit) { this.credit = credit; }
 
-    public void setCredit(Integer credit) {
-        this.credit = credit;
-    }
+    public String getTime() { return time; }
+    public void setTime(String time) { this.time = time; }
 
-    public Integer getCapacity() {
-        return capacity;
-    }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
+    public Integer getCapacity() { return capacity; }
+    public void setCapacity(Integer capacity) { this.capacity = capacity; }
 
-    public Integer getSelected() {
-        return selected;
-    }
+    public Integer getSelectedNum() { return selectedNum; }
+    public void setSelectedNum(Integer selectedNum) { this.selectedNum = selectedNum; }
 
-    public void setSelected(Integer selected) {
-        this.selected = selected;
-    }
-
-    public String getTeacherId() {
-        return teacherId;
-    }
-
-    public void setTeacherId(String teacherId) {
-        this.teacherId = teacherId;
-    }
-
-    public String getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(String schedule) {
-        this.schedule = schedule;
-    }
-
-    @Override
-    public String toString() {
-        return "Course{" +
-                "courseId='" + courseId + '\'' +
-                ", courseName='" + courseName + '\'' +
-                ", credit=" + credit +
-                ", capacity=" + capacity +
-                ", selected=" + selected +
-                ", teacherId='" + teacherId + '\'' +
-                ", schedule='" + schedule + '\'' +
-                '}';
-    }
+    public String getPrerequisites() { return prerequisites; }
+    public void setPrerequisites(String prerequisites) { this.prerequisites = prerequisites; }
 }

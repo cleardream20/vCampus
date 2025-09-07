@@ -14,15 +14,19 @@ public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private User currentUser;
     private ClientSocketHandler socketHandler;
+    private final String serverHost;
+    private final int serverPort;
 
-    public MainFrame() {
+    // 修改构造函数以接收服务器配置
+    public MainFrame(String serverHost, int serverPort) {
+        this.serverHost = serverHost;
+        this.serverPort = serverPort;
         initializeUI();
-        // 直接进入选课模块
         enterCourseSelectionDirectly();
     }
 
     private void initializeUI() {
-        setTitle("vCampus 校园管理系统");
+        setTitle("vCampus 校园管理系统 - " + serverHost + ":" + serverPort);
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示
@@ -47,9 +51,9 @@ public class MainFrame extends JFrame {
         currentUser.setName("张三");
         currentUser.setRole("ST");
 
-        // 初始化Socket连接
+        // 初始化Socket连接 - 使用传入的服务器配置
         if (socketHandler == null) {
-            socketHandler = new ClientSocketHandler("localhost", 8888);
+            socketHandler = new ClientSocketHandler(serverHost, serverPort);
         }
 
         // 直接显示选课面板
@@ -102,15 +106,8 @@ public class MainFrame extends JFrame {
 
     private void showAboutDialog() {
         JOptionPane.showMessageDialog(this,
-                "vCampus 校园管理系统\n版本 1.0\n© 2023 SEU",
+                "vCampus 校园管理系统\n版本 1.0\n© 2023 SEU\n服务器: " + serverHost + ":" + serverPort,
                 "关于",
                 JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            MainFrame frame = new MainFrame();
-            frame.setVisible(true);
-        });
     }
 }

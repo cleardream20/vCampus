@@ -35,7 +35,7 @@ public class ClientMain {
         javax.swing.SwingUtilities.invokeLater(() -> {
             try {
                 // 创建主窗口并传入服务器配置
-                MainFrame frame = new MainFrame(finalServerHost, finalServerPort);
+                MainFrame frame = new MainFrame();
                 frame.setVisible(true);
             } catch (Exception e) {
                 // 显示错误对话框

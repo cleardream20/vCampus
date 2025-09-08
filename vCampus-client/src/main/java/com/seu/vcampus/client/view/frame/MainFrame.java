@@ -1,113 +1,173 @@
 package com.seu.vcampus.client.view.frame;
 
-import com.seu.vcampus.client.controller.CourseController;
-import com.seu.vcampus.common.model.User;
-import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.client.view.panel.*;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class MainFrame extends JFrame {
+    private CardLayout cardLayout;
     private JPanel mainPanel;
-    private User currentUser;
-    private ClientSocketHandler socketHandler;
-    private final String serverHost;
-    private final int serverPort;
+    private JButton adminLoginButton;
+    private JTabbedPane userTabbedPane;
 
-    // 修改构造函数以接收服务器配置
-    public MainFrame(String serverHost, int serverPort) {
-        this.serverHost = serverHost;
-        this.serverPort = serverPort;
-        initializeUI();
-        enterCourseSelectionDirectly();
-    }
-
-    private void initializeUI() {
-        setTitle("vCampus 校园管理系统 - " + serverHost + ":" + serverPort);
+    public MainFrame() {
+        setTitle("vCampus 选课系统");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // 居中显示
 
-        // 初始化主面板
-        mainPanel = new JPanel(new BorderLayout());
+        // 使用CardLayout实现界面切换
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        // 创建用户界面卡片
+        mainPanel.add(createUserPanel(), "user");
+        // 创建管理员界面卡片
+        mainPanel.add(createAdminPanel(), "admin");
+
         add(mainPanel);
+        showUserPanel();
+    }
 
-        // 添加窗口关闭监听器
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                closeSocketConnection();
+    private JPanel createUserPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        // 顶部选项卡（与图片2完全一致）
+        userTabbedPane = new JTabbedPane();
+        userTabbedPane.addTab("课程查询", new CourseQueryPanel());
+        userTabbedPane.addTab("选课管理", new CourseSelectionPanel());
+        userTabbedPane.addTab("我的课表", new CourseSchedulePanel());
+
+        // 右上角管理员登录按钮
+        adminLoginButton = new JButton("管理员登录");
+        adminLoginButton.setPreferredSize(new Dimension(100, 25));
+        adminLoginButton.addActionListener(e -> showAdminLoginDialog());
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(userTabbedPane, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(adminLoginButton);
+        topPanel.add(buttonPanel, BorderLayout.EAST);
+
+        panel.add(topPanel, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel createAdminPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        // 顶部返回按钮（与图片1一致）
+        JButton backButton = new JButton("返回用户界面");
+        backButton.addActionListener(e -> showUserPanel());
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel.add(backButton);
+        panel.add(topPanel, BorderLayout.NORTH);
+
+        // 管理员功能选项卡（与图片1一致）
+        JTabbedPane adminTabbedPane = new JTabbedPane();
+        adminTabbedPane.addTab("课程管理", new CourseManagementPanel());
+        adminTabbedPane.addTab("选课统计", new SelectionReportPanel());
+
+        panel.add(adminTabbedPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private void showAdminLoginDialog() {
+        JDialog loginDialog = new JDialog(this, "管理员登录", true);
+        loginDialog.setSize(400, 250);
+        loginDialog.setLayout(new GridBagLayout());
+        loginDialog.getContentPane().setBackground(new Color(240, 240, 240));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        // 标题（居中）
+        JLabel titleLabel = new JLabel("管理员登录");
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 18));
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        loginDialog.add(titleLabel, gbc);
+
+        // 管理员ID输入
+        JLabel idLabel = new JLabel("管理员ID:");
+        idLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        loginDialog.add(idLabel, gbc);
+
+        JTextField idField = new JTextField(15);
+        idField.setPreferredSize(new Dimension(200, 30));
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        loginDialog.add(idField, gbc);
+
+        // 密码输入
+        JLabel pwLabel = new JLabel("密码:");
+        pwLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        loginDialog.add(pwLabel, gbc);
+
+        JPasswordField pwField = new JPasswordField(15);
+        pwField.setPreferredSize(new Dimension(200, 30));
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        loginDialog.add(pwField, gbc);
+
+        // 登录按钮
+        JButton loginBtn = new JButton("登录");
+        loginBtn.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        loginBtn.setPreferredSize(new Dimension(100, 35));
+        loginBtn.setBackground(new Color(100, 149, 237));
+        loginBtn.setForeground(Color.WHITE);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        loginDialog.add(loginBtn, gbc);
+
+        // 登录事件
+        loginBtn.addActionListener(e -> {
+            if (authenticate(idField.getText(), new String(pwField.getPassword()))) {
+                loginDialog.dispose();
+                adminLoginButton.setText("返回用户");
+                showAdminPanel();
+            } else {
+                JOptionPane.showMessageDialog(loginDialog,
+                        "管理员ID或密码错误",
+                        "登录失败",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        loginDialog.setLocationRelativeTo(this);
+        loginDialog.setVisible(true);
     }
 
-    private void enterCourseSelectionDirectly() {
-        // 创建默认学生用户
-        currentUser = new User();
-        currentUser.setId("20230001");
-        currentUser.setName("张三");
-        currentUser.setRole("ST");
-
-        // 初始化Socket连接 - 使用传入的服务器配置
-        if (socketHandler == null) {
-            socketHandler = new ClientSocketHandler(serverHost, serverPort);
-        }
-
-        // 直接显示选课面板
-        switchToCoursePanel();
+    private boolean authenticate(String id, String password) {
+        return "admin".equals(id) && "admin123".equals(password);
     }
 
-    private void switchToCoursePanel() {
-        mainPanel.removeAll();
-
-        // 创建课程控制器
-        CourseController courseController = new CourseController(socketHandler);
-
-        // 创建选课面板
-        CoursePanel coursePanel = new CoursePanel(courseController, currentUser);
-        mainPanel.add(coursePanel, BorderLayout.CENTER);
-
-        // 添加顶部菜单栏
-        addMenuBar();
-
-        revalidate();
-        repaint();
+    public void showUserPanel() {
+        cardLayout.show(mainPanel, "user");
+        adminLoginButton.setText("管理员登录");
     }
 
-    private void addMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-
-        // 用户菜单
-        JMenu userMenu = new JMenu("用户");
-        JMenuItem logoutItem = new JMenuItem("退出系统");
-        logoutItem.addActionListener(e -> System.exit(0));
-        userMenu.add(logoutItem);
-        menuBar.add(userMenu);
-
-        // 帮助菜单
-        JMenu helpMenu = new JMenu("帮助");
-        JMenuItem aboutItem = new JMenuItem("关于");
-        aboutItem.addActionListener(e -> showAboutDialog());
-        helpMenu.add(aboutItem);
-        menuBar.add(helpMenu);
-
-        setJMenuBar(menuBar);
+    public void showAdminPanel() {
+        cardLayout.show(mainPanel, "admin");
     }
 
-    private void closeSocketConnection() {
-        if (socketHandler != null) {
-            socketHandler.close();
-            socketHandler = null;
-        }
-    }
-
-    private void showAboutDialog() {
-        JOptionPane.showMessageDialog(this,
-                "vCampus 校园管理系统\n版本 1.0\n© 2023 SEU\n服务器: " + serverHost + ":" + serverPort,
-                "关于",
-                JOptionPane.INFORMATION_MESSAGE);
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            MainFrame frame = new MainFrame();
+            frame.setVisible(true);
+        });
     }
 }

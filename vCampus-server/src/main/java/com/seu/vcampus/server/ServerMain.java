@@ -1,6 +1,5 @@
 package com.seu.vcampus.server;
 
-import com.seu.vcampus.server.controller.AdminController;
 import com.seu.vcampus.server.controller.CourseController;
 import com.seu.vcampus.server.dao.CourseDaoImpl;
 import com.seu.vcampus.server.socket.ServerSocketHandler;
@@ -17,16 +16,14 @@ public class ServerMain {
         checkDatabaseConnection();
 
         // 2. 初始化控制器
-        AdminController adminController = new AdminController();
         CourseController courseController = new CourseController();
         System.out.println("控制器初始化完成");
 
         // 3. 创建服务器并注册控制器
         int port = 8888;
         ServerSocketHandler server = new ServerSocketHandler(port);
-        server.addController("ADMIN", adminController);
         server.addController("COURSE", courseController);
-        System.out.println("控制器注册完成: ADMIN, COURSE");
+        System.out.println("控制器注册完成: COURSE");
 
         // 4. 启动服务器
         server.start();

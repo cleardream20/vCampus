@@ -3,211 +3,278 @@ package com.seu.vcampus.server.dao;
 import com.seu.vcampus.common.model.Course;
 import com.seu.vcampus.common.model.CourseSelectionRule;
 import com.seu.vcampus.common.model.SelectionRecord;
+import com.seu.vcampus.server.dao.CourseDao;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CourseDaoImpl implements CourseDao {
-    private final Map<String, Course> courses = new HashMap<>();
-    private final Map<String, List<SelectionRecord>> selectionRecords = new HashMap<>();
-    private final CourseSelectionRule rule = new CourseSelectionRule();
+    private static final String DB_PATH = "D:\\DataBaseaccdb\\course.accdb";
+    private static final String URL = "jdbc:ucanaccess://" + DB_PATH;
 
-    public CourseDaoImpl() {
-        initializeMockData();
+    static {
+        try {
+            Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("UCanAccess驱动加载失败", e);
+        }
     }
 
-    private void initializeMockData() {
-        // 初始化选课规则
-        rule.setBatchName("2023秋季选课");
-        rule.setStartTime(LocalDateTime.parse("2023-09-01T00:00:00"));
-        rule.setEndTime(LocalDateTime.parse("2023-09-30T23:59:59"));
-        rule.setMaxCredits(30);
-        rule.setPrerequisites("无");
-        rule.setConflictCheck(true);
+    // 获取数据库连接
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL);
+    }
 
-        // 初始化课程数据
-        Course course1 = new Course("C001", "高等数学", "T001", "数学系", 4, "周一 1-2节", "教一101", 100, 80, "无");
-        Course course2 = new Course("C002", "大学英语", "T002", "外语系", 3, "周二 3-4节", "教二201", 80, 75, "无");
-        Course course3 = new Course("C003", "程序设计", "T003", "计算机系", 4, "周三 5-6节", "计算中心301", 60, 55, "无");
-        Course course4 = new Course("C004", "线性代数", "T001", "数学系", 3, "周四 1-2节", "教一102", 100, 85, "高等数学");
-
-        courses.put(course1.getCourseId(), course1);
-        courses.put(course2.getCourseId(), course2);
-        courses.put(course3.getCourseId(), course3);
-        courses.put(course4.getCourseId(), course4);
-
-        // 初始化选课记录
-        List<SelectionRecord> records1 = new ArrayList<>();
-        records1.add(new SelectionRecord("20230001", "C001", LocalDateTime.parse("2023-09-10T00:00:00"), null));
-        records1.add(new SelectionRecord("20230002", "C001", LocalDateTime.parse("2023-09-10T00:00:00"), null));
-        selectionRecords.put("C001", records1);
-
-        List<SelectionRecord> records2 = new ArrayList<>();
-        records2.add(new SelectionRecord("20230001", "C002", LocalDateTime.parse("2023-09-11T00:00:00"), null));
-        selectionRecords.put("C002", records2);
+    // 测试数据库连接
+    public static void testConnection() {
+        try (Connection conn = DriverManager.getConnection(URL)) {
+            System.out.println("Access数据库连接成功");
+        } catch (SQLException e) {
+            throw new RuntimeException("数据库连接失败: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public List<Course> getAllCourses() {
-        return new ArrayList<>(courses.values());
+        List<Course> courses = new ArrayList<>();
+        // 更新后的SQL语句（移除了Schedule字段）
+        String sql = "SELECT CourseID, CourseName, TeacherID, Department, Credit, Location, Capacity, SelectedNum, StartWeek, EndWeek FROM Courses";
+
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                courses.add(mapRowToCourse(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("获取课程列表失败", e);
+        }
+        return courses;
     }
 
-    @Override
-    public List<Course> getCoursesByStudentId(String studentId) {
-        List<Course> result = new ArrayList<>();
-        for (List<SelectionRecord> records : selectionRecords.values()) {
-            for (SelectionRecord record : records) {
-                if (record.getStudentId().equals(studentId)) {
-                    Course course = courses.get(record.getCourseId());
-                    if (course != null) {
-                        result.add(course);
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public List<Course> getCoursesByTeacherId(String teacherId) {
-        List<Course> result = new ArrayList<>();
-        for (Course course : courses.values()) {
-            if (course.getTeacherId().equals(teacherId)) {
-                result.add(course);
-            }
-        }
-        return result;
-    }
 
     @Override
     public int selectCourse(String studentId, String courseId) {
-        Course course = courses.get(courseId);
-        if (course == null) {
-            return 0;
-        }
+        String sql = "INSERT INTO CourseSelections (StudentID, CourseID, SelectionTime) VALUES (?, ?, ?)";
 
-        if (course.getSelectedNum() >= course.getCapacity()) {
-            return 0;
-        }
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        selectionRecords.putIfAbsent(courseId, new ArrayList<>());
-        List<SelectionRecord> records = selectionRecords.get(courseId);
+            pstmt.setString(1, studentId);
+            pstmt.setString(2, courseId);
+            pstmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
 
-        for (SelectionRecord record : records) {
-            if (record.getStudentId().equals(studentId)) {
-                return 0;
+            int result = pstmt.executeUpdate();
+
+            // 更新课程已选人数
+            if (result > 0) {
+                updateSelectedNum(conn, courseId, 1);
             }
-        }
 
-        records.add(new SelectionRecord(studentId, courseId, LocalDateTime.now(), null));
-        course.setSelectedNum(course.getSelectedNum() + 1);
-        return 1;
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException("选课失败", e);
+        }
+    }
+
+    private void updateSelectedNum(Connection conn, String courseId, int delta) throws SQLException {
+        String sql = "UPDATE Courses SET SelectedNum = SelectedNum + ? WHERE CourseID = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, delta);
+            pstmt.setString(2, courseId);
+            pstmt.executeUpdate();
+        }
     }
 
     @Override
     public int dropCourse(String studentId, String courseId) {
-        List<SelectionRecord> records = selectionRecords.get(courseId);
-        if (records == null) {
-            return 0;
-        }
+        String sql = "DELETE FROM CourseSelections WHERE StudentID = ? AND CourseID = ?";
 
-        SelectionRecord toRemove = null;
-        for (SelectionRecord record : records) {
-            if (record.getStudentId().equals(studentId)) {
-                toRemove = record;
-                break;
-            }
-        }
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        if (toRemove != null) {
-            records.remove(toRemove);
-            Course course = courses.get(courseId);
-            if (course != null) {
-                course.setSelectedNum(course.getSelectedNum() - 1);
+            pstmt.setString(1, studentId);
+            pstmt.setString(2, courseId);
+
+            int result = pstmt.executeUpdate();
+
+            // 更新课程已选人数
+            if (result > 0) {
+                updateSelectedNum(conn, courseId, -1);
             }
-            return 1;
+
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException("退课失败", e);
         }
-        return 0;
+    }
+
+    @Override
+    public List<Course> getCoursesByStudentId(String studentId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT c.* FROM Courses c " +
+                "JOIN CourseSelections cs ON c.CourseID = cs.CourseID " +
+                "WHERE cs.StudentID = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, studentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    courses.add(mapRowToCourse(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("按学生查询课程失败", e);
+        }
+        return courses;
+    }
+
+    @Override
+    public List<Course> getCoursesByTeacherId(String teacherId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM Courses WHERE TeacherID = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, teacherId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    courses.add(mapRowToCourse(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("按教师查询课程失败", e);
+        }
+        return courses;
     }
 
     @Override
     public int updateCourse(Course course) {
-        if (courses.containsKey(course.getCourseId())) {
-            courses.put(course.getCourseId(), course);
-            return 1;
+        String sql = "UPDATE Courses SET CourseName=?, TeacherID=?, Department=?, Credit=?, Schedule=?, Location=?, Capacity=?, SelectedNum=?, StartWeek=?, EndWeek=? " +
+                "WHERE CourseID=?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, course.getCourseName());
+            pstmt.setString(2, course.getTeacherId());
+            pstmt.setString(3, course.getDepartment());
+            pstmt.setInt(4, course.getCredit());
+            pstmt.setString(5, course.getTime());
+            pstmt.setString(6, course.getLocation());
+            pstmt.setInt(7, course.getCapacity());
+            pstmt.setInt(8, course.getSelectedNum());
+            pstmt.setInt(9, course.getStartWeek());
+            pstmt.setInt(10, course.getEndWeek());
+            pstmt.setString(11, course.getCourseId());
+
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("更新课程失败", e);
         }
-        return 0;
     }
 
     @Override
     public int addCourse(Course course) {
-        if (!courses.containsKey(course.getCourseId())) {
-            courses.put(course.getCourseId(), course);
-            return 1;
+        String sql = "INSERT INTO Courses (CourseID, CourseName, TeacherID, Department, Credit, Schedule, Location, Capacity, SelectedNum, StartWeek, EndWeek) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, course.getCourseId());
+            pstmt.setString(2, course.getCourseName());
+            pstmt.setString(3, course.getTeacherId());
+            pstmt.setString(4, course.getDepartment());
+            pstmt.setInt(5, course.getCredit());
+            pstmt.setString(6, course.getTime());
+            pstmt.setString(7, course.getLocation());
+            pstmt.setInt(8, course.getCapacity());
+            pstmt.setInt(9, course.getSelectedNum());
+            pstmt.setInt(10, course.getStartWeek());
+            pstmt.setInt(11, course.getEndWeek());
+
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("添加课程失败", e);
         }
-        return 0;
     }
 
     @Override
     public int deleteCourse(String courseId) {
-        if (courses.containsKey(courseId)) {
-            courses.remove(courseId);
-            selectionRecords.remove(courseId);
-            return 1;
+        String sql = "DELETE FROM Courses WHERE CourseID = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, courseId);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("删除课程失败", e);
         }
-        return 0;
     }
 
     @Override
     public Course getCourseById(String courseId) {
-        return courses.get(courseId);
+        String sql = "SELECT * FROM Courses WHERE CourseID = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, courseId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapRowToCourse(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("查询课程失败", e);
+        }
+        return null;
     }
 
     @Override
     public List<SelectionRecord> getSelectionRecords(String courseId) {
-        return selectionRecords.getOrDefault(courseId, new ArrayList<>());
-    }
+        List<SelectionRecord> records = new ArrayList<>();
+        String sql = "SELECT * FROM CourseSelections WHERE CourseID = ?";
 
-    @Override
-    public CourseSelectionRule getRule() {
-        return rule;
-    }
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    @Override
-    public int configureRule(CourseSelectionRule rule) {
-        this.rule.setBatchName(rule.getBatchName());
-        this.rule.setStartTime(rule.getStartTime());
-        this.rule.setEndTime(rule.getEndTime());
-        this.rule.setMaxCredits(rule.getMaxCredits());
-        this.rule.setPrerequisites(rule.getPrerequisites());
-        this.rule.setConflictCheck(rule.getConflictCheck());
-        return 1;
-    }
-
-    @Override
-    public String generateReport() {
-        StringBuilder report = new StringBuilder();
-        report.append("选课统计报表\n");
-        report.append("============================\n");
-        report.append("总课程数: ").append(courses.size()).append("\n");
-
-        int totalStudents = 0;
-        int maxStudents = 0;
-        String popularCourse = "无";
-
-        for (Course course : courses.values()) {
-            totalStudents += course.getSelectedNum();
-            if (course.getSelectedNum() > maxStudents) {
-                maxStudents = course.getSelectedNum();
-                popularCourse = course.getCourseName();
+            pstmt.setString(1, courseId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    SelectionRecord record = new SelectionRecord();
+                    record.setStudentId(rs.getString("StudentID"));
+                    record.setCourseId(rs.getString("CourseID"));
+                    record.setSelectionTime(rs.getTimestamp("SelectionTime").toLocalDateTime());
+                    records.add(record);
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("获取选课记录失败", e);
         }
+        return records;
+    }
 
-        report.append("总选课人数: ").append(totalStudents).append("\n");
-        report.append("最热门课程: ").append(popularCourse).append(" (").append(maxStudents).append("人)\n");
-        report.append("平均每门课程选课人数: ").append(String.format("%.2f", totalStudents / (double) courses.size())).append("\n");
-        report.append("============================\n");
 
-        return report.toString();
+    private Course mapRowToCourse(ResultSet rs) throws SQLException {
+        Course course = new Course();
+        course.setCourseId(rs.getString("CourseID"));
+        course.setCourseName(rs.getString("CourseName"));
+        course.setTeacherId(rs.getString("TeacherID"));
+        course.setDepartment(rs.getString("Department"));
+        course.setCredit(rs.getInt("Credit"));
+        course.setLocation(rs.getString("Location"));
+        course.setCapacity(rs.getInt("Capacity"));
+        course.setSelectedNum(rs.getInt("SelectedNum"));
+        course.setStartWeek(rs.getInt("StartWeek"));
+        course.setEndWeek(rs.getInt("EndWeek"));
+        return course;
     }
 }

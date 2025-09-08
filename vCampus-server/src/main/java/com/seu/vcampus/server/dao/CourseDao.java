@@ -37,12 +37,4 @@ public interface CourseDao {
     // 获取选课记录
     List<SelectionRecord> getSelectionRecords(String courseId);
 
-    // 获取当前选课规则
-    CourseSelectionRule getRule();
-
-    // 配置选课规则
-    int configureRule(CourseSelectionRule rule);
-
-    // 生成选课报表
-    String generateReport();
 }

@@ -227,67 +227,7 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-    @Override
-    public Message getRule() {
-        try {
-            CourseSelectionRule rule = courseDao.getRule();
-            Message response = new Message(Message.GET_RULE);
-            response.setStatus(ResponseCode.OK);
-            response.addData("rule", rule);
-            return response;
-        } catch (Exception e) {
-            return createErrorResponse(Message.GET_RULE,
-                    ResponseCode.INTERNAL_SERVER_ERROR, "获取规则失败: " + e.getMessage());
-        }
-    }
 
-    @Override
-    public Message configureRule(CourseSelectionRule rule) {
-        try {
-            // 验证规则
-            if (rule.getBatchName() == null || rule.getBatchName().isEmpty()) {
-                return createErrorResponse(Message.CONFIGURE_RULE,
-                        ResponseCode.BAD_REQUEST, "批次名称不能为空");
-            }
-            if (rule.getStartTime() == null || rule.getEndTime() == null) {
-                return createErrorResponse(Message.CONFIGURE_RULE,
-                        ResponseCode.BAD_REQUEST, "时间范围不能为空");
-            }
-            if (rule.getMaxCredits() <= 0) {
-                return createErrorResponse(Message.CONFIGURE_RULE,
-                        ResponseCode.BAD_REQUEST, "学分上限必须大于0");
-            }
-
-            // 配置规则
-            int result = courseDao.configureRule(rule);
-            if (result > 0) {
-                Message response = new Message(Message.CONFIGURE_RULE);
-                response.setStatus(ResponseCode.OK);
-                response.setDescription("规则配置成功");
-                return response;
-            } else {
-                return createErrorResponse(Message.CONFIGURE_RULE,
-                        ResponseCode.FAIL, "规则配置失败");
-            }
-        } catch (Exception e) {
-            return createErrorResponse(Message.CONFIGURE_RULE,
-                    ResponseCode.INTERNAL_SERVER_ERROR, "规则配置异常: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public Message generateReport() {
-        try {
-            String report = courseDao.generateReport();
-            Message response = new Message(Message.GENERATE_REPORT);
-            response.setStatus(ResponseCode.OK);
-            response.addData("report", report);
-            return response;
-        } catch (Exception e) {
-            return createErrorResponse(Message.GENERATE_REPORT,
-                    ResponseCode.INTERNAL_SERVER_ERROR, "生成报表失败: " + e.getMessage());
-        }
-    }
 
     @Override
     public Message getCourseSchedule(String studentId) {

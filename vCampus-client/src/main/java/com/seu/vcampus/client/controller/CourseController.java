@@ -1,71 +1,48 @@
 package com.seu.vcampus.client.controller;
 
+import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.model.Course;
 import com.seu.vcampus.common.util.Message;
-import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.util.ResponseCode;
 
 import java.util.List;
 
 public class CourseController {
-    private ClientSocketHandler socketHandler;
+    private final ClientSocketHandler socketHandler;
 
-    public CourseController(ClientSocketHandler socketHandler) {
-        this.socketHandler = socketHandler;
+    public CourseController() {
+        // 初始化Socket连接
+        this.socketHandler = new ClientSocketHandler("localhost", 8888);
     }
 
     public List<Course> getCourseList() {
         Message request = new Message(Message.GET_COURSE_LIST);
         Message response = socketHandler.sendMessage(request);
+
         if (response.getStatus() == ResponseCode.OK) {
             return (List<Course>) response.getData().get("courses");
         }
         return null;
     }
 
-    public boolean selectCourse(String studentId, String courseId) {
-        Message request = new Message(Message.SELECT_COURSE);
-        request.addData("studentId", studentId);
-        request.addData("courseId", courseId);
+    public boolean addCourse(Course course) {
+        Message request = new Message(Message.ADD_COURSE);
+        request.addData("course", course);
         Message response = socketHandler.sendMessage(request);
         return response.getStatus() == ResponseCode.OK;
     }
 
-    public boolean dropCourse(String studentId, String courseId) {
-        Message request = new Message(Message.DROP_COURSE);
-        request.addData("studentId", studentId);
-        request.addData("courseId", courseId);
+    public boolean updateCourse(Course course) {
+        Message request = new Message(Message.UPDATE_COURSE);
+        request.addData("course", course);
         Message response = socketHandler.sendMessage(request);
         return response.getStatus() == ResponseCode.OK;
     }
 
-    public List<Course> getSelectedCourses(String studentId) {
-        Message request = new Message(Message.GET_SELECTED_COURSES);
-        request.addData("studentId", studentId);
+    public boolean deleteCourse(String courseId) {
+        Message request = new Message(Message.DELETE_COURSE);
+        request.addData("courseId", courseId);
         Message response = socketHandler.sendMessage(request);
-        if (response.getStatus() == ResponseCode.OK) {
-            return (List<Course>) response.getData().get("courses");
-        }
-        return null;
-    }
-
-    public List<Course> getCourseSchedule(String studentId) {
-        Message request = new Message(Message.GET_COURSE_SCHEDULE);
-        request.addData("studentId", studentId);
-        Message response = socketHandler.sendMessage(request);
-        if (response.getStatus() == ResponseCode.OK) {
-            return (List<Course>) response.getData().get("courses");
-        }
-        return null;
-    }
-
-    public List<Course> getTeachingCourses(String teacherId) {
-        Message request = new Message(Message.GET_TEACHING_COURSES);
-        request.addData("teacherId", teacherId);
-        Message response = socketHandler.sendMessage(request);
-        if (response.getStatus() == ResponseCode.OK) {
-            return (List<Course>) response.getData().get("courses");
-        }
-        return null;
+        return response.getStatus() == ResponseCode.OK;
     }
 }

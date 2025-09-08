@@ -5,14 +5,16 @@ import java.io.Serializable;
 public class Course implements Serializable {
     private String courseId;
     private String courseName;
-    private String teacherId; // 使用教师ID而不是姓名
+    private String teacherId;
     private String department;
     private Integer credit;
     private String time; // 格式: "周一 1-2节"
     private String location;
     private Integer capacity;
     private Integer selectedNum;
-    private String prerequisites; // 先修课程要求
+    private Integer availableSlots; // 新增：可获得数量（容量-已选）
+    private Integer startWeek;      // 新增：开始周数（1-20）
+    private Integer endWeek;        // 新增：结束周数（1-20）
 
     // 默认构造函数
     public Course() {}
@@ -20,7 +22,7 @@ public class Course implements Serializable {
     // 带参数的构造函数
     public Course(String courseId, String courseName, String teacherId, String department,
                   Integer credit, String time, String location, Integer capacity,
-                  Integer selectedNum, String prerequisites) {
+                  Integer selectedNum, Integer startWeek, Integer endWeek) {
         this.courseId = courseId;
         this.courseName = courseName;
         this.teacherId = teacherId;
@@ -30,7 +32,9 @@ public class Course implements Serializable {
         this.location = location;
         this.capacity = capacity;
         this.selectedNum = selectedNum;
-        this.prerequisites = prerequisites;
+        this.availableSlots = capacity - selectedNum; // 自动计算可获得数量
+        this.startWeek = startWeek;
+        this.endWeek = endWeek;
     }
 
     // Getters and Setters
@@ -56,11 +60,52 @@ public class Course implements Serializable {
     public void setLocation(String location) { this.location = location; }
 
     public Integer getCapacity() { return capacity; }
-    public void setCapacity(Integer capacity) { this.capacity = capacity; }
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+        updateAvailableSlots();
+    }
 
     public Integer getSelectedNum() { return selectedNum; }
-    public void setSelectedNum(Integer selectedNum) { this.selectedNum = selectedNum; }
+    public void setSelectedNum(Integer selectedNum) {
+        this.selectedNum = selectedNum;
+        updateAvailableSlots();
+    }
 
-    public String getPrerequisites() { return prerequisites; }
-    public void setPrerequisites(String prerequisites) { this.prerequisites = prerequisites; }
+    public Integer getAvailableSlots() { return availableSlots; }
+
+    public Integer getStartWeek() { return startWeek; }
+    public void setStartWeek(Integer startWeek) {
+        if (startWeek < 1 || startWeek > 20) {
+            throw new IllegalArgumentException("开始周数必须在1-20之间");
+        }
+        this.startWeek = startWeek;
+    }
+
+    public Integer getEndWeek() { return endWeek; }
+    public void setEndWeek(Integer endWeek) {
+        if (endWeek < 1 || endWeek > 20) {
+            throw new IllegalArgumentException("结束周数必须在1-20之间");
+        }
+        this.endWeek = endWeek;
+    }
+
+    // 私有方法：自动更新可获得数量
+    private void updateAvailableSlots() {
+        if (capacity != null && selectedNum != null) {
+            this.availableSlots = capacity - selectedNum;
+        }
+    }
+
+    // 新增：检查周数范围是否有效
+    public boolean isValidWeekRange() {
+        return startWeek != null && endWeek != null && startWeek <= endWeek;
+    }
+
+    // toString示例（调试用）
+    @Override
+    public String toString() {
+        return String.format("%s %s 教师:%s 时间:%s 地点:%s 周数:%d-%d 余量:%d/%d",
+                courseId, courseName, teacherId, time, location,
+                startWeek, endWeek, availableSlots, capacity);
+    }
 }

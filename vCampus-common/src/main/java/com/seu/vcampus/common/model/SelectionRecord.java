@@ -13,13 +13,8 @@ public class SelectionRecord implements Serializable {
     // 新增：日期时间格式化器
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public SelectionRecord(String studentId, String courseId, String selectTimeStr, Integer score) {
-        this.studentId = studentId;
-        this.courseId = courseId;
-        this.selectTime = LocalDateTime.parse(selectTimeStr + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        this.score = score;
+    public SelectionRecord() {
     }
-
     // 保留原有构造方法
     public SelectionRecord(String studentId, String courseId, LocalDateTime selectTime, Integer score) {
         this.studentId = studentId;
@@ -37,4 +32,7 @@ public class SelectionRecord implements Serializable {
     public void setSelectTime(LocalDateTime selectTime) { this.selectTime = selectTime; }
     public Integer getScore() { return score; }
     public void setScore(Integer score) { this.score = score; }
+    public void setSelectionTime(LocalDateTime selectionTime) {
+        this.selectTime = selectionTime;
+    }
 }

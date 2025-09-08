@@ -29,14 +29,6 @@ public interface CourseService {
     // 删除课程
     Message deleteCourse(String courseId);
 
-    // 获取选课规则
-    Message getRule();
-
-    // 配置选课规则
-    Message configureRule(CourseSelectionRule rule);
-
-    // 生成选课报表
-    Message generateReport();
 
     Message getCourseSchedule(String studentId);
 }

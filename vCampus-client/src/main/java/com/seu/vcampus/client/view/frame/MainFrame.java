@@ -152,7 +152,7 @@ public class MainFrame extends JFrame {
     }
 
     private boolean authenticate(String id, String password) {
-        return "admin".equals(id) && "admin123".equals(password);
+        return "".equals(id) && "".equals(password);
     }
 
     public void showUserPanel() {

@@ -1,7 +1,6 @@
 package com.seu.vcampus.client.controller;
 
 import com.seu.vcampus.common.model.User;
-import com.seu.vcampus.client.socket.ClientSocketHandler;
 
 public class LoginController {
     public User login(String cid, String password){

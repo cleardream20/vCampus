@@ -6,4 +6,6 @@ public class LibraryMessage {
     public static final String GET_BORROW_BOOKS = "LIBRARY_GET_BORROW_BOOKS";
     public static final String BORROW_BOOKS = "LIBRARY_BORROW_BOOKS";
     public static final String RETURN_BOOK = "LIBRARY_RETURN_BOOK";
+    public static final String ADD_BOOK = "LIBRARY_ADD_BOOK";
+    public static final String DELETE_BOOK = "LIBRARY_ADD_BOOK";
 }

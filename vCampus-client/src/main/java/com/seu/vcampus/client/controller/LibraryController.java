@@ -100,6 +100,34 @@ public class LibraryController {
         }
     }
 
+    public boolean addBook(Book book) {
+        Message request = new Message();
+        request.setType(LibraryMessage.ADD_BOOK);
+        request.setData(book);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("增添图书失败: " + response.getData());
+            return false;
+        }
+    }
+    public boolean deleteBook(String isbn) {
+        Message request = new Message();
+        request.setType(LibraryMessage.DELETE_BOOK);
+        request.setData(isbn);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("删除图书失败: " + response.getData());
+            return false;
+        }
+    }
 
 
 

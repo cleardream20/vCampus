@@ -31,6 +31,33 @@ public class LibraryController {
                 List<BorrowRecord> borrowRecords = libraryService.getBorrowRecordsByUserId(UserID);
                 response.setStatus(Message.STATUS_SUCCESS);
                 response.setData(borrowRecords);
+
+
+            } else if (LibraryMessage.ADD_BOOK.equals(request.getType())) {
+                Book book=(Book) request.getData();
+
+                boolean success = libraryService.addBook(book);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("增添图书成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("增添图书失败");
+                }
+
+
+            } else if (LibraryMessage.DELETE_BOOK.equals(request.getType())) {
+                String isbn=(String) request.getData();
+
+                boolean success = libraryService.deleteBook(isbn);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("删除图书成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("删除图书失败");
+                }
+
             } else if (LibraryMessage.BORROW_BOOKS.equals(request.getType())) {
                  //填补
                 Map<String, String> borrowRequest = (Map<String, String>) request.getData();

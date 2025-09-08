@@ -35,6 +35,11 @@
                 <version>5.0.1</version>
                 <scope>runtime</scope>
             </dependency>
+            <dependency>
+                <groupId>com.healthmarketscience.jackcess</groupId>
+                <artifactId>jackcess</artifactId>
+                <version>4.0.1</version>
+            </dependency>
 
             <!-- 其他可能用到的依赖（可选） -->
             <!-- <dependency>

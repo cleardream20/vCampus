@@ -13,6 +13,7 @@ public class LibraryServiceImpl implements ILibraryService {
     private List<Book> books = new ArrayList<>();
     private List<BorrowRecord> borrowRecords =new ArrayList<>();
 
+    private BookDaoImpl bookDao= new BookDaoImpl();
     // 记录ID计数器
     private long recordIdCounter = 1;
 
@@ -22,17 +23,16 @@ public class LibraryServiceImpl implements ILibraryService {
     }
 
     private void initializeMockData() {
-        books.add(new Book("9787111636665", "Java核心技术", "Cay S. Horstmann", "机械工业出版社", 2020, 10, 7, "A区3排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
-        books.add(new Book("9787302518383", "Python编程", "Mark Lutz", "中国电力出版社", 2019, 5, 0, "B区5排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
-        books.add(new Book("9787115537977", "深入理解计算机系统", "Randal E.Bryant", "机械工业出版社", 2021, 8, 5, "C区2排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
-        books.add(new Book("9787121382061", "算法导论", "Thomas H.Cormen", "电子工业出版社", 2020, 15, 12, "A区1排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
-        books.add(new Book("9787115480655", "数据库系统概念", "Abraham Silberschatz", "机械工业出版社", 2019, 6, 4, "B区3排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
-
+//        books.add(new Book("9787111636665", "Java核心技术", "Cay S. Horstmann", "机械工业出版社", 2020, 10, 7, "A区3排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+//        books.add(new Book("9787302518383", "Python编程", "Mark Lutz", "中国电力出版社", 2019, 5, 0, "B区5排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+//        books.add(new Book("9787115537977", "深入理解计算机系统", "Randal E.Bryant", "机械工业出版社", 2021, 8, 5, "C区2排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+//        books.add(new Book("9787121382061", "算法导论", "Thomas H.Cormen", "电子工业出版社", 2020, 15, 12, "A区1排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+//        books.add(new Book("9787115480655", "数据库系统概念", "Abraham Silberschatz", "机械工业出版社", 2019, 6, 4, "B区3排","D:\\idea_project\\vCampus\\Images\\default_book.jpg"));
+        addMockBooks();
         addMockBorrowRecords();
     }
-    private void addMockBook(){
-        IBookDao bookDao = new BookDaoImpl();
-        books = bookDao.getAllBooks();
+    private void addMockBooks(){
+        books=bookDao.getAllBooks();
     }
 
     private void addMockBorrowRecords() {
@@ -87,10 +87,6 @@ public class LibraryServiceImpl implements ILibraryService {
         return calendar.getTime();
     }
 
-    @Override
-    public List<Book> getAllBooks() {
-        return new ArrayList<>(books); // 返回副本
-    }
 
     @Override
     public List<Book> searchBooks(String keyword) {
@@ -240,6 +236,26 @@ public class LibraryServiceImpl implements ILibraryService {
 
         return true;
     }
+
+    @Override
+    public List<Book> getAllBooks() {
+        books=bookDao.getAllBooks();
+        return books;
+    }
+
+    @Override
+    public boolean addBook(Book book) {
+        books.add(book);
+        return bookDao.addBook(book);
+    }
+
+    @Override
+    public boolean deleteBook(String isbn) {
+        return bookDao.deleteBook(isbn);
+
+    }
+
+
 
     // 获取图书详情
     @Override

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookDaoImpl implements IBookDao {
-    private final String DB_URL = "jdbc:ucanaccess://C:/Users/11853/Documents/vCampus.accdb";
+    private final String DB_URL = "jdbc:ucanaccess://D:\\idea_project\\vCampus\\database\\vCampus.accdb;skipIndexes=true";
     private Connection connection;
 
     public BookDaoImpl() {
@@ -23,8 +23,20 @@ public class BookDaoImpl implements IBookDao {
         }
     }
 
+    private void ensureConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                System.out.println("数据库连接已关闭，尝试重新连接...");
+                connect();
+            }
+        } catch (SQLException e) {
+            System.err.println("检查连接状态失败: " + e.getMessage());
+        }
+    }
+
     @Override
     public List<Book> getAllBooks() {
+        ensureConnection();
         List<Book> books = new ArrayList<>();
         String sql = "SELECT bIsbn, bTitle, bAuthor, bPublisher, bPublishYear, " +
                 "bTotal, bAvailable, bLocation, bImagePath " +
@@ -60,6 +72,36 @@ public class BookDaoImpl implements IBookDao {
         return null;
     }
 
+    @Override
+    public boolean addBook(Book book) {
+        String sql = "INSERT INTO tblBook (bIsbn, bTitle, bAuthor, bPublisher, " +
+                "bPublishYear, bTotal, bAvailable, bLocation, bImagePath) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            setBookParameters(pstmt, book);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("增添图书失败: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteBook(String isbn) {
+        String sql = "DELETE FROM tblBook WHERE bIsbn = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, isbn);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("删除图书失败: " + e.getMessage());
+            return false;
+        }
+    }
+
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {
         Book book = new Book();
         book.setIsbn(rs.getString("bIsbn"));
@@ -73,6 +115,13 @@ public class BookDaoImpl implements IBookDao {
         book.setImagePath(rs.getString("bImagePath"));
         return book;
     }
+
+
+
+
+
+
+
 
     private void setBookParameters(PreparedStatement pstmt, Book book) throws SQLException {
         pstmt.setString(1, book.getIsbn());

@@ -2,6 +2,7 @@ package com.seu.vcampus.server;
 
 import com.seu.vcampus.server.controller.AdminController;
 import com.seu.vcampus.server.controller.CourseController;
+import com.seu.vcampus.server.dao.CourseDaoImpl;
 import com.seu.vcampus.server.socket.ServerSocketHandler;
 
 import java.text.SimpleDateFormat;
@@ -12,19 +13,22 @@ public class ServerMain {
         // 显示服务器启动信息
         printServerBanner();
 
-        // 1. 初始化控制器
+        // 1. 检查数据库连接
+        checkDatabaseConnection();
+
+        // 2. 初始化控制器
         AdminController adminController = new AdminController();
         CourseController courseController = new CourseController();
         System.out.println("控制器初始化完成");
 
-        // 2. 创建服务器并注册控制器
+        // 3. 创建服务器并注册控制器
         int port = 8888;
         ServerSocketHandler server = new ServerSocketHandler(port);
         server.addController("ADMIN", adminController);
         server.addController("COURSE", courseController);
         System.out.println("控制器注册完成: ADMIN, COURSE");
 
-        // 3. 启动服务器
+        // 4. 启动服务器
         server.start();
         System.out.println("服务器已启动，监听端口: " + port);
         System.out.println("等待客户端连接...");
@@ -34,9 +38,43 @@ public class ServerMain {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\n服务器正在关闭...");
             System.out.println("释放资源中...");
-            // 这里可以添加资源释放代码
             System.out.println("服务器已安全关闭");
         }));
+    }
+
+    private static void checkDatabaseConnection() {
+        System.out.println("检查数据库连接...");
+        try {
+            // 测试数据库连接
+            if (CourseDaoImpl.testConnection()) {
+                System.out.println("数据库连接成功");
+            } else {
+                System.err.println("数据库连接失败，尝试初始化数据库...");
+                initializeDatabase();
+
+                // 再次测试连接
+                if (CourseDaoImpl.testConnection()) {
+                    System.out.println("数据库初始化后连接成功");
+                } else {
+                    System.err.println("数据库初始化后仍然连接失败");
+                    System.exit(1);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("数据库连接检查失败: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void initializeDatabase() {
+        try {
+            System.out.println("开始初始化数据库...");
+            CourseDaoImpl.initializeDatabase();
+            System.out.println("数据库初始化完成");
+        } catch (Exception e) {
+            System.err.println("数据库初始化失败: " + e.getMessage());
+            System.exit(1);
+        }
     }
 
     private static void printServerBanner() {

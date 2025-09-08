@@ -6,17 +6,21 @@ import com.seu.vcampus.common.model.SelectionRecord;
 import com.seu.vcampus.server.dao.CourseDao;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourseDaoImpl implements CourseDao {
-    private static final String DB_PATH = "D:\\DataBaseaccdb\\course.accdb";
+    private static final String DB_PATH = "D:/DataBase/course.accdb";
     private static final String URL = "jdbc:ucanaccess://" + DB_PATH;
 
     static {
         try {
             Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+            System.out.println("UCanAccess驱动加载成功");
         } catch (ClassNotFoundException e) {
+            System.err.println("UCanAccess驱动加载失败，请检查依赖配置");
+            e.printStackTrace();
             throw new RuntimeException("UCanAccess驱动加载失败", e);
         }
     }
@@ -27,19 +31,69 @@ public class CourseDaoImpl implements CourseDao {
     }
 
     // 测试数据库连接
-    public static void testConnection() {
+    public static boolean testConnection() {
         try (Connection conn = DriverManager.getConnection(URL)) {
             System.out.println("Access数据库连接成功");
+            return true;
         } catch (SQLException e) {
-            throw new RuntimeException("数据库连接失败: " + e.getMessage(), e);
+            System.err.println("数据库连接失败: " + e.getMessage());
+            return false;
         }
     }
+
+    // 初始化数据库
+    public static void initializeDatabase() {
+        System.out.println("开始初始化数据库...");
+
+        try (Connection conn = DriverManager.getConnection(URL);
+             Statement stmt = conn.createStatement()) {
+
+            // 创建Courses表
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS Courses (" +
+                    "CourseID VARCHAR(10) PRIMARY KEY, " +
+                    "CourseName VARCHAR(50) NOT NULL, " +
+                    "TeacherID VARCHAR(10) NOT NULL, " +
+                    "Department VARCHAR(30) NOT NULL, " +
+                    "Credit INT NOT NULL, " +
+                    "Schedule VARCHAR(50) NOT NULL, " +
+                    "Location VARCHAR(50) NOT NULL, " +
+                    "Capacity INT NOT NULL, " +
+                    "SelectedNum INT DEFAULT 0, " +
+                    "StartWeek INT NOT NULL, " +
+                    "EndWeek INT NOT NULL)";
+
+            stmt.execute(createTableSQL);
+            System.out.println("Courses表创建成功");
+
+            // 创建CourseSelections表
+            String createSelectionsSQL = "CREATE TABLE IF NOT EXISTS CourseSelections (" +
+                    "SelectionID AUTOINCREMENT PRIMARY KEY, " +
+                    "StudentID VARCHAR(10) NOT NULL, " +
+                    "CourseID VARCHAR(10) NOT NULL, " +
+                    "SelectionTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+
+            stmt.execute(createSelectionsSQL);
+            System.out.println("CourseSelections表创建成功");
+
+            // 添加示例数据
+            String insertDataSQL = "INSERT INTO Courses (CourseID, CourseName, TeacherID, Department, Credit, Schedule, Location, Capacity, SelectedNum, StartWeek, EndWeek) VALUES " +
+                    "('CS101', '计算机科学导论', 'T001', '计算机学院', 3, '周一8:00-9:40', '逸夫楼201', 100, 85, 1, 16), " +
+                    "('MA201', '高等数学', 'T002', '数学系', 4, '周二10:00-11:40', '数学楼101', 150, 142, 1, 16)";
+
+            stmt.executeUpdate(insertDataSQL);
+            System.out.println("示例数据插入成功");
+
+        } catch (SQLException e) {
+            System.err.println("数据库初始化失败: " + e.getMessage());
+            throw new RuntimeException("数据库初始化失败", e);
+        }
+    }
+
 
     @Override
     public List<Course> getAllCourses() {
         List<Course> courses = new ArrayList<>();
-        // 更新后的SQL语句（移除了Schedule字段）
-        String sql = "SELECT CourseID, CourseName, TeacherID, Department, Credit, Location, Capacity, SelectedNum, StartWeek, EndWeek FROM Courses";
+        String sql = "SELECT CourseID, CourseName, TeacherID, Department, Credit, Schedule, Location, Capacity, SelectedNum, StartWeek, EndWeek FROM Courses";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -48,12 +102,13 @@ public class CourseDaoImpl implements CourseDao {
             while (rs.next()) {
                 courses.add(mapRowToCourse(rs));
             }
+            System.out.println("成功获取 " + courses.size() + " 门课程");
         } catch (SQLException e) {
+            System.err.println("获取课程列表失败: " + e.getMessage());
             throw new RuntimeException("获取课程列表失败", e);
         }
         return courses;
     }
-
 
     @Override
     public int selectCourse(String studentId, String courseId) {
@@ -270,6 +325,7 @@ public class CourseDaoImpl implements CourseDao {
         course.setTeacherId(rs.getString("TeacherID"));
         course.setDepartment(rs.getString("Department"));
         course.setCredit(rs.getInt("Credit"));
+        course.setTime(rs.getString("Schedule"));
         course.setLocation(rs.getString("Location"));
         course.setCapacity(rs.getInt("Capacity"));
         course.setSelectedNum(rs.getInt("SelectedNum"));

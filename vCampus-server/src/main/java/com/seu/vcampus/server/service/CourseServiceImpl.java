@@ -3,7 +3,6 @@ package com.seu.vcampus.server.service;
 import com.seu.vcampus.common.model.Course;
 import com.seu.vcampus.common.model.CourseSchedule;
 import com.seu.vcampus.common.model.CourseSelectionRule;
-import com.seu.vcampus.common.model.SelectionRecord;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.ResponseCode;
 import com.seu.vcampus.server.dao.CourseDao;
@@ -12,7 +11,7 @@ import com.seu.vcampus.server.dao.CourseDaoImpl;
 import java.util.List;
 
 public class CourseServiceImpl implements CourseService {
-    private final CourseDao courseDao ;
+    private final CourseDao courseDao;
 
     public CourseServiceImpl() {
         this.courseDao = new CourseDaoImpl();
@@ -31,10 +30,8 @@ public class CourseServiceImpl implements CourseService {
             response.addData("courses", courses);
             return response;
         } catch (Exception e) {
-            Message response = new Message(Message.GET_COURSE_LIST);
-            response.setStatus(ResponseCode.INTERNAL_SERVER_ERROR);
-            response.setDescription("获取课程列表失败: " + e.getMessage());
-            return response;
+            return createErrorResponse(Message.GET_COURSE_LIST,
+                    ResponseCode.INTERNAL_SERVER_ERROR, "获取课程列表失败: " + e.getMessage());
         }
     }
 
@@ -228,14 +225,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-
     @Override
     public Message getCourseSchedule(String studentId) {
         try {
             // 1. 获取学生已选课程
             List<Course> selectedCourses = courseDao.getCoursesByStudentId(studentId);
 
-            // 2. 构建课表数据结构（示例）
+            // 2. 构建课表数据结构
             CourseSchedule schedule = new CourseSchedule(studentId);
             schedule.setCourses(selectedCourses);
 
@@ -251,6 +247,7 @@ public class CourseServiceImpl implements CourseService {
                     "获取课表失败: " + e.getMessage());
         }
     }
+
     // 辅助方法：创建错误响应
     private Message createErrorResponse(String type, int status, String description) {
         Message response = new Message(type);

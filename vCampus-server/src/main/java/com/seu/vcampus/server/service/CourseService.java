@@ -29,6 +29,6 @@ public interface CourseService {
     // 删除课程
     Message deleteCourse(String courseId);
 
-
+    // 获取课程表
     Message getCourseSchedule(String studentId);
 }

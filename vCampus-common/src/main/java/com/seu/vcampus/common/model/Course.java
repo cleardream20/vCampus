@@ -70,6 +70,7 @@ public class Course implements Serializable {
         updateAvailableSlots();
     }
 
+
     public Integer getSelectedNum() { return selectedNum; }
     public void setSelectedNum(Integer selectedNum) {
         this.selectedNum = selectedNum;
@@ -113,4 +114,5 @@ public class Course implements Serializable {
                 courseId, courseName, teacherId,teacherName, time, location,
                 startWeek, endWeek, availableSlots, capacity);
     }
+
 }

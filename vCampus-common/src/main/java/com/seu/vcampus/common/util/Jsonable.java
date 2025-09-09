@@ -11,6 +11,13 @@ public interface Jsonable {
         return gson.toJson(this);
     }
 
+    static String toJson(Object obj) {
+        if (obj == null) {
+            return "null";
+        }
+        return gson.toJson(obj);
+    }
+
     static  <T> T fromJson(String json, Class<T> clazz) {
         if(json == null || json.trim().isEmpty()) {
             return null;

@@ -9,7 +9,7 @@ import java.net.Socket;
 
 // 工具类：负责发送请求并接收响应
 public class ClientSocketUtil {
-    private static final String SERVER_HOST = "localhost";
+    private static final String SERVER_HOST = "10.208.96.204";
     private static final int SERVER_PORT = 8888;
     private static final Gson gson = new Gson();
 
@@ -18,22 +18,24 @@ public class ClientSocketUtil {
     public static Message sendRequest(Message request) throws IOException {
         Socket socket = new Socket();
         try {
-            socket.connect(new InetSocketAddress(SERVER_HOST, SERVER_PORT), 5000); // 连接超时
-            socket.setSoTimeout(10000); // 读取超时
+            socket.connect(new InetSocketAddress(SERVER_HOST, SERVER_PORT), 5000);
+            socket.setSoTimeout(5000); // todo TIMEOUT? common/constant?
 
-            try (socket;
-                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))
-            ) {
+            // 不要把 socket 放进 try-with-resources
+            try (PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
                 writer.println(request.toJson());
                 String responseLine = reader.readLine();
-                if (responseLine == null) {
+                if (responseLine == null || responseLine.trim().isEmpty()) {
                     throw new IOException("服务器未返回响应");
                 }
                 return Message.fromJson(responseLine);
+            } finally {
+                socket.close(); // 手动关闭
             }
         } catch (IOException e) {
-            System.err.println("客户端通信失败: " + e.getMessage());
+            System.err.println("通信失败: " + e.getMessage());
             throw e; // 向上传播，让业务层处理
         }
     }

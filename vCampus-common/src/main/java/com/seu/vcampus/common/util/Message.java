@@ -32,6 +32,20 @@ public class Message implements Serializable {
         this.data = data;
     }
 
+    // 工厂方法
+    // e.g. return Message.success(Message.TYPE_LOGIN, user);
+    public static Message success(String type, Object data) {
+        return new Message(type, Jsonable.toJson(data), true, "OK");
+    }
+
+    public static Message error(String type, String errorMsg) {
+        return new Message(type, null, false, errorMsg);
+    }
+
+    public static Message of(String type, Object data) {
+        return new Message(type, Jsonable.toJson(data), true, "OK");
+    }
+
     public String toJson() {
         Gson gson = new GsonBuilder().create();
         return gson.toJson(this);

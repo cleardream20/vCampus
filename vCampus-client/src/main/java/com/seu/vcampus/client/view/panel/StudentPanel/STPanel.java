@@ -43,6 +43,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
         // 添加返回按钮到左上角
         backButton = new JButton("返回");
         backButton.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        backButton.setFocusPainted(false);
         backButton.setMargin(new Insets(2, 5, 2, 5));
 
         // 创建顶部面板，包含返回按钮和标题
@@ -156,6 +157,10 @@ public class STPanel extends JPanel implements NavigatablePanel {
         submitButton = new JButton("提交");
         refreshButton = new JButton("刷新");
 
+        modifyButton.setFocusPainted(false);
+        submitButton.setFocusPainted(false);
+        refreshButton.setFocusPainted(false);
+
         buttonPanel.add(modifyButton);
         buttonPanel.add(submitButton);
         buttonPanel.add(refreshButton);
@@ -199,18 +204,15 @@ public class STPanel extends JPanel implements NavigatablePanel {
             submitButton.setEnabled(false);
         });
 
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 这里调用服务器接口获取最新数据
-                // Student updatedStudent = fetchLatestStudentData();
+        refreshButton.addActionListener(e -> {
+            // 这里调用服务器接口获取最新数据
+            // Student updatedStudent = fetchLatestStudentData();
+            Student updateStudent = new Student();
+            // 假设从服务器获取了更新后的数据
+             refreshPanel(updateStudent);
 
-                // 假设从服务器获取了更新后的数据
-                // refreshPanel(updatedStudent);
-
-                JOptionPane.showMessageDialog(STPanel.this,
-                        "页面已刷新", "提示", JOptionPane.INFORMATION_MESSAGE);
-            }
+            JOptionPane.showMessageDialog(STPanel.this,
+                    "页面已刷新", "提示", JOptionPane.INFORMATION_MESSAGE);
         });
 
         // 添加返回按钮的事件监听

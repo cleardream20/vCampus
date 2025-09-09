@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class Course implements Serializable {
     private String courseId;
     private String courseName;
+    private String teacherName;
     private String teacherId;
     private String department;
     private Integer credit;
@@ -20,12 +21,13 @@ public class Course implements Serializable {
     public Course() {}
 
     // 带参数的构造函数
-    public Course(String courseId, String courseName, String teacherId, String department,
+    public Course(String courseId, String courseName, String teacherName,String teacherId, String department,
                   Integer credit, String time, String location, Integer capacity,
                   Integer selectedNum, Integer startWeek, Integer endWeek) {
         this.courseId = courseId;
         this.courseName = courseName;
         this.teacherId = teacherId;
+        this.teacherName = teacherName;
         this.department = department;
         this.credit = credit;
         this.time = time;
@@ -46,6 +48,9 @@ public class Course implements Serializable {
 
     public String getTeacherId() { return teacherId; }
     public void setTeacherId(String teacherId) { this.teacherId = teacherId; }
+
+    public String getTeacherName() { return teacherName; }
+    public void setTeacherName(String teacherName) { this.teacherName = teacherName; }
 
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }
@@ -105,7 +110,7 @@ public class Course implements Serializable {
     @Override
     public String toString() {
         return String.format("%s %s 教师:%s 时间:%s 地点:%s 周数:%d-%d 余量:%d/%d",
-                courseId, courseName, teacherId, time, location,
+                courseId, courseName, teacherId,teacherName, time, location,
                 startWeek, endWeek, availableSlots, capacity);
     }
 }

@@ -30,7 +30,7 @@ public class CourseManagementPanel extends JPanel {
         add(buttonPanel, BorderLayout.NORTH);
 
         // 初始化空表格
-        String[] columns = {"课程ID", "课程名称", "学分", "授课教师", "时间安排", "容量", "已选人数", "开始周", "结束周"};
+        String[] columns = {"课程ID", "课程名称", "学分", "授课教师","教师id", "时间安排", "容量", "已选人数", "开始周", "结束周"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         courseTable = new JTable(model);
 
@@ -63,6 +63,7 @@ public class CourseManagementPanel extends JPanel {
                         course.getCourseId(),
                         course.getCourseName(),
                         course.getCredit(),
+                        course.getTeacherName(),
                         course.getTeacherId(),
                         course.getTime(),
                         course.getCapacity(),

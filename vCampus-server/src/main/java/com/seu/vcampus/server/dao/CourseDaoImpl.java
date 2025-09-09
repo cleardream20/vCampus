@@ -93,7 +93,8 @@ public class CourseDaoImpl implements CourseDao {
     @Override
     public List<Course> getAllCourses() {
         List<Course> courses = new ArrayList<>();
-        String sql = "SELECT CourseID, CourseName, TeacherID, Department, Credit, Schedule, Location, Capacity, SelectedNum, StartWeek, EndWeek FROM Courses";
+        String sql = "SELECT courseId, courseName, teacherName, teacherId, department, credit, schedule, location, capacity, selectedNum, StartWeek, endweek FROM Courses";
+
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -320,17 +321,18 @@ public class CourseDaoImpl implements CourseDao {
 
     private Course mapRowToCourse(ResultSet rs) throws SQLException {
         Course course = new Course();
-        course.setCourseId(rs.getString("CourseID"));
-        course.setCourseName(rs.getString("CourseName"));
-        course.setTeacherId(rs.getString("TeacherID"));
-        course.setDepartment(rs.getString("Department"));
-        course.setCredit(rs.getInt("Credit"));
-        course.setTime(rs.getString("Schedule"));
-        course.setLocation(rs.getString("Location"));
-        course.setCapacity(rs.getInt("Capacity"));
-        course.setSelectedNum(rs.getInt("SelectedNum"));
+        course.setCourseId(rs.getString("courseId"));
+        course.setCourseName(rs.getString("courseName"));
+        course.setTeacherName(rs.getString("teacherName")); // 新增
+        course.setTeacherId(rs.getString("teacherId"));
+        course.setDepartment(rs.getString("department"));
+        course.setCredit(rs.getInt("credit"));
+        course.setTime(rs.getString("schedule"));
+        course.setLocation(rs.getString("location"));
+        course.setCapacity(rs.getInt("capacity"));
+        course.setSelectedNum(rs.getInt("selectedNum"));
         course.setStartWeek(rs.getInt("StartWeek"));
-        course.setEndWeek(rs.getInt("EndWeek"));
+        course.setEndWeek(rs.getInt("endweek"));
         return course;
     }
 }

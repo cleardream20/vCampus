@@ -42,6 +42,10 @@ public class Message implements Serializable {
         return gson.fromJson(json, Message.class);
     }
 
+    public static Message fromData(String type, String data, boolean success, String message) {
+        return new Message(type, data, success, message);
+    }
+
     public boolean isSuccess() {
         return success;
     }

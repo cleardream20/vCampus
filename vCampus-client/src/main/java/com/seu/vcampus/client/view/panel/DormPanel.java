@@ -153,7 +153,7 @@ public class DormPanel extends JPanel {
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         panel.add(new JLabel("申请类型: " + type + "住宿"), BorderLayout.NORTH);
-        panel.add(new JTextArea("请在此填写申请理由...", 5, 30), BorderLayout.CENTER);
+        panel.add(new JScrollPane(new JTextArea(5, 30)), BorderLayout.CENTER);
 
         JButton submitBtn = new JButton("提交申请");
         submitBtn.addActionListener(e -> {
@@ -185,14 +185,14 @@ public class DormPanel extends JPanel {
         panel.add(title, gbc);
 
         String[][] infoData = {
-            {"学号:", "123456789"}, {"姓名:", "张三"},
-            {"学院:", "计算机科学与技术"}, {"专业:", "软件工程"},
-            {"楼栋:", "紫荆1号楼"}, {"房间号:", "101A"},
-            {"床位号:", "1"}, {"宿舍类型:", "4人间"},
-            {"入住日期:", "2023-09-01"}, {"预计退宿日期:", "2027-06-30"},
-            {"住宿状态:", "在住"}, {"宿舍电话:", "010-12345678"},
-            {"舍友:", "李四, 王五, 赵六"}, {"宿管老师:", "陈老师"},
-            {"老师电话:", "010-87654321"}
+            {"学号:", ""}, {"姓名:", ""},
+            {"学院:", ""}, {"专业:", ""},
+            {"楼栋:", ""}, {"房间号:", ""},
+            {"床位号:", ""}, {"宿舍类型:", ""},
+            {"入住日期:", ""}, {"预计退宿日期:", ""},
+            {"住宿状态:", ""}, {"宿舍电话:", ""},
+            {"舍友:", ""}, {"宿管老师:", ""},
+            {"老师电话:", ""}
         };
 
         gbc.gridwidth = 1;
@@ -224,11 +224,7 @@ public class DormPanel extends JPanel {
         panel.add(title, BorderLayout.NORTH);
 
         String[] columns = {"申请ID", "类型", "申请时间", "处理状态", "审核人", "备注"};
-        String[][] data = {
-            {"10086", "入住", "2023-08-25 14:30", "已批准", "张管理员", "欢迎入住！"},
-            {"10087", "调换", "2023-10-11 09:15", "审核中", "-", "希望与同班同学同住"},
-            {"10088", "退宿", "2024-01-15 16:45", "已拒绝", "李管理员", "实习申请未通过审批"}
-        };
+        String[][] data = {}; // 清空测试数据
 
         JTable table = new JTable(data, columns);
         table.setFillsViewportHeight(true);
@@ -310,11 +306,7 @@ public class DormPanel extends JPanel {
         panel.add(title, BorderLayout.NORTH);
 
         String[] columns = {"服务ID", "类型", "提交时间", "处理状态", "负责人", "预计完成时间"};
-        String[][] data = {
-            {"S1001", "报修", "2024-02-20 09:30", "处理中", "维修部-张师傅", "2024-02-22"},
-            {"S1002", "报修", "2024-02-18 14:25", "已完成", "维修部-李师傅", "2024-02-19"},
-            {"S1003", "投诉", "2024-02-19 16:40", "待处理", "-", "-"}
-        };
+        String[][] data = {}; // 清空测试数据
 
         JTable table = new JTable(data, columns);
         table.setFillsViewportHeight(true);

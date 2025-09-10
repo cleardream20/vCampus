@@ -157,12 +157,7 @@ public class DormAdminPanel extends JPanel {
 
         // 学生住宿信息表格
         String[] columns = {"学号", "姓名", "楼栋", "房间号", "床位号", "状态"};
-        String[][] data = {
-            {"123456789", "张三", "紫荆1号楼", "101A", "1", "在住"},
-            {"123456790", "李四", "紫荆1号楼", "101A", "2", "在住"},
-            {"123456791", "王五", "紫荆2号楼", "203B", "3", "在住"},
-            {"123456792", "赵六", "紫荆3号楼", "305C", "1", "已退宿"}
-        };
+        String[][] data = {}; // 清空测试数据
 
         JTable table = new JTable(data, columns);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -224,10 +219,7 @@ public class DormAdminPanel extends JPanel {
         panel.add(title, BorderLayout.NORTH);
 
         String[] columns = {"申请ID", "学号", "姓名", "申请类型", "申请时间", "状态"};
-        Object[][] data = {
-            {"10087", "123456789", "张三", "调换", "2023-10-11 09:15", "待审核"},
-            {"10089", "123456790", "李四", "入住", "2024-02-21 14:20", "待审核"}
-        };
+        Object[][] data = {}; // 清空测试数据
 
         JTable table = new JTable(data, columns);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -293,7 +285,7 @@ public class DormAdminPanel extends JPanel {
      */
     private JPanel createRepairMgmtPanel() {
         return createServiceMgmtSubPanel("报修处理", new String[]{
-            "RP1001", "紫荆1号楼101A", "水管漏水", "2024-02-20 09:30", "处理中"
+            "", "", "", "", ""
         });
     }
 
@@ -302,7 +294,7 @@ public class DormAdminPanel extends JPanel {
      */
     private JPanel createComplaintMgmtPanel() {
         return createServiceMgmtSubPanel("投诉与建议处理", new String[]{
-            "CP1001", "紫荆2号楼203B", "隔壁宿舍太吵闹", "2024-02-19 16:40", "待处理"
+            "", "", "", "", ""
         });
     }
 
@@ -314,9 +306,7 @@ public class DormAdminPanel extends JPanel {
         panel.add(titleLabel, BorderLayout.NORTH);
 
         String[] columns = {"服务ID", "位置", "问题描述", "提交时间", "状态"};
-        String[][] data = {exampleData, 
-            {"RP1002", "紫荆3号楼305C", "空调不制冷", "2024-02-18 14:25", "已完成"}
-        };
+        String[][] data = {}; // 清空测试数据
 
         JTable table = new JTable(data, columns);
         JScrollPane scrollPane = new JScrollPane(table);

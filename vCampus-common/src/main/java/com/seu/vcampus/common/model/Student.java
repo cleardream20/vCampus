@@ -17,4 +17,5 @@ public class Student extends User implements Serializable {
     private String endate;
     private String grade;
     private String major;
+    private Long dormId; 
 }

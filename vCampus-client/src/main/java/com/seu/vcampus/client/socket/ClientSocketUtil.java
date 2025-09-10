@@ -9,7 +9,8 @@ import java.net.Socket;
 
 // 工具类：负责发送请求并接收响应
 public class ClientSocketUtil {
-    private static final String SERVER_HOST = "10.208.96.204";
+//    private static final String SERVER_HOST = "10.208.96.204";
+    private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 8888;
     private static final Gson gson = new Gson();
 

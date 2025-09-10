@@ -27,6 +27,8 @@ public class Message implements Serializable {
     private boolean success; // 是否成功（用于响应）
     private String message; // 提示信息
 
+    //很标准，AI就行了
+
     public Message(String type, String data) {
         this.type = type;
         this.data = data;

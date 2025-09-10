@@ -1,6 +1,8 @@
 package com.seu.vcampus.server;
 
 import com.seu.vcampus.server.socket.ServerSocketThread;
+import com.seu.vcampus.server.util.DatabaseInitializer;
+
 import javax.swing.*;
 
 /**
@@ -10,7 +12,8 @@ import javax.swing.*;
 public class ServerMain {
 
     public static void main(String[] args) {
-        // 可选：启动一个简单的 GUI 显示服务器状态（非必须）
+        DatabaseInitializer.init();
+
         showServerStatusWindow();
 
         // 启动 Socket 服务线程
@@ -21,9 +24,6 @@ public class ServerMain {
         System.out.println("等待客户端连接...");
     }
 
-    /**
-     * 可选：显示一个简单的服务器状态窗口
-     */
     private static void showServerStatusWindow() {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("vCampus Server");

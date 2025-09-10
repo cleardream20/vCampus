@@ -12,11 +12,8 @@ public class BookDaoImpl implements IBookDao {
             "charset=GBK;" +
             "ignorecase=true";
     private Connection connection;
-    List<Book> books=new ArrayList<>();
-    int num;
+
     public BookDaoImpl() {
-        books= getAllBooks();
-        num=books.size();
         connect();
         outputAllBooks();
     }
@@ -111,12 +108,11 @@ public class BookDaoImpl implements IBookDao {
 
     @Override
     public boolean addBook(Book book) {
-        String sql = "INSERT INTO tblBook (ID,bIsbn, bTitle, bAuthor, bPublisher, " +
+        String sql = "INSERT INTO tblBook (bIsbn, bTitle, bAuthor, bPublisher, " +
                 "bPublishYear, bTotal, bAvailable, bLocation, bImagePath) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         System.out.println(book.toString());
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            num+=1;
             setBookParameters(pstmt, book);
 
             int rowsAffected = pstmt.executeUpdate();
@@ -132,7 +128,6 @@ public class BookDaoImpl implements IBookDao {
         String sql = "DELETE FROM tblBook WHERE bIsbn = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            num-=1;
             pstmt.setString(1, isbn);
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -187,16 +182,16 @@ public class BookDaoImpl implements IBookDao {
 
     private void setBookParameters(PreparedStatement pstmt, Book book) throws SQLException {
 
-        pstmt.setInt(1,num);
-        pstmt.setString(2, book.getIsbn());
-        pstmt.setString(3, book.getTitle());
-        pstmt.setString(4, book.getAuthor());
-        pstmt.setString(5, book.getPublisher());
-        pstmt.setInt(6, book.getPublishYear());
-        pstmt.setInt(7, book.getTotalCopies());
-        pstmt.setInt(8, book.getAvailableCopies());
-        pstmt.setString(9, book.getLocation());
-        pstmt.setString(10, book.getImagePath());
+
+        pstmt.setString(1, book.getIsbn());
+        pstmt.setString(2, book.getTitle());
+        pstmt.setString(3, book.getAuthor());
+        pstmt.setString(4, book.getPublisher());
+        pstmt.setInt(5, book.getPublishYear());
+        pstmt.setInt(6, book.getTotalCopies());
+        pstmt.setInt(7, book.getAvailableCopies());
+        pstmt.setString(8, book.getLocation());
+        pstmt.setString(9, book.getImagePath());
     }
 
     public void close() {

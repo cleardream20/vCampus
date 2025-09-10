@@ -1,5 +1,7 @@
 package com.seu.vcampus.client.view.panel;
 
+import com.seu.vcampus.common.model.User;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -9,8 +11,9 @@ import java.awt.event.ActionListener;
 public class CourseSchedulePanel extends JPanel {
     private JTable scheduleTable;
     private JComboBox<Integer> weekSelector;
-
-    public CourseSchedulePanel() {
+    private User currentUser;
+    public CourseSchedulePanel(User user) {
+        this.currentUser=user;
         setLayout(new BorderLayout());
 
         // 顶部周数选择栏

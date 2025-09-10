@@ -2,6 +2,8 @@ package com.seu.vcampus.client.view.panel;
 
 import com.seu.vcampus.client.controller.CourseController;
 import com.seu.vcampus.common.model.Course;
+import com.seu.vcampus.common.model.User;
+
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -11,8 +13,9 @@ import java.util.List;
 public class CourseManagementPanel extends JPanel {
     private JTable courseTable;
     private CourseController courseController;
-
-    public CourseManagementPanel() {
+    private User currentUser;
+    public CourseManagementPanel(User user) {
+        this.currentUser = user;
         setLayout(new BorderLayout());
         initUI();
         loadCourseData();

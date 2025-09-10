@@ -1,5 +1,7 @@
 package com.seu.vcampus.client.view.panel;
 
+import com.seu.vcampus.common.model.User;
+
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -7,8 +9,10 @@ import java.awt.*;
 public class CourseQueryPanel extends JPanel {
     private JTable courseTable;
     private JTextField searchField;
+    private User currentUser;
 
-    public CourseQueryPanel() {
+    public CourseQueryPanel(User user) {
+        this.currentUser=user;
         setLayout(new BorderLayout());
 
         // ============== 放大后的搜索栏 ==============

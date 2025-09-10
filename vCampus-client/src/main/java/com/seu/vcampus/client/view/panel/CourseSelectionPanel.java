@@ -1,5 +1,7 @@
 package com.seu.vcampus.client.view.panel;
 
+import com.seu.vcampus.common.model.User;
+
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -7,8 +9,9 @@ import java.awt.*;
 public class CourseSelectionPanel extends JPanel {
     private JTable availableCoursesTable;
     private JButton selectButton;
-
-    public CourseSelectionPanel() {
+    private User currentUser;
+    public CourseSelectionPanel(User user) {
+        this.currentUser=user;
         setLayout(new BorderLayout());
 
         // ============== 表格数据 ==============

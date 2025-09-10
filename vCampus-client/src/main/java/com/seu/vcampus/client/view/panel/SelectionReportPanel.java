@@ -1,10 +1,14 @@
 package com.seu.vcampus.client.view.panel;
 
+import com.seu.vcampus.common.model.User;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class SelectionReportPanel extends JPanel {
-    public SelectionReportPanel() {
+    private User currentUser;
+    public SelectionReportPanel(User user) {
+        this.currentUser = user;
         setLayout(new BorderLayout());
 
         // 课程选择

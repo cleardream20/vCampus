@@ -16,5 +16,13 @@
 
     <name>vCampus-common</name>
     <description>Common classes for both client and server</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

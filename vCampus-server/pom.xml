@@ -25,10 +25,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.seu.vcampus</groupId>
-            <artifactId>vCampus-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 </project>

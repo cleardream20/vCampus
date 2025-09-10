@@ -76,6 +76,8 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         // 事件监听
         btnUserCenter.addActionListener(e -> attemptEnterUserCenter());
         btnStudent.addActionListener(e -> attemptEnterStudent());
+        btnLibrary.addActionListener(e -> attemptEnterLibrary());
+        btnCourse.addActionListener(e -> attemptEnterCourse());
     }
 
     private void attemptEnterUserCenter() {
@@ -84,8 +86,18 @@ public class MainPanel extends JPanel implements NavigatablePanel {
     }
 
     private void attemptEnterStudent() {
-//        MainFrame mainFrame = MainFrame.getInstance();
-//        mainFrame.showStudentPanel(); // 取消注释并调用
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.showStudentPanel(); // 取消注释并调用
+    }
+
+    private void attemptEnterLibrary() {
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.showLibraryPanel();
+    }
+
+    private void attemptEnterCourse() {
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.showCoursePanel();
     }
 
     @Override

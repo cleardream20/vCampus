@@ -22,12 +22,10 @@ public class LoginService {
         data.addProperty("cid", cid.trim());
         data.addProperty("password", password.trim());
 
-        Message request = new Message(Message.TYPE_LOGIN, data.toString());
+        Message request = new Message(Message.LOGIN, data.toString());
 
         try {
-            // 发送请求，ClientSocketUtil帮助解决，传回response
             Message response = ClientSocketUtil.sendRequest(request);
-            // 处理响应
             if(response == null) {
                 throw new Exception("服务器无响应");
             }
@@ -37,7 +35,7 @@ public class LoginService {
                         response.getMessage() : "登录失败");
             }
 
-            String userData = response.getData();
+            String userData = (String) response.getData();
             if(userData == null || userData.trim().isEmpty()) {
                 throw new Exception("出错：未返回用户信息");
             }

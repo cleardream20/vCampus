@@ -16,6 +16,7 @@ public class ClientSocketUtil {
 
     // 静态方法：发送请求，返回响应
     // 无需一直存在&监听
+    // 无需close
     public static Message sendRequest(Message request) throws IOException {
         Socket socket = new Socket();
         try {

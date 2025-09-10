@@ -21,4 +21,7 @@ public class Book implements Serializable {
     private String location;
     private String imagePath;
 
+    public boolean isAvailable() {
+        return availableCopies > 0;
+    }
 }

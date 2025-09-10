@@ -16,22 +16,22 @@ public class UserController {
         String type = request.getType();
 
         switch (type) {
-            case Message.TYPE_LOGIN:
-                User user = Jsonable.fromJson(request.getData(), User.class);
+            case Message.LOGIN:
+                User user = Jsonable.fromJson((String) request.getData(), User.class);
                 if (user == null) {
-                    return Message.fromData(type, "no", false, "用户数据格式错误");
+                    return Message.fromData(type, false, null, "用户数据格式错误");
                 }
                 User result = userService.Login(user.getCid(), user.getPassword());
                 if (result != null) {
-                    return Message.fromData(Message.TYPE_LOGIN, result.toJson(), true, "登录成功");
+                    return Message.fromData(Message.LOGIN, true, result, "登录成功");
                 } else {
-                    return Message.fromData(type, "no", false, "账号或密码错误");
+                    return Message.fromData(type, false, null, "账号或密码错误");
                 }
-            case Message.TYPE_REGISTER:
+            case Message.REGISTER:
                 // userService.register(...)
-                return Message.fromData(type, "no", false, "注册功能开发中");
+                return Message.fromData(type, false, null, "注册功能开发中");
             default:
-                return Message.fromData(Message.TYPE_RESPONSE, "no", false, "不支持的操作");
+                return Message.fromData(Message.RESPONSE, false, null, "不支持的操作");
         }
     }
 }

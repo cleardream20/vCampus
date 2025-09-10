@@ -44,7 +44,7 @@ public class ClientHandler implements Runnable {
             try {
                 request = Message.fromJson(requestJson);
             } catch (Exception e) {
-                out.println(Message.fromData(Message.TYPE_RESPONSE, "no", false, "无效的 JSON 格式").toJson());
+                out.println(Message.fromData(Message.RESPONSE, false, null, "无效的 JSON 格式").toJson());
                 return;
             }
 
@@ -75,13 +75,13 @@ public class ClientHandler implements Runnable {
 
         // TODO: 可以用 Map<String, Controller> 优化
         switch (type) {
-            case Message.TYPE_LOGIN:
+            case Message.LOGIN:
                 try {
                     return userController.handleRequest(request);
                 } catch (Exception e) {
                     System.err.println("登录异常: " + e.getMessage());
                 }
-            case Message.TYPE_REGISTER:
+            case Message.REGISTER:
                 try {
                     return userController.handleRequest(request);
                 } catch (Exception e) {
@@ -89,7 +89,7 @@ public class ClientHandler implements Runnable {
                 }
 
             default:
-                return Message.fromData(Message.TYPE_RESPONSE, "no", false, "未知请求类型: " + type);
+                return Message.fromData(Message.RESPONSE, false, null, "未知请求类型: " + type);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.seu.vcampus.client;
 
 import com.seu.vcampus.client.view.frame.MainFrame;
+
 import javax.swing.*;
 import java.awt.*;
 

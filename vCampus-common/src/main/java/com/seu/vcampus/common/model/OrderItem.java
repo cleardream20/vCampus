@@ -1,19 +1,21 @@
 package com.seu.vcampus.common.model;
 
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product implements Serializable {
+public class OrderItem implements Serializable {
     private Integer productId;
     private String productName;
-    private String description;
     private Double price;
-    private Integer stock;
-    private String category;
-    private String imageUrl; // 商品图片URL
+    private Integer quantity;
+
+    public Double getSubtotal() {
+        return price * quantity;
+    }
 }

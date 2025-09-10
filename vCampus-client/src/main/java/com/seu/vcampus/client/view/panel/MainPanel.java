@@ -14,6 +14,10 @@ public class MainPanel extends JPanel implements NavigatablePanel {
     private JButton btnLibrary;
     private JButton btnShop;
 
+    private JLabel lblTitle;
+    private JPanel userCenterPanel;
+    private JPanel subPanels;
+
 
     public MainPanel() {
         setLayout(new GridBagLayout());
@@ -80,6 +84,10 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         btnStudent.addActionListener(e -> attemptEnterStudent());
     }
 
+    private void openStore() {
+        MainFrame.getInstance().showShopPanel();
+    }
+
     private void attemptEnterUserCenter() {
         MainFrame mainFrame = MainFrame.getInstance();
         mainFrame.showUserCenterPanel(mainFrame.getCurrentUser());
@@ -100,3 +108,4 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         return "MAIN";
     }
 }
+

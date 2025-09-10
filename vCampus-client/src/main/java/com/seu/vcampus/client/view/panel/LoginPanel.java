@@ -175,4 +175,8 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
     public String getPanelName() {
         return "LOGIN";
     }
+
+    public void resetForm() {
+
+    }
 }

@@ -34,6 +34,13 @@ public interface IBookDao {
      * @return 删除是否成功
      */
     boolean deleteBook(String isbn);
+    /**
+     * 修改书
+     *
+     * @param book 图书对象
+     * @return 修改是否成功
+     */
+    boolean updateBook(Book book);
 
 
 }

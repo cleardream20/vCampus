@@ -49,6 +49,33 @@ public class LibraryController {
         }
     }
 
+    public Book getBookByISBN(String isbn) {
+        // 1. 创建请求消息
+        Message request = new Message();
+        request.setType(LibraryMessage.GETBOOKBYISBN); // 设置消息类型
+        request.setData(isbn); // 设置ISBN数据
+
+        try {
+            // 2. 发送请求并获取响应
+            Message response = socketHandler.sendRequest(request);
+
+            // 3. 检查响应状态
+            if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+                // 4. 成功获取图书信息
+                return (Book) response.getData(); // 将响应数据转换为Book对象
+            } else {
+                // 5. 处理失败情况
+                System.err.println("搜索图书失败: " + response.getData());
+                return null; // 返回null表示未找到图书
+            }
+        } catch (Exception e) {
+            // 6. 处理网络或序列化异常
+            System.err.println("获取图书信息时发生错误: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<BorrowRecord> getBorrowRecordsByUserId (String UserID){
         Message request = new Message();
         request.setType(LibraryMessage.GET_BORROW_BOOKS);
@@ -63,6 +90,7 @@ public class LibraryController {
             return Collections.emptyList();
         }
     }
+
 
     public boolean borrowBook(String userId, String isbn) {
         // 创建借阅请求数据
@@ -114,6 +142,21 @@ public class LibraryController {
             return false;
         }
     }
+
+    public boolean updateBook(Book book) {
+        Message request = new Message();
+        request.setType(LibraryMessage.UPDATE_BOOK);
+        request.setData(book);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("修改图书失败: " + response.getData());
+            return false;
+        }
+    }
     public boolean deleteBook(String isbn) {
         Message request = new Message();
         request.setType(LibraryMessage.DELETE_BOOK);
@@ -128,6 +171,7 @@ public class LibraryController {
             return false;
         }
     }
+
 
 
 

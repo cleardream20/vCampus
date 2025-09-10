@@ -17,10 +17,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class LibraryPanel extends JPanel implements NavigatablePanel {
@@ -145,10 +143,6 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
     }
 
 
-
-
-
-
     // 内部类：管理员面板
     private class AdminPanel extends JPanel implements RefreshablePanel {
         private JTable bookTable;
@@ -177,6 +171,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
 
             // 添加按钮监听器
             addButton.addActionListener(e -> addBook());
+            editButton.addActionListener(e -> editBook()); // 新增修改按钮监听
             deleteButton.addActionListener(e -> deleteBook());
             refreshButton.addActionListener(e -> refresh());
 
@@ -242,10 +237,17 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
         }
 
         private void addBook() {
-            // 创建添加图书对话框
             AddBookDialog dialog = new AddBookDialog(
                     (Frame) SwingUtilities.getWindowAncestor(this),
                     book -> {
+                        // 检查ISBN是否已存在
+                        Book existingBook = libraryController.getBookByISBN(book.getIsbn());
+                        if (existingBook != null) {
+                            JOptionPane.showMessageDialog(this, "ISBN已存在，无法添加", "错误",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         // 添加图书到数据库
                         boolean success = libraryController.addBook(book);
                         if (success) {
@@ -254,6 +256,46 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
                             refresh(); // 刷新表格
                         } else {
                             JOptionPane.showMessageDialog(this, "添加图书失败", "错误",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+            );
+            dialog.setVisible(true);
+        }
+
+        // 修改图书方法
+        private void editBook() {
+            int selectedRow = bookTable.getSelectedRow();
+            if (selectedRow < 0) {
+                JOptionPane.showMessageDialog(this, "请选择要修改的图书", "提示",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 获取选中的图书ISBN
+            String isbn = (String) bookTable.getValueAt(selectedRow, 0);
+
+            // 从服务器获取完整的图书信息
+            Book bookToEdit = libraryController.getBookByISBN(isbn);
+            if (bookToEdit == null) {
+                JOptionPane.showMessageDialog(this, "无法获取图书信息", "错误",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 创建修改图书对话框
+            EditBookDialog dialog = new EditBookDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(this),
+                    bookToEdit,
+                    updatedBook -> {
+                        // 更新图书到数据库
+                        boolean success = libraryController.updateBook(updatedBook);
+                        if (success) {
+                            JOptionPane.showMessageDialog(this, "修改图书成功！", "成功",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            refresh(); // 刷新表格
+                        } else {
+                            JOptionPane.showMessageDialog(this, "修改图书失败", "错误",
                                     JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -295,6 +337,138 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
         }
 
 
+    }
+
+    //修改图书对话框
+    private class EditBookDialog extends JDialog {
+        private Book book;
+        private Consumer<Book> onSaveCallback;
+
+        private JTextField isbnField;
+        private JTextField titleField;
+        private JTextField authorField;
+        private JTextField publisherField;
+        private JSpinner publishYearSpinner;
+        private JSpinner totalCopiesSpinner;
+        private JSpinner availableCopiesSpinner;
+        private JTextField locationField;
+        private JTextField imagePathField;
+        private JButton saveButton;
+        private JButton cancelButton;
+
+        public EditBookDialog(Frame owner, Book book, Consumer<Book> onSaveCallback) {
+            super(owner, "修改图书信息", true);
+            this.book = book;
+            this.onSaveCallback = onSaveCallback;
+            initComponents();
+            pack();
+            setLocationRelativeTo(owner);
+        }
+
+        private void initComponents() {
+            setLayout(new BorderLayout(10, 10));
+            setMinimumSize(new Dimension(500, 400));
+
+            // 创建表单面板
+            JPanel formPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+
+            // ISBN（不可编辑）
+            formPanel.add(new JLabel("ISBN:"));
+            isbnField = new JTextField(book.getIsbn());
+            isbnField.setEditable(false);
+            formPanel.add(isbnField);
+
+            // 书名
+            formPanel.add(new JLabel("书名:"));
+            titleField = new JTextField(book.getTitle());
+            formPanel.add(titleField);
+
+            // 作者
+            formPanel.add(new JLabel("作者:"));
+            authorField = new JTextField(book.getAuthor());
+            formPanel.add(authorField);
+
+            // 出版社
+            formPanel.add(new JLabel("出版社:"));
+            publisherField = new JTextField(book.getPublisher());
+            formPanel.add(publisherField);
+
+            // 出版年份
+            formPanel.add(new JLabel("出版年份:"));
+            publishYearSpinner = new JSpinner(new SpinnerNumberModel(
+                    book.getPublishYear(), 0, Calendar.getInstance().get(Calendar.YEAR), 1));
+            formPanel.add(publishYearSpinner);
+
+            // 总数量
+            formPanel.add(new JLabel("总数量:"));
+            totalCopiesSpinner = new JSpinner(new SpinnerNumberModel(
+                    book.getTotalCopies(), 1, 1000, 1));
+            formPanel.add(totalCopiesSpinner);
+
+            // 可借数量
+            formPanel.add(new JLabel("可借数量:"));
+            availableCopiesSpinner = new JSpinner(new SpinnerNumberModel(
+                    book.getAvailableCopies(), 0, book.getTotalCopies(), 1));
+            formPanel.add(availableCopiesSpinner);
+
+            // 位置
+            formPanel.add(new JLabel("位置:"));
+            locationField = new JTextField(book.getLocation());
+            formPanel.add(locationField);
+
+            // 图片路径
+            formPanel.add(new JLabel("图片路径:"));
+            imagePathField = new JTextField(book.getImagePath());
+            formPanel.add(imagePathField);
+
+            // 添加表单到对话框
+            add(formPanel, BorderLayout.CENTER);
+
+            // 创建按钮面板
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+            saveButton = new JButton("保存");
+            cancelButton = new JButton("取消");
+
+            saveButton.addActionListener(e -> saveBook());
+            cancelButton.addActionListener(e -> dispose());
+
+            buttonPanel.add(saveButton);
+            buttonPanel.add(cancelButton);
+
+            add(buttonPanel, BorderLayout.SOUTH);
+        }
+
+        private void saveBook() {
+            // 更新图书对象
+            book.setTitle(titleField.getText());
+            book.setAuthor(authorField.getText());
+            book.setPublisher(publisherField.getText());
+            book.setPublishYear((Integer) publishYearSpinner.getValue());
+            book.setTotalCopies((Integer) totalCopiesSpinner.getValue());
+            book.setAvailableCopies((Integer) availableCopiesSpinner.getValue());
+            book.setLocation(locationField.getText());
+            book.setImagePath(imagePathField.getText());
+
+            // 验证数据
+            if (book.getTitle() == null || book.getTitle().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "书名不能为空", "输入错误", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (book.getTotalCopies() <= 0) {
+                JOptionPane.showMessageDialog(this, "总数量必须大于0", "输入错误", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (book.getAvailableCopies() < 0 || book.getAvailableCopies() > book.getTotalCopies()) {
+                JOptionPane.showMessageDialog(this, "可借数量无效", "输入错误", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 调用回调函数保存图书
+            onSaveCallback.accept(book);
+            dispose();
+        }
     }
 
     private class AddBookDialog extends JDialog {
@@ -611,8 +785,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
         public void refresh() {
             loadBooksFromServer();
         }
-
-
+        
     }
 
     //我的图书馆
@@ -871,10 +1044,6 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
 
             // 加载图片
             ImageIcon bookImage = ImageLoader.loadImage(book.getImagePath());
-            if (bookImage == null) {
-                // 使用默认图片
-                bookImage = new ImageIcon(getClass().getResource("/images/default_book.jpg"));
-            }
 
             // 缩放图片
             Image scaledImage = bookImage.getImage().getScaledInstance(200, 260, Image.SCALE_SMOOTH);

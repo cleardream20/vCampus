@@ -16,4 +16,5 @@ public interface ILibraryService {
     boolean renewBook(Long recordId);
     boolean addBook(Book book);
     boolean deleteBook(String isbn);
+    boolean updateBook(Book book);
 }

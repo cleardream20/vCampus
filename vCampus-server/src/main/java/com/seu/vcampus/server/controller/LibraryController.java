@@ -58,6 +58,18 @@ public class LibraryController {
                     response.setData("删除图书失败");
                 }
 
+            } else if (LibraryMessage.UPDATE_BOOK.equals(request.getType())) {
+                Book book=(Book) request.getData();
+
+                boolean success = libraryService.updateBook(book);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("修改图书成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("修改图书失败");
+                }
+
             } else if (LibraryMessage.BORROW_BOOKS.equals(request.getType())) {
                  //填补
                 Map<String, String> borrowRequest = (Map<String, String>) request.getData();
@@ -84,6 +96,11 @@ public class LibraryController {
                     response.setStatus(Message.STATUS_ERROR);
                     response.setData("归还失败");
                 }
+            } else if (LibraryMessage.GETBOOKBYISBN.equals(request.getType())) {
+                String ISBN = (String) request.getData();
+                Book book = libraryService.getBookByIsbn(ISBN);
+                response.setStatus(Message.STATUS_SUCCESS);
+                response.setData(book);
 
 
             } else {

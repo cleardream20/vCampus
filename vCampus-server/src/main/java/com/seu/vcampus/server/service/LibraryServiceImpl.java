@@ -257,13 +257,15 @@ public class LibraryServiceImpl implements ILibraryService {
 
 
 
-    // 获取图书详情
+
     @Override
     public Book getBookByIsbn(String isbn) {
-        return books.stream()
-                .filter(b -> b.getIsbn().equals(isbn))
-                .findFirst()
-                .orElse(null);
+        return bookDao.getBookByISBN(isbn);
+    }
+
+    @Override
+    public boolean updateBook(Book book) {
+        return bookDao.updateBook(book);
     }
 
 

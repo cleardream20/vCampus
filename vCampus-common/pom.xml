@@ -28,6 +28,11 @@
             <artifactId>ucanaccess</artifactId>
             <version>5.0.1</version> <!-- 推荐使用 5.x 支持 .accdb -->
         </dependency>
+        <dependency>
+            <groupId>com.healthmarketscience.jackcess</groupId>
+            <artifactId>jackcess</artifactId>
+            <version>4.0.1</version>
+        </dependency>
     </dependencies>
 
     <name>vCampus-common</name>

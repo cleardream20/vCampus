@@ -173,7 +173,6 @@ public class RegisterPanel extends JPanel implements NavigatablePanel {
                     SwingUtilities.invokeLater(() -> {
                         MainFrame mainFrame = MainFrame.getInstance();
                         mainFrame.showMainPanel(user);
-                        mainFrame.showLibraryPanel(); // 默认进入图书馆模块
                     });
 
                 } catch (InterruptedException | ExecutionException ex) {

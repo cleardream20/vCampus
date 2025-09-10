@@ -1,82 +1,63 @@
 package com.seu.vcampus.server.socket;
 
-
-import com.seu.vcampus.server.controller.LibraryController;
-import com.seu.vcampus.server.controller.UserController;
 import com.seu.vcampus.common.util.Message;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+/**
+ * 服务器 Socket 监听线程
+ * 负责监听端口，接收客户端连接
+ */
 public class ServerSocketThread extends Thread {
-    private static final int PORT = 8888;
 
-    private Map<String, Object> controllers = new HashMap<>();
+    private final int port;
+    private ServerSocket serverSocket;
+    private final ExecutorService clientExecutor = Executors.newCachedThreadPool();
+    private volatile boolean running = true;
 
-    public ServerSocketThread() {
-        // 初始化控制器
-        controllers.put("LIBRARY", new LibraryController());
-        controllers.put("USER", new UserController());
+    public ServerSocketThread(int port) {
+        this.port = port;
     }
 
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("服务端监听端口: " + PORT);
+        try {
+            serverSocket = new ServerSocket(port);
+            System.out.printf("服务器监听端口: %d\n", port);
 
-            while (true) {
+            while (running) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("客户端连接: " + clientSocket.getRemoteSocketAddress());
+                System.out.printf("客户端连接: %s:%d\n",
+                        clientSocket.getInetAddress().getHostAddress(),
+                        clientSocket.getPort());
 
-                new Thread(() -> handleClient(clientSocket)).start();
+                clientExecutor.submit(new ClientHandler(clientSocket));
             }
         } catch (IOException e) {
-            System.err.println("服务端异常: " + e.getMessage());
-            e.printStackTrace();
+            if (running) {
+                System.err.println("服务器异常: " + e.getMessage());
+            } else {
+                System.out.println("服务器已正常关闭");
+            }
         }
     }
 
-    private void handleClient(Socket clientSocket) {
-        try (ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
-             ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream())) {
-
-            while (true) {
-                // 读取客户端消息
-                Message request = (Message) ois.readObject();
-
-                // 处理请求
-                Message response = new Message();
-                String typeGroup = request.getType().split("_")[0];
-
-                Object controller = controllers.get(typeGroup);
-                if (controller != null) {
-                    if (controller instanceof LibraryController) {
-                        response = ((LibraryController) controller).handleRequest(request);
-                    } else if (controller instanceof UserController) {
-                        // 用户认证相关操作
-                    }
-                } else {
-                    response.setStatus(Message.STATUS_ERROR);
-                    response.setData("未知的请求类型: " + request.getType());
-                }
-
-                // 发送响应
-                oos.writeObject(response);
-                oos.flush();
+    /**
+     * 关闭服务器（优雅关闭）
+     */
+    public void shutdown() {
+        running = false;
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
             }
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("客户端断开连接: " + clientSocket.getRemoteSocketAddress());//异常处理
-        } finally {
-            try {
-                clientSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            System.err.println("关闭失败: " + e.getMessage());
         }
+        clientExecutor.shutdown();
     }
 }

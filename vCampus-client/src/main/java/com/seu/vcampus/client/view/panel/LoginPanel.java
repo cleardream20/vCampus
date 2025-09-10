@@ -4,7 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.ExecutionException;
-import com.seu.vcampus.client.controller.LoginController;
+//import com.seu.vcampus.client.controller.LoginController;
+import com.seu.vcampus.client.service.LoginService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.client.view.frame.MainFrame;
 import com.seu.vcampus.common.model.User;
@@ -122,8 +123,10 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
         SwingWorker<User, Void> worker = new SwingWorker<>() {
             @Override
             protected User doInBackground() throws Exception {
-                LoginController controller = new LoginController();
-                User user = controller.login(cid, password);
+//                LoginController controller = new LoginController();
+//                User user = controller.login(cid, password);
+                LoginService  loginService = new LoginService();
+                User user = loginService.login(cid, password);
                 if (user != null) {
                     return user;
                 } else {

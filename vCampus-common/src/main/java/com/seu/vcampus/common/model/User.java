@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements Serializable {
+public class User implements Serializable, Jsonable {
     private String cid; // card id 一卡通号
     private String password; // 密码
     private String tsid; // sid学生学号 + tid教职工号

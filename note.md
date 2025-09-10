@@ -391,3 +391,27 @@ xxxService 通过 xxxDao 与数据库交互  依赖
 xxxDao 依赖 DBConnector  操作数据库  依赖
 
 
+
+## 网络通信
+连接同一个无线网络，服务器x1 & 客户端x...
+
+IP地址？
+```shell
+ipconfig
+# 然后找 WLAN IPv4
+# 校园网的好像是 10.208.96.204
+# 我调的端口是 8888
+```
+
+服务器启动后（ServerMain启动）
+检测连通性
+```shell
+Test-NetConnection 10.208.96.204 -Port 8888
+# 输出
+ComputerName     : 10.208.96.204
+RemoteAddress    : 10.208.96.204
+RemotePort       : 8888
+InterfaceAlias   : WLAN
+SourceAddress    : 10.208.96.204
+TcpTestSucceeded : True
+```

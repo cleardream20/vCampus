@@ -8,12 +8,16 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CourseManagementPanel extends JPanel {
     private JTable courseTable;
     private CourseController courseController;
     private User currentUser;
+    private JTextField searchField;
+    private JComboBox<String> searchTypeComboBox;
+
     public CourseManagementPanel(User user) {
         this.currentUser = user;
         setLayout(new BorderLayout());
@@ -22,21 +26,58 @@ public class CourseManagementPanel extends JPanel {
     }
 
     private void initUI() {
+        // 创建顶部面板（包含搜索栏和操作按钮）
+        JPanel topPanel = new JPanel(new BorderLayout());
+
+        // 搜索面板
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        searchPanel.setBorder(BorderFactory.createTitledBorder("课程搜索"));
+
+        // 搜索类型选择
+        String[] searchTypes = {"课程ID", "课程名称"};
+        searchTypeComboBox = new JComboBox<>(searchTypes);
+        searchTypeComboBox.setSelectedIndex(0);
+
+        // 搜索输入框
+        searchField = new JTextField(20);
+
+        // 搜索按钮
+        JButton searchButton = new JButton("搜索");
+        searchButton.addActionListener(this::performSearch);
+
+        // 添加组件到搜索面板
+        searchPanel.add(new JLabel("搜索方式:"));
+        searchPanel.add(searchTypeComboBox);
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+
         // 操作按钮组
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         JButton addButton = new JButton("新增课程");
         JButton editButton = new JButton("修改课程");
         JButton deleteButton = new JButton("删除课程");
+        JButton refreshButton = new JButton("刷新数据");
 
         addButton.addActionListener(this::showAddCourseDialog);
+        refreshButton.addActionListener(e -> loadCourseData());
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
-        add(buttonPanel, BorderLayout.NORTH);
+        buttonPanel.add(refreshButton);
+
+        // 将搜索面板和按钮面板添加到顶部面板
+        topPanel.add(searchPanel, BorderLayout.NORTH);
+        topPanel.add(buttonPanel, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
 
         // 初始化空表格
-        String[] columns = {"课程ID", "课程名称", "学分", "授课教师","教师id", "地点","时间安排", "容量", "已选人数", "开始周", "结束周"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        String[] columns = {"课程ID", "课程名称", "学分", "授课教师","教师id", "开课学院","时间安排", "容量", "已选人数", "开始周", "结束周"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // 使表格不可编辑
+            }
+        };
         courseTable = new JTable(model);
 
         // 设置表格样式
@@ -50,6 +91,56 @@ public class CourseManagementPanel extends JPanel {
         header.setForeground(Color.WHITE);
 
         add(new JScrollPane(courseTable), BorderLayout.CENTER);
+    }
+
+    private void performSearch(ActionEvent e) {
+        String keyword = searchField.getText().trim();
+        if (keyword.isEmpty()) {
+            loadCourseData(); // 如果搜索框为空，加载所有课程
+            return;
+        }
+
+        int searchType = searchTypeComboBox.getSelectedIndex();
+        List<Course> searchResults=new ArrayList<>();
+
+        if (searchType == 0) { // 按课程ID搜索
+            Course course = courseController.getCourseById(keyword);
+            if (course != null) {
+                searchResults.add(course); // 将单个课程添加到列表中
+            }
+        } else { // 按课程名称搜索
+            searchResults = courseController.getCourseByName(keyword);
+        }
+
+        updateTableWithData(searchResults);
+    }
+
+    private void updateTableWithData(List<Course> courses) {
+        DefaultTableModel model = (DefaultTableModel) courseTable.getModel();
+        model.setRowCount(0); // 清空现有数据
+
+        if (courses != null && !courses.isEmpty()) {
+            for (Course course : courses) {
+                model.addRow(new Object[]{
+                        course.getCourseId(),
+                        course.getCourseName(),
+                        course.getCredit(),
+                        course.getTeacherName(),
+                        course.getTeacherId(),
+                        course.getDepartment(),
+                        course.getSchedule(),
+                        course.getCapacity(),
+                        course.getSelectedNum(),
+                        course.getStartWeek(),
+                        course.getEndWeek()
+                });
+            }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "未找到匹配的课程",
+                    "搜索结果",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private void showAddCourseDialog(ActionEvent e) {

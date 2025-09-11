@@ -280,6 +280,52 @@ public class CourseServiceImpl implements CourseService {
                     "获取课表失败: " + e.getMessage());
         }
     }
+    @Override
+    public Message getCourseById(String keyword) {
+        try {
+            // 通过课程ID精确查询课程
+            Course course = courseDao.getCourseById(keyword);
+
+            if (course != null) {
+                // 找到匹配的课程
+                Message response = new Message(Message.GET_COURSE_BY_ID);
+                response.setStatus(ResponseCode.OK);
+                response.addData("course", course);
+                return response;
+            } else {
+                // 未找到课程
+                return createErrorResponse(Message.GET_COURSE_BY_ID,
+                        ResponseCode.NOT_FOUND, "未找到课程ID为 " + keyword + " 的课程");
+            }
+        } catch (Exception e) {
+            return createErrorResponse(Message.GET_COURSE_BY_ID,
+                    ResponseCode.INTERNAL_SERVER_ERROR, "查询课程异常: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Message getCourseByName(String keyword) {
+        try {
+            // 通过课程名称模糊查询课程
+            List<Course> courses = courseDao.getCoursesByName(keyword);
+
+            if (courses != null && !courses.isEmpty()) {
+                // 找到匹配的课程
+                Message response = new Message(Message.GET_COURSE_BY_NAME);
+                response.setStatus(ResponseCode.OK);
+                response.addData("courses", courses);
+                return response;
+            } else {
+                // 未找到课程
+                return createErrorResponse(Message.GET_COURSE_BY_NAME,
+                        ResponseCode.NOT_FOUND, "未找到包含 '" + keyword + "' 的课程");
+            }
+        } catch (Exception e) {
+            return createErrorResponse(Message.GET_COURSE_BY_NAME,
+                    ResponseCode.INTERNAL_SERVER_ERROR, "查询课程异常: " + e.getMessage());
+        }
+    }
+
 
     // 辅助方法：创建错误响应
     private Message createErrorResponse(String type, int status, String description) {

@@ -37,4 +37,5 @@ public interface CourseDao {
     // 获取选课记录
     List<SelectionRecord> getSelectionRecords(String courseId);
 
+    List<Course> getCoursesByName(String keyword);
 }

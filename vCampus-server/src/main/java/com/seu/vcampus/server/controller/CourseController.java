@@ -13,9 +13,14 @@ public class CourseController {
     public Message handleCourseRequest(Message request, User user) {
         switch (request.getType()) {
             case Message.GET_COURSE_LIST:
-                // 获取课程列表不需要用户信息
                 return courseService.getCourseList();
-
+            case Message.GET_COURSE_BY_ID:
+                return courseService.getCourseById((String) request.getData().get("keyword"));
+            case Message.GET_COURSE_BY_NAME:
+                return courseService.getCourseByName((String) request.getData().get("keyword"));
+            case Message.GET_TEACHING_COURSES:
+                // 获取教师课程不需要用户信息
+                return courseService.getTeachingCourses(user.getId());
             case Message.SELECT_COURSE:
             case Message.DROP_COURSE:
             case Message.GET_SELECTED_COURSES:

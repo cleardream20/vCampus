@@ -47,4 +47,25 @@ public class CourseController {
         Message response = socketHandler.sendMessage(request);
         return response.getStatus() == ResponseCode.OK;
     }
+
+    public Course getCourseById(String keyword) {
+        Message request = new Message(Message.GET_COURSE_BY_ID);
+        request.addData("keyword", keyword);
+        Message response = socketHandler.sendMessage(request);
+        if (response.getStatus() == ResponseCode.OK) {
+            return (Course) response.getData().get("course");
+        }
+        return null;
+    }
+
+    public List<Course> getCourseByName(String keyword) {
+        Message request = new Message(Message.GET_COURSE_BY_NAME);
+        request.addData("keyword", keyword);
+        Message response = socketHandler.sendMessage(request);
+
+        if (response.getStatus() == ResponseCode.OK) {
+            return (List<Course>) response.getData().get("courses");
+        }
+        return null;
+    }
 }

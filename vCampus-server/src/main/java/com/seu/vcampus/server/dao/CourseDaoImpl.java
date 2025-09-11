@@ -284,7 +284,7 @@ public class CourseDaoImpl implements CourseDao {
 
     @Override
     public Course getCourseById(String courseId) {
-        String sql = "SELECT * FROM Courses WHERE CourseID = ?";
+        String sql = "SELECT * FROM Courses WHERE CourseId = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -292,13 +292,43 @@ public class CourseDaoImpl implements CourseDao {
             pstmt.setString(1, courseId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println("找到课程ID为: " + courseId + " 的课程");
                     return mapRowToCourse(rs);
+                } else {
+                    // 添加日志记录未找到课程
+                    System.out.println("未找到课程ID为: " + courseId + " 的课程");
+                    return null;
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("查询课程失败", e);
+            // 添加更详细的错误日志
+            System.err.println("按ID查询课程失败: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("按ID查询课程失败", e);
         }
-        return null;
+    }
+
+    @Override
+    public List<Course> getCoursesByName(String keyword) {
+        List<Course> courses = new ArrayList<>();
+        // 使用LIKE进行模糊查询，%表示任意字符
+        String sql = "SELECT * FROM Courses WHERE CourseName LIKE ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // 添加通配符进行模糊匹配
+            pstmt.setString(1, "%" + keyword + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    courses.add(mapRowToCourse(rs));
+                }
+            }
+            return courses;
+        } catch (SQLException e) {
+            throw new RuntimeException("按名称查询课程失败", e);
+        }
     }
 
     @Override

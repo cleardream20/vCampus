@@ -31,4 +31,8 @@ public interface CourseService {
 
     // 获取课程表
     Message getCourseSchedule(String studentId);
+
+    Message getCourseById(String keyword);
+
+    Message getCourseByName(String keyword);
 }

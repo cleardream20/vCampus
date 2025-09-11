@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
         user.setEmail("admin@vcampus.edu");
         user.setPassword("admin123");
         user.setAge(35);
-        user.setRole("ST"); // 管理员角色
+        user.setRole("AD"); // 管理员角色
         return user;
     }
 

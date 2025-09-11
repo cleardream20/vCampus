@@ -2,6 +2,7 @@ package com.seu.vcampus.client.controller;
 
 import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.model.Course;
+import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.ResponseCode;
 
@@ -25,9 +26,10 @@ public class CourseController {
         return null;
     }
 
-    public boolean addCourse(Course course) {
+    public boolean addCourse(Course course,User user) {
         Message request = new Message(Message.ADD_COURSE);
         request.addData("course", course);
+        request.addData("user", user);
         Message response = socketHandler.sendMessage(request);
         return response.getStatus() == ResponseCode.OK;
     }

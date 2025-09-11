@@ -231,7 +231,7 @@ public class CourseManagementPanel extends JPanel {
             newCourse.setTeacherId(teacherIdField.getText());
             newCourse.setDepartment(departmentField.getText());
             newCourse.setCredit((Integer) creditSpinner.getValue());
-            newCourse.setTime(timeField.getText());
+            newCourse.setSchedule(timeField.getText());
             newCourse.setLocation(locationField.getText());
             newCourse.setCapacity((Integer) capacitySpinner.getValue());
             newCourse.setSelectedNum(0); // 新课程已选人数默认为0
@@ -239,7 +239,7 @@ public class CourseManagementPanel extends JPanel {
             newCourse.setEndWeek((Integer) endWeekSpinner.getValue());
 
             // 通过控制器添加课程
-            if (courseController.addCourse(newCourse)) {
+            if (courseController.addCourse(newCourse,currentUser)) {
                 JOptionPane.showMessageDialog(dialog, "课程添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);
                 loadCourseData(); // 刷新表格数据
                 dialog.dispose();
@@ -281,7 +281,7 @@ public class CourseManagementPanel extends JPanel {
                         course.getTeacherName(),
                         course.getTeacherId(),
                         course.getDepartment(),
-                        course.getTime(),
+                        course.getSchedule(),
                         course.getCapacity(),
                         course.getSelectedNum(),
                         course.getStartWeek(),

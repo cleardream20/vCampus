@@ -9,7 +9,7 @@ public class Course implements Serializable {
     private String teacherId;
     private String department;
     private Integer credit;
-    private String time; // 格式: "周一 1-2节"
+    private String schedule; // 格式: "周一 1-2节"
     private String location;
     private Integer capacity;
     private Integer selectedNum;
@@ -22,7 +22,7 @@ public class Course implements Serializable {
 
     // 带参数的构造函数
     public Course(String courseId, String courseName, String teacherName,String teacherId, String department,
-                  Integer credit, String time, String location, Integer capacity,
+                  Integer credit, String schedule, String location, Integer capacity,
                   Integer selectedNum, Integer startWeek, Integer endWeek) {
         this.courseId = courseId;
         this.courseName = courseName;
@@ -30,7 +30,7 @@ public class Course implements Serializable {
         this.teacherName = teacherName;
         this.department = department;
         this.credit = credit;
-        this.time = time;
+        this.schedule = schedule;
         this.location = location;
         this.capacity = capacity;
         this.selectedNum = selectedNum;
@@ -58,8 +58,8 @@ public class Course implements Serializable {
     public Integer getCredit() { return credit; }
     public void setCredit(Integer credit) { this.credit = credit; }
 
-    public String getTime() { return time; }
-    public void setTime(String time) { this.time = time; }
+    public String getSchedule() { return schedule; }
+    public void setSchedule(String schedule) { this.schedule = schedule; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
@@ -110,9 +110,16 @@ public class Course implements Serializable {
     // toString示例（调试用）
     @Override
     public String toString() {
-        return String.format("%s %s 教师:%s 时间:%s 地点:%s 周数:%d-%d 余量:%d/%d",
-                courseId, courseName, teacherId,teacherName, time, location,
-                startWeek, endWeek, availableSlots, capacity);
+        return String.format("%s %s 教师:%s(%s) 时间:%s 地点:%s 周数:%d-%d 余量:%d/%d",
+                courseId,
+                courseName,
+                teacherName,
+                teacherId,
+                schedule,
+                location,
+                startWeek,
+                endWeek,
+                availableSlots,
+                capacity);
     }
-
 }

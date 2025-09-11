@@ -142,11 +142,44 @@ public class CourseServiceImpl implements CourseService {
                 return createErrorResponse(Message.ADD_COURSE,
                         ResponseCode.BAD_REQUEST, "课程名称不能为空");
             }
+            if (course.getTeacherId() == null || course.getTeacherId().isEmpty()) {
+                return createErrorResponse(Message.ADD_COURSE,
+                        ResponseCode.BAD_REQUEST, "教师ID不能为空");
+            }
+            if (course.getTeacherName() == null || course.getTeacherName().isEmpty()) {
+                return createErrorResponse(Message.ADD_COURSE,
+                        ResponseCode.BAD_REQUEST, "教师姓名不能为空");
+            }
+            if (course.getSchedule() == null || course.getSchedule().isEmpty()) {
+                return createErrorResponse(Message.ADD_COURSE,
+                        ResponseCode.BAD_REQUEST, "时间安排不能为空");
+            }
+            if (course.getLocation() == null || course.getLocation().isEmpty()) {
+                return createErrorResponse(Message.ADD_COURSE,
+                        ResponseCode.BAD_REQUEST, "上课地点不能为空");
+            }
 
             // 检查课程是否已存在
             if (courseDao.getCourseById(course.getCourseId()) != null) {
                 return createErrorResponse(Message.ADD_COURSE,
                         ResponseCode.ALREADY_EXISTS, "课程ID已存在");
+            }
+
+            // 设置默认值
+            if (course.getSelectedNum() == null || course.getSelectedNum() < 0) {
+                course.setSelectedNum(0); // 新课程已选人数默认为0
+            }
+            if (course.getCapacity() == null || course.getCapacity() <= 0) {
+                course.setCapacity(30); // 默认容量30人
+            }
+            if (course.getCredit() == null || course.getCredit() <= 0) {
+                course.setCredit(2); // 默认学分2分
+            }
+            if (course.getStartWeek() == null || course.getStartWeek() <= 0) {
+                course.setStartWeek(1); // 默认开始周为第1周
+            }
+            if (course.getEndWeek() == null || course.getEndWeek() <= 0) {
+                course.setEndWeek(16); // 默认结束周为第16周
             }
 
             // 添加课程

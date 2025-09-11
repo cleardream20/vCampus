@@ -112,6 +112,38 @@ public class CourseDaoImpl implements CourseDao {
     }
 
     @Override
+    public int addCourse(Course course) {
+        // 使用更简单的SQL语句，避免复杂索引
+        String sql = "INSERT INTO Courses (CourseID, CourseName, TeacherID, TeacherName, Department, Credit, Schedule, Location, Capacity, SelectedNum, StartWeek, EndWeek) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // 设置参数
+            pstmt.setString(1, course.getCourseId());
+            pstmt.setString(2, course.getCourseName());
+            pstmt.setString(3, course.getTeacherId());
+            pstmt.setString(4, course.getTeacherName());
+            pstmt.setString(5, course.getDepartment());
+            pstmt.setInt(6, course.getCredit());
+            pstmt.setString(7, course.getSchedule());
+            pstmt.setString(8, course.getLocation());
+            pstmt.setInt(9, course.getCapacity());
+            pstmt.setInt(10, course.getSelectedNum());
+            pstmt.setInt(11, course.getStartWeek());
+            pstmt.setInt(12, course.getEndWeek());
+
+            int result = pstmt.executeUpdate();
+            System.out.println("添加课程结果: " + result);
+            return result;
+        } catch (SQLException e) {
+            System.err.println("添加课程失败: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("添加课程失败", e);
+        }
+    }
+    @Override
     public int selectCourse(String studentId, String courseId) {
         String sql = "INSERT INTO CourseSelections (StudentID, CourseID, SelectionTime) VALUES (?, ?, ?)";
 
@@ -221,7 +253,7 @@ public class CourseDaoImpl implements CourseDao {
             pstmt.setString(2, course.getTeacherId());
             pstmt.setString(3, course.getDepartment());
             pstmt.setInt(4, course.getCredit());
-            pstmt.setString(5, course.getTime());
+            pstmt.setString(5, course.getSchedule());
             pstmt.setString(6, course.getLocation());
             pstmt.setInt(7, course.getCapacity());
             pstmt.setInt(8, course.getSelectedNum());
@@ -235,31 +267,6 @@ public class CourseDaoImpl implements CourseDao {
         }
     }
 
-    @Override
-    public int addCourse(Course course) {
-        String sql = "INSERT INTO Courses (CourseID, CourseName, TeacherID, Department, Credit, Schedule, Location, Capacity, SelectedNum, StartWeek, EndWeek) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, course.getCourseId());
-            pstmt.setString(2, course.getCourseName());
-            pstmt.setString(3, course.getTeacherId());
-            pstmt.setString(4, course.getDepartment());
-            pstmt.setInt(5, course.getCredit());
-            pstmt.setString(6, course.getTime());
-            pstmt.setString(7, course.getLocation());
-            pstmt.setInt(8, course.getCapacity());
-            pstmt.setInt(9, course.getSelectedNum());
-            pstmt.setInt(10, course.getStartWeek());
-            pstmt.setInt(11, course.getEndWeek());
-
-            return pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("添加课程失败", e);
-        }
-    }
 
     @Override
     public int deleteCourse(String courseId) {
@@ -327,7 +334,7 @@ public class CourseDaoImpl implements CourseDao {
         course.setTeacherId(rs.getString("teacherId"));
         course.setDepartment(rs.getString("department"));
         course.setCredit(rs.getInt("credit"));
-        course.setTime(rs.getString("schedule"));
+        course.setSchedule(rs.getString("schedule"));
         course.setLocation(rs.getString("location"));
         course.setCapacity(rs.getInt("capacity"));
         course.setSelectedNum(rs.getInt("selectedNum"));

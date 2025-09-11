@@ -257,7 +257,6 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-
     @Override
     public Message getCourseSchedule(String studentId) {
         try {

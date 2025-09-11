@@ -243,7 +243,8 @@ public class CourseDaoImpl implements CourseDao {
 
     @Override
     public int updateCourse(Course course) {
-        String sql = "UPDATE Courses SET CourseName=?, TeacherID=?, Department=?, Credit=?, Schedule=?, Location=?, Capacity=?, SelectedNum=?, StartWeek=?, EndWeek=? " +
+        String sql = "UPDATE Courses SET CourseName=?, TeacherID=?, Department=?, Credit=?, " +
+                "Schedule=?, Location=?, Capacity=?, SelectedNum=?, StartWeek=?, EndWeek=? " +
                 "WHERE CourseID=?";
 
         try (Connection conn = getConnection();

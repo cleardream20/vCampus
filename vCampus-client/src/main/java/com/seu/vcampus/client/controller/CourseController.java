@@ -34,16 +34,18 @@ public class CourseController {
         return response.getStatus() == ResponseCode.OK;
     }
 
-    public boolean updateCourse(Course course) {
+    public boolean updateCourse(Course course,User user) {
         Message request = new Message(Message.UPDATE_COURSE);
         request.addData("course", course);
+        request.addData("user", user);
         Message response = socketHandler.sendMessage(request);
         return response.getStatus() == ResponseCode.OK;
     }
 
-    public boolean deleteCourse(String courseId) {
+    public boolean deleteCourse(String courseId,User user) {
         Message request = new Message(Message.DELETE_COURSE);
         request.addData("courseId", courseId);
+        request.addData("user", user);
         Message response = socketHandler.sendMessage(request);
         return response.getStatus() == ResponseCode.OK;
     }

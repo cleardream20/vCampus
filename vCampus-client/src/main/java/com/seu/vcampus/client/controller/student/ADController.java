@@ -28,8 +28,7 @@ import lombok.NoArgsConstructor;
 
 public class ADController {
 
-    public Object[][] getRandomStudent(int num)
-    {
+    public Object[][] getRandomStudent(int num) {
         Random rand = new Random();
         Object[][] students = new Object[num][14];
         for(int i = 0; i < num; i++){

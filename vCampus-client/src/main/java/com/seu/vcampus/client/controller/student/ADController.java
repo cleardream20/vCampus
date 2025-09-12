@@ -5,10 +5,6 @@ import java.util.Map;
 import java.util.Random;
 
 import com.seu.vcampus.common.model.Student;
-import com.seu.vcampus.common.model.User;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 //    private String cid; // card id 一卡通号
 //    private String tsid; // sid学生学号 + tid教职工号

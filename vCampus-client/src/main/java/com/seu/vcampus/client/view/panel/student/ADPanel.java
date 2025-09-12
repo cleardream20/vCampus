@@ -358,4 +358,12 @@ public class ADPanel extends JPanel implements NavigatablePanel {
     public String getPanelName() {
         return "StudentAD";
     }
+
+    public static void main(String[] args){
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        frame.add(new ADPanel());
+        frame.setSize(800,600);
+    }
 }

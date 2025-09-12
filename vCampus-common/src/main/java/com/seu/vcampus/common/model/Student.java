@@ -29,6 +29,26 @@ import java.util.Random;
 @AllArgsConstructor
 public class Student extends User implements Serializable {
 
+    public Student(String cid, String password, String tsid, String name,
+                   String email, String phone, String role,
+                   String sex, String birthday, String address, String nid,
+                   String endate, String grade, String major, String stid,
+                   String es, String esState) {
+        // 调用父类构造函数
+        super(cid, password, tsid, name, email, phone, role);
+        // 设置子类字段
+        this.sex = sex;
+        this.birthday = birthday;
+        this.address = address;
+        this.nid = nid;
+        this.endate = endate;
+        this.grade = grade;
+        this.major = major;
+        this.stid = stid;
+        this.es = es;
+        this.esState = esState;
+    }
+
     public String[] getData() {
 //      "一卡通号","身份证号","学号","姓名","性别","电话号码","出生日期","家庭住址","入学日期","学籍号","学院","年级","学制","学籍状态"
         return new String[] {getCid(), nid, getTsid(), getName(), sex, getPhone(), birthday, address, endate, stid, major, grade, es, esState};

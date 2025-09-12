@@ -27,7 +27,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("图书馆管理系统");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600);
+            frame.setSize(1200, 900);
             frame.setLocationRelativeTo(null);
 
             LibraryPanel libraryPanel = new LibraryPanel();
@@ -839,7 +839,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             JPanel borrowPanel = new JPanel(new BorderLayout());
             borrowPanel.setBorder(new TitledBorder("我的借阅"));
 
-            String[] borrowColumns = {"ISBN", "书名", "借阅日期", "应还日期", "状态"};
+            String[] borrowColumns = {"ISBN", "书名", "借阅日期", "应还日期", "状态","逾期费用","续借次数"};
             borrowTableModel = new DefaultTableModel(borrowColumns, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -903,7 +903,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             splitPane.setTopComponent(borrowPanel);
             splitPane.setBottomComponent(reservationPanel);
-            splitPane.setDividerLocation(200);
+            splitPane.setDividerLocation(300);
             splitPane.setResizeWeight(0.5);
 
             // 添加到主面板
@@ -917,7 +917,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             userNameLabel.setText("姓名: " + currentUser.getName());
             userIdLabel.setText("学号: " + currentUser.getCid());
 
-            borrowCountLabel.setText("借阅数量: "+borrowRecords.getLast().getRecordId());
+            borrowCountLabel.setText("借阅数量: "+borrowRecords.size());
             reservationCountLabel.setText("预约数量: 2");
         }
 
@@ -932,7 +932,9 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
                         borrows.getBookTitle(),
                         borrows.getBorrowDate(),
                         borrows.getDueDate(),
-                        borrows.getStatus()
+                        borrows.getStatus(),
+                        borrows.getFineAmount(),
+                        borrows.getRenewalCount()
                 };
                 borrowTableModel.addRow(rowData);
             }

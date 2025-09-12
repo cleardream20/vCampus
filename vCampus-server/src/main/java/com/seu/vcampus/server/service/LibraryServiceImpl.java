@@ -36,30 +36,7 @@ public class LibraryServiceImpl implements ILibraryService {
     }
 
     private void addMockBorrowRecords() {
-        // 获取当前时间
-        Calendar calendar = Calendar.getInstance();
-        Date now = calendar.getTime();
-
-        // 学生用户20210001的借书记录
-        addBorrowRecord("20210001", "9787111636665", "Java核心技术",
-                addDays(now, -15), // 15天前借出
-                addDays(now, 15),  // 15天后到期
-                null, "BORROWED", 0.0, 0);
-
-        addBorrowRecord("20210001", "9787115537977", "深入理解计算机系统",
-                addDays(now, -5),  // 5天前借出
-                addDays(now, 25),  // 25天后到期
-                null, "BORROWED", 0.0, 0);
-        // 逾期未还的记录
-        addBorrowRecord("20210001", "9787121382061", "算法导论",
-                addDays(now, -35), // 35天前借出
-                addDays(now, -5),  // 5天前到期
-                null, "OVERDUE", 15.0, 1); // 逾期5天，费用15元
-        // 已续借2次的记录
-        addBorrowRecord("20210001", "9787115480655", "数据库系统概念",
-                addDays(now, -40), // 40天前借出
-                addDays(now, 10),   // 10天后到期
-                null, "BORROWED", 0.0, 2); // 已续借2次
+       borrowRecords=bookDao.getBorrowRecordsByUserId("21320001");
     }
 
     private void addBorrowRecord(String userId, String bookIsbn, String bookTitle,
@@ -107,47 +84,17 @@ public class LibraryServiceImpl implements ILibraryService {
     @Override
     public List<BorrowRecord> getBorrowRecordsByUserId(String userId) {
         // 获取用户当前在借的图书列表
-        return borrowRecords.stream()
-                .filter(record -> record.getUserId().equals(userId))
-                .filter(record -> "BORROWED".equals(record.getStatus()) || "OVERDUE".equals(record.getStatus()))
-                .collect(Collectors.toList());
+        return bookDao.getBorrowRecordsByUserId(userId);
     }
+
+
 
     // 借阅图书
     @Override
     public boolean borrowBook(String userId, String isbn) {
-        // 查找图书
-        Optional<Book> bookOpt = books.stream()
-                .filter(b -> b.getIsbn().equals(isbn))
-                .findFirst();
-
-        if (!bookOpt.isPresent()) {
-            return false; // 图书不存在
-        }
-
-        Book book = bookOpt.get();
-
-        // 检查是否有可借数量
-        if (book.getAvailableCopies() <= 0) {
-            return false; // 无可借副本
-        }
-
-        // 更新图书可借数量
-        book.setAvailableCopies(book.getAvailableCopies() - 1);
-
-        // 计算借阅日期和应还日期
-        Date borrowDate = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(borrowDate);
-        calendar.add(Calendar.DAY_OF_MONTH, 30); // 借期30天
-        Date dueDate = calendar.getTime();
-
-        // 创建借书记录
-        addBorrowRecord(userId, isbn, book.getTitle(),
-                borrowDate, dueDate, null, "BORROWED", 0.0, 0);
-
-        return true;
+       return bookDao.borrowBook(userId,isbn);
     }
+
 
     // 归还图书
     @Override

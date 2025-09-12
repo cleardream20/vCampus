@@ -2,6 +2,8 @@ package com.seu.vcampus.server.dao;
 
 
 import com.seu.vcampus.common.model.Book;
+import com.seu.vcampus.common.model.BorrowRecord;
+
 import java.util.List;
 
 public interface IBookDao {
@@ -41,6 +43,12 @@ public interface IBookDao {
      * @return 修改是否成功
      */
     boolean updateBook(Book book);
+
+    List<BorrowRecord> getBorrowRecordsByUserId(String userId);
+
+    boolean borrowBook(String userId, String isbn);
+    boolean canUserBorrow(String userId);
+    boolean returnBook(Long recordId);
 
 
 }

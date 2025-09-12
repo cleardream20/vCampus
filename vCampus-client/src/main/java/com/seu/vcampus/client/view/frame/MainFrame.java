@@ -34,12 +34,12 @@ public class MainFrame extends JFrame {
     // 创建虚拟用户
     private User createVirtualUser() {
         User user = new User();
-        user.setId("ADMIN001");
-        user.setName("系统管理员");
-        user.setEmail("admin@vcampus.edu");
-        user.setPassword("admin123");
-        user.setAge(35);
-        user.setRole("AD"); // 管理员角色
+        user.setId("001");
+        user.setName("小明");
+        user.setEmail("xiaoming@qq.com");
+        user.setPassword("123");
+        user.setAge(18);
+        user.setRole("ST"); // 学生角色
         return user;
     }
 

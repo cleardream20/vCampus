@@ -70,4 +70,36 @@ public class CourseController {
         }
         return null;
     }
+
+    public Message selectCourse(String studentId, String courseId,User user) {
+        Message request = new Message(Message.SELECT_COURSE);
+        request.addData("studentId",studentId);
+        request.addData("courseId", courseId);
+        request.addData("user", user);
+        Message response = socketHandler.sendMessage(request);
+
+        return response;
+    }
+
+    public List<Course> getCoursesByStudentId(String studentId,User user) {
+        Message request = new Message(Message.GET_SELECTED_COURSES);
+        request.addData("studentId", studentId);
+        request.addData("user", user);
+        Message response = socketHandler.sendMessage(request);
+
+        if (response.getStatus() == ResponseCode.OK) {
+            return (List<Course>) response.getData().get("courses");
+        }
+        return null;
+    }
+
+    // 实现退课方法
+    public boolean dropCourse(String studentId, String courseId,User user) {
+        Message request = new Message(Message.DROP_COURSE);
+        request.addData("studentId", studentId);
+        request.addData("courseId", courseId);
+        request.addData("user", user);
+        Message response = socketHandler.sendMessage(request);
+        return response.getStatus() == ResponseCode.OK;
+    }
 }

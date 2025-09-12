@@ -9,6 +9,8 @@ import com.seu.vcampus.server.dao.CourseDao;
 import com.seu.vcampus.server.dao.CourseDaoImpl;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CourseServiceImpl implements CourseService {
     private final CourseDao courseDao;
@@ -45,7 +47,7 @@ public class CourseServiceImpl implements CourseService {
                         ResponseCode.NOT_FOUND, "课程不存在");
             }
 
-            // 检查课程是否已满
+             //检查课程是否已满
             if (course.getSelectedNum() >= course.getCapacity()) {
                 return createErrorResponse(Message.SELECT_COURSE,
                         ResponseCode.COURSE_FULL, "课程已满");
@@ -56,6 +58,20 @@ public class CourseServiceImpl implements CourseService {
             if (selectedCourses.stream().anyMatch(c -> c.getCourseId().equals(courseId))) {
                 return createErrorResponse(Message.SELECT_COURSE,
                         ResponseCode.ALREADY_SELECTED, "已选过该课程");
+            }
+
+            String newCourseSchedule = course.getSchedule();
+            if (newCourseSchedule != null && !newCourseSchedule.isEmpty()) {
+                for (Course selectedCourse : selectedCourses) {
+                    String selectedSchedule = selectedCourse.getSchedule();
+                    if (selectedSchedule != null && !selectedSchedule.isEmpty()) {
+                        if (hasTimeConflict(newCourseSchedule, selectedSchedule)) {
+                            return createErrorResponse(Message.SELECT_COURSE,
+                                    ResponseCode.TIME_CONFLICT,
+                                    "时间冲突：与已选课程《" + selectedCourse.getCourseName() + "》时间重叠");
+                        }
+                    }
+                }
             }
 
             // 执行选课
@@ -74,6 +90,66 @@ public class CourseServiceImpl implements CourseService {
                     ResponseCode.INTERNAL_SERVER_ERROR, "选课异常: " + e.getMessage());
         }
     }
+
+    // 辅助方法：检查时间冲突
+    private boolean hasTimeConflict(String schedule1, String schedule2) {
+        // 解析两个时间安排字符串
+        TimeSlot slot1 = parseTimeSlot(schedule1);
+        TimeSlot slot2 = parseTimeSlot(schedule2);
+
+        if (slot1 == null || slot2 == null) {
+            return false; // 解析失败，视为不冲突
+        }
+
+        // 星期不同，肯定不冲突
+        if (!slot1.dayOfWeek.equals(slot2.dayOfWeek)) {
+            return false;
+        }
+
+        // 检查节次是否重叠
+        return !(slot1.endSection < slot2.startSection || slot2.endSection < slot1.startSection);
+    }
+
+    // 辅助方法：解析时间安排字符串
+    private TimeSlot parseTimeSlot(String schedule) {
+        if (schedule == null || schedule.trim().isEmpty()) {
+            return null;
+        }
+
+        // 使用正则表达式匹配模式：星期 + 节次范围
+        Pattern pattern = Pattern.compile("(周一|周二|周三|周四|周五|周六|周日)\\s*(\\d+)-(\\d+)节?");
+        Matcher matcher = pattern.matcher(schedule);
+
+        if (matcher.find()) {
+            try {
+                String dayOfWeek = matcher.group(1);
+                int startSection = Integer.parseInt(matcher.group(2));
+                int endSection = Integer.parseInt(matcher.group(3));
+
+                return new TimeSlot(dayOfWeek, startSection, endSection);
+            } catch (NumberFormatException e) {
+                // 数字解析失败
+                return null;
+            }
+        }
+
+        return null; // 格式不匹配
+    }
+
+    // 内部类：表示时间槽（星期和节次范围）
+    private static class TimeSlot {
+        String dayOfWeek;
+        int startSection;
+        int endSection;
+
+        TimeSlot(String dayOfWeek, int startSection, int endSection) {
+            this.dayOfWeek = dayOfWeek;
+            this.startSection = startSection;
+            this.endSection = endSection;
+        }
+    }
+
+
 
     @Override
     public Message dropCourse(String studentId, String courseId) {

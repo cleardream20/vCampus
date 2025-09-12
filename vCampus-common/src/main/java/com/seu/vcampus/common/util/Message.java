@@ -38,11 +38,13 @@ public class Message implements Serializable {
         this.data = data;
     }
 
+    // Message.success() "特殊"的构造函数，专门构造STATUS_SUCCESS的Message
     public static Message success(String type, Object data, String message) {
 //        return new Message(type, STATUS_SUCCESS, data);
         return new Message(type, STATUS_SUCCESS, data, message);
     }
 
+    // Message.success() "特殊"的构造函数，专门构造STATUS_ERROR的Message
     public static Message error(String type, String error) {
         return new Message(type, STATUS_ERROR, null, error);
     }

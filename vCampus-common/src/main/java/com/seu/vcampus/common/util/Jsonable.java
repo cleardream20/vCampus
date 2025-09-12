@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 
 public interface Jsonable {
     // 全局唯一实例
+    // 注意不要.setPrettyPrinting(), 会影响后面的信息读取
     Gson gson = new GsonBuilder().create();
 
     /**

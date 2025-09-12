@@ -143,103 +143,6 @@ public class CourseDaoImpl implements CourseDao {
             throw new RuntimeException("添加课程失败", e);
         }
     }
-    @Override
-    public int selectCourse(String studentId, String courseId) {
-        String sql = "INSERT INTO CourseSelections (StudentID, CourseID, SelectionTime) VALUES (?, ?, ?)";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, studentId);
-            pstmt.setString(2, courseId);
-            pstmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-
-            int result = pstmt.executeUpdate();
-
-            // 更新课程已选人数
-            if (result > 0) {
-                updateSelectedNum(conn, courseId, 1);
-            }
-
-            return result;
-        } catch (SQLException e) {
-            throw new RuntimeException("选课失败", e);
-        }
-    }
-
-    private void updateSelectedNum(Connection conn, String courseId, int delta) throws SQLException {
-        String sql = "UPDATE Courses SET SelectedNum = SelectedNum + ? WHERE CourseID = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, delta);
-            pstmt.setString(2, courseId);
-            pstmt.executeUpdate();
-        }
-    }
-
-    @Override
-    public int dropCourse(String studentId, String courseId) {
-        String sql = "DELETE FROM CourseSelections WHERE StudentID = ? AND CourseID = ?";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, studentId);
-            pstmt.setString(2, courseId);
-
-            int result = pstmt.executeUpdate();
-
-            // 更新课程已选人数
-            if (result > 0) {
-                updateSelectedNum(conn, courseId, -1);
-            }
-
-            return result;
-        } catch (SQLException e) {
-            throw new RuntimeException("退课失败", e);
-        }
-    }
-
-    @Override
-    public List<Course> getCoursesByStudentId(String studentId) {
-        List<Course> courses = new ArrayList<>();
-        String sql = "SELECT c.* FROM Courses c " +
-                "JOIN CourseSelections cs ON c.CourseID = cs.CourseID " +
-                "WHERE cs.StudentID = ?";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, studentId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    courses.add(mapRowToCourse(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("按学生查询课程失败", e);
-        }
-        return courses;
-    }
-
-    @Override
-    public List<Course> getCoursesByTeacherId(String teacherId) {
-        List<Course> courses = new ArrayList<>();
-        String sql = "SELECT * FROM Courses WHERE TeacherID = ?";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, teacherId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    courses.add(mapRowToCourse(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("按教师查询课程失败", e);
-        }
-        return courses;
-    }
 
     @Override
     public int updateCourse(Course course) {
@@ -267,8 +170,6 @@ public class CourseDaoImpl implements CourseDao {
             throw new RuntimeException("更新课程失败", e);
         }
     }
-
-
     @Override
     public int deleteCourse(String courseId) {
         String sql = "DELETE FROM Courses WHERE CourseID = ?";
@@ -281,6 +182,203 @@ public class CourseDaoImpl implements CourseDao {
         } catch (SQLException e) {
             throw new RuntimeException("删除课程失败", e);
         }
+    }
+    @Override
+    public int selectCourse(String studentId, String courseId) {
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // 开始事务
+
+            // 1. 查询学生信息（从Users表）
+            String studentSql = "SELECT Name, Department FROM Users WHERE ID = ?";
+            String studentName = null;
+            String department = null;
+            try (PreparedStatement pstmt = conn.prepareStatement(studentSql)) {
+                pstmt.setString(1, studentId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        studentName = rs.getString("Name");
+                        department = rs.getString("Department");
+                        System.out.println("找到学生: " + studentId + ", 姓名: " + studentName + ", 院系: " + department);
+                    } else {
+                        throw new SQLException("学生不存在");
+                    }
+                }
+            }
+
+            // 2. 查询课程信息（从Courses表）
+            String courseSql = "SELECT CourseName FROM Courses WHERE CourseID = ?";
+            String courseName = null;
+            try (PreparedStatement pstmt = conn.prepareStatement(courseSql)) {
+                pstmt.setString(1, courseId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        courseName = rs.getString("CourseName");
+                        System.out.println("找到课程: " + courseId + ", 名称: " + courseName);
+                    } else {
+                        throw new SQLException("课程不存在");
+                    }
+                }
+            }
+
+            // 3. 插入选课记录（到SelectionRecords表）
+            String insertSql = "INSERT INTO SelectionRecords (StudentID, StudentName, CourseID, CourseName, SelectionTime, Department) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                pstmt.setString(1, studentId);
+                pstmt.setString(2, studentName);
+                pstmt.setString(3, courseId);
+                pstmt.setString(4, courseName);
+                pstmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+                pstmt.setString(6, department);
+                int insertResult = pstmt.executeUpdate();
+                System.out.println("插入选课记录结果: " + insertResult);
+            }
+
+            // 4. 更新课程已选人数（在Courses表中）
+            String updateSql = "UPDATE Courses SET SelectedNum = SelectedNum + 1 WHERE CourseID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
+                pstmt.setString(1, courseId);
+                int updateResult = pstmt.executeUpdate();
+                System.out.println("更新已选人数结果: " + updateResult);
+            }
+
+            conn.commit(); // 提交事务
+            return 1;
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback(); // 回滚事务
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            System.err.println("选课失败: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("选课失败", e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true); // 恢复自动提交
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<Course> getCoursesByStudentId(String studentId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT c.* FROM Courses c " +
+                "JOIN SelectionRecords sr ON c.CourseID = sr.CourseID " +
+                "WHERE sr.StudentID = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, studentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    courses.add(mapRowToCourse(rs));
+                }
+            }
+        } catch (SQLException e) {
+            // 添加更详细的错误信息
+            System.err.println("按学生ID查询课程失败: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("按学生查询课程失败: " + e.getMessage(), e);
+        }
+        return courses;
+    }
+
+    @Override
+    public int dropCourse(String studentId, String courseId) {
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // 开始事务
+
+            // 1. 删除选课记录
+            String deleteSql = "DELETE FROM SelectionRecords WHERE StudentID = ? AND CourseID = ?";
+            int result = 0;
+
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                deleteStmt.setString(1, studentId);
+                deleteStmt.setString(2, courseId);
+                result = deleteStmt.executeUpdate();
+            }
+
+            // 2. 如果删除成功，更新课程已选人数
+            if (result > 0) {
+                String updateSql = "UPDATE Courses SET SelectedNum = SelectedNum - 1 WHERE CourseID = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                    updateStmt.setString(1, courseId);
+                    int updateResult = updateStmt.executeUpdate();
+
+                    if (updateResult == 0) {
+                        // 课程不存在或更新失败
+                        conn.rollback(); // 回滚事务
+                        return 0;
+                    }
+                }
+            }
+
+            conn.commit(); // 提交事务
+            return result;
+        } catch (SQLException e) {
+            // 发生异常时回滚事务
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            throw new RuntimeException("退课失败: " + e.getMessage(), e);
+        } finally {
+            // 恢复自动提交并关闭连接
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void updateSelectedNum(Connection conn, String courseId, int delta) throws SQLException {
+        String sql = "UPDATE Courses SET SelectedNum = SelectedNum + ? WHERE CourseID = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, delta);
+            pstmt.setString(2, courseId);
+            pstmt.executeUpdate();
+        }
+    }
+
+
+    @Override
+    public List<Course> getCoursesByTeacherId(String teacherId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM Courses WHERE TeacherID = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, teacherId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    courses.add(mapRowToCourse(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("按教师查询课程失败", e);
+        }
+        return courses;
     }
 
     @Override

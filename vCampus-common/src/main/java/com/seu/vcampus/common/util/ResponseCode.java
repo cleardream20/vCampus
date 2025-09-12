@@ -19,7 +19,7 @@ public class ResponseCode {
     public static final int PREREQUISITE_NOT_MET = 1006;
     public static final int COURSE_NOT_FOUND = 1007;
     public static final int COURSE_ALREADY_EXISTS = 1008;
-
+    public static final int TIME_CONFLICT = 1009;
     // 用户相关
     public static final int USER_NOT_FOUND = 2001;
 

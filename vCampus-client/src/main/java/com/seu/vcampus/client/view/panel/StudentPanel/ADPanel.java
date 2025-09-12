@@ -16,7 +16,7 @@ import java.util.Map;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
-import com.seu.vcampus.client.controller.Student.ADController;
+import com.seu.vcampus.client.controller.student.ADController;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.common.model.User;
 

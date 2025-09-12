@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.seu.vcampus.client.controller.Student.STController;
+import com.seu.vcampus.client.controller.student.STController;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;

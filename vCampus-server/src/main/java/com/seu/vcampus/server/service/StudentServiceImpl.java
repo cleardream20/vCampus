@@ -21,7 +21,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<Student> getAllUsers(HashMap<Integer, String> filters) throws SQLException{
+    public List<Student> getAllStudents(HashMap<Integer, String> filters) throws SQLException{
         return studentDao.getStudents(filters);
     }
 }

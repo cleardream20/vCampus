@@ -20,7 +20,8 @@ public class Message implements Serializable {
     public static final String LOGOUT = "LOGOUT";
     public static final String RESPONSE = "RESPONSE";
     public static final String ENTER_USER_CENTER = "ENTER_USER_CENTER";
-    public static final String CONTROL_STUDENT =  "CONTROL_STUDENT";
+    public static final String AD_STUDENT =  "AD_STUDENT";
+    public static final String ST_STUDENT =  "ST_STUDENT";
     public static final String SELECT_COURSE = "SELECT_COURSE";
 
     public static final String STATUS_SUCCESS = "SUCCESS";

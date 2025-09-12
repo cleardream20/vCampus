@@ -22,6 +22,6 @@ public interface StudentService {
      * @return List<Student> 用户列表
      * @throws SQLException sql错误
      */
-    List<Student> getAllUsers(HashMap<Integer, String> filters) throws SQLException;
+    List<Student> getAllStudents(HashMap<Integer, String> filters) throws SQLException;
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public class UserDaoImpl implements UserDao {
     @Override
     public User getUser(String cid) throws SQLException {
-        String sql = "select * from users where cid = ?";
+        String sql = "select * from tblUser where cid = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
             ps.setString(1,cid);
@@ -20,11 +20,13 @@ public class UserDaoImpl implements UserDao {
                             rs.getString("cid"),
                             rs.getString("password"),
                             rs.getString("tsid"),
-                            rs.getString("name"),
+                            rs.getString("tname"),
                             rs.getString("email"),
                             rs.getString("phone"),
                             rs.getString("role")
                     );
+                    // 记得return!
+                    return user;
                 }
             }
         } catch (SQLException ex) {
@@ -37,7 +39,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean addUser(User user) throws SQLException {
-        String sql = "INSERT INTO Users (cid, password, tsid, name, email, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tblUser (cid, password, tsid, name, email, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
             ps.setString(1,  user.getCid());
@@ -61,7 +63,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean updateUser(User user) throws SQLException {
-        String sql = "UPDATE Users SET password = ?, tsid = ?, name = ?, email = ?, phone = ?, role = ? WHERE cid = ?";
+        String sql = "UPDATE tblUser SET password = ?, tsid = ?, name = ?, email = ?, phone = ?, role = ? WHERE cid = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
             ps.setString(1, user.getPassword());
@@ -81,7 +83,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean deleteUser(String cid) throws SQLException {
-        String sql = "DELETE FROM users WHERE cid = ?";
+        String sql = "DELETE FROM tblUser WHERE cid = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
             ps.setString(1, cid);
@@ -96,7 +98,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM tblUser";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -106,7 +108,7 @@ public class UserDaoImpl implements UserDao {
                         rs.getString("cid"),
                         rs.getString("password"),
                         rs.getString("tsid"),
-                        rs.getString("name"),
+                        rs.getString("tname"),
                         rs.getString("email"),
                         rs.getString("phone"),
                         rs.getString("role")

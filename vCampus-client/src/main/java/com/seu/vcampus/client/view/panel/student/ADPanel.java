@@ -30,8 +30,6 @@ public class ADPanel extends JPanel implements NavigatablePanel {
     private Map<Integer, String> filters = new HashMap<>();
     ADController adController;
 
-
-
     public ADPanel() {
         setLayout(new BorderLayout());
 

@@ -27,9 +27,10 @@ public class ClientSocketUtil {
             // 不要把 socket 放进 try-with-resources
             try (PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
                  BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-
+                System.out.println("尝试接收信息");
                 writer.println(request.toJson());
                 String responseLine = reader.readLine();
+                System.out.println("response信息: " + responseLine);
                 if (responseLine == null || responseLine.trim().isEmpty()) {
                     throw new IOException("服务器未返回响应");
                 }

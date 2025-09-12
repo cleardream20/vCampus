@@ -57,6 +57,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User Login(String cid, String password) throws SQLException {
         User user = userDao.getUser(cid);
+        System.out.println("获取用户成功！");
         if(user != null && user.getPassword().equals(password)) {
             return user;
         }

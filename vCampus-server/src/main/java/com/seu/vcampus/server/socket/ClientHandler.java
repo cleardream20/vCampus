@@ -77,7 +77,7 @@ public class ClientHandler implements Runnable {
         switch (type) {
             case Message.LOGIN:
                 try {
-                    return userController.handleRequest(request);
+                    return userController.handleLogin(request);
                 } catch (Exception e) {
                     System.err.println("登录异常: " + e.getMessage());
                 }

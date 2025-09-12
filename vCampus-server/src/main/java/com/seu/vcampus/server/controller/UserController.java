@@ -34,4 +34,24 @@ public class UserController {
                 return Message.fromData(Message.RESPONSE, false, null, "不支持的操作");
         }
     }
+
+    // UserController.java 示例
+    public Message handleLogin(Message request) throws SQLException {
+        User user = Jsonable.fromJson(
+                Jsonable.toJson(request.getData()),
+                User.class
+        );
+
+        if (user == null) {
+            return Message.error(Message.LOGIN, "用户数据无效");
+        }
+
+        User result = userService.Login(user.getCid(), user.getPassword());
+        if (result == null || !result.getPassword().equals(user.getPassword())) {
+            return Message.error(Message.LOGIN, "学号或密码错误");
+        }
+
+        // 直接传 User 对象，不要 toJson()
+        return Message.success(Message.LOGIN, result, "登录成功");
+    }
 }

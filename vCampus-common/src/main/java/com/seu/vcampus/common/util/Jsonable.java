@@ -9,7 +9,7 @@ public interface Jsonable {
 
     /**
      * 实现Jsonable接口的类将自己转换成JSON字符串
-     * @return
+     * @return to Json后的结果
      */
     default String toJson() {
         return gson.toJson(this);
@@ -21,9 +21,6 @@ public interface Jsonable {
      * @return Json String
      */
     static String toJson(Object obj) {
-        if (obj == null) {
-            return "null";
-        }
         return gson.toJson(obj);
     }
 

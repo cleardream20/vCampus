@@ -18,11 +18,14 @@ public class LoginService {
         }
 
         // 构造请求数据
-        JsonObject data = new JsonObject();
-        data.addProperty("cid", cid.trim());
-        data.addProperty("password", password.trim());
+//        JsonObject data = new JsonObject();
+//        data.addProperty("cid", cid.trim());
+//        data.addProperty("password", password.trim());
+        User user = new User();
+        user.setCid(cid);
+        user.setPassword(password);
 
-        Message request = new Message(Message.LOGIN, data.toString());
+        Message request = Message.success(Message.LOGIN, user, "尝试登录");
 
         try {
             Message response = ClientSocketUtil.sendRequest(request);
@@ -35,12 +38,17 @@ public class LoginService {
                         response.getMessage() : "登录失败");
             }
 
-            String userData = (String) response.getData();
-            if(userData == null || userData.trim().isEmpty()) {
-                throw new Exception("出错：未返回用户信息");
-            }
+            user = Jsonable.fromJson(
+                    Jsonable.toJson(response.getData()),
+                    User.class
+            );
 
-            User user = Jsonable.fromJson(userData, User.class);
+//            String userData = (String) response.getData();
+//            if(userData == null || userData.trim().isEmpty()) {
+//                throw new Exception("出错：未返回用户信息");
+//            }
+//
+//            user = Jsonable.fromJson(userData, User.class);
             if(user == null) {
                 throw new Exception("用户信息解析失败");
             }

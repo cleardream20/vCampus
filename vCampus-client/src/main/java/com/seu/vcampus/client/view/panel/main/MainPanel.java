@@ -1,4 +1,4 @@
-package com.seu.vcampus.client.view.panel;
+package com.seu.vcampus.client.view.panel.main;
 
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.client.view.frame.MainFrame;
@@ -13,6 +13,7 @@ public class MainPanel extends JPanel implements NavigatablePanel {
     private JButton btnCourse;
     private JButton btnLibrary;
     private JButton btnShop;
+    private JButton btnDorm;
 
     public MainPanel() {
         setLayout(new GridBagLayout());
@@ -57,8 +58,9 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         btnCourse = new JButton("选课系统");
         btnLibrary = new JButton("图书馆");
         btnShop = new JButton("商店");
+        btnDorm = new JButton("宿舍");
 
-        JButton[] buttons = {btnStudent, btnCourse, btnLibrary, btnShop};
+        JButton[] buttons = {btnStudent, btnCourse, btnLibrary, btnShop, btnDorm};
         for (JButton btn : buttons) {
             btn.setFont(btnFont);
             btn.setPreferredSize(btnSize);
@@ -82,7 +84,7 @@ public class MainPanel extends JPanel implements NavigatablePanel {
 
     private void attemptEnterUserCenter() {
         MainFrame mainFrame = MainFrame.getInstance();
-        mainFrame.showUserCenterPanel(mainFrame.getCurrentUser());
+        mainFrame.showUserCenterPanel();
     }
 
     private void attemptEnterStudent() {

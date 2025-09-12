@@ -4,9 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 
 import com.seu.vcampus.client.view.panel.CoursePanel;
-import com.seu.vcampus.client.view.panel.MainPanel;
+import com.seu.vcampus.client.view.panel.main.MainPanel;
 import com.seu.vcampus.client.view.panel.RegisterPanel;
 import com.seu.vcampus.client.view.panel.library.LibraryMainPanel; // 新的图书馆主面板
+import com.seu.vcampus.client.view.panel.main.UserCenterPanel;
 import com.seu.vcampus.client.view.panel.student.ADPanel;
 import com.seu.vcampus.client.view.panel.student.STPanel;
 import com.seu.vcampus.common.model.User;
@@ -27,6 +28,7 @@ public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainPanel; // 主容器面板
 
+    private UserCenterPanel userCenterPanel;
     // 声明新的 LibraryMainPanel 实例（延迟初始化）
     private LibraryMainPanel libraryMainPanel;
     private STPanel stPanel;
@@ -79,6 +81,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "LIBRARY");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "STUDENT");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "COURSE");
+        mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "USER_CENTER");
 
         add(mainPanel);
     }
@@ -109,9 +112,12 @@ public class MainFrame extends JFrame {
         showPanel("MAIN");
     }
 
-    public void showUserCenterPanel(User user) {
-        currentUser = user;
-        showPanel("USERCENTER"); // 注意：如果你没有添加 USERCENTER 面板，请确保已添加
+    public void showUserCenterPanel() {
+        userCenterPanel = new UserCenterPanel();
+        mainPanel.add(userCenterPanel, "USER_CENTER");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        showPanel("USER_CENTER"); // 注意：如果你没有添加 USER_CENTER 面板，请确保已添加
     }
 
     /**

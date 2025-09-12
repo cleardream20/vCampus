@@ -26,7 +26,7 @@ public class Message implements Serializable {
     public static final String STATUS_SUCCESS = "SUCCESS";
     public static final String STATUS_ERROR = "ERROR";
 
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson gson = new GsonBuilder().create();
 
     private String type;
     private String status;
@@ -40,7 +40,7 @@ public class Message implements Serializable {
 
     public static Message success(String type, Object data, String message) {
 //        return new Message(type, STATUS_SUCCESS, data);
-        return new Message(type, STATUS_SUCCESS, Jsonable.toJson(data), message);
+        return new Message(type, STATUS_SUCCESS, data, message);
     }
 
     public static Message error(String type, String error) {
@@ -61,14 +61,14 @@ public class Message implements Serializable {
      * @return fromJson 原Message对象
      */
     public static Message fromJson(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            throw new IllegalArgumentException("JSON 不能为空");
+        }
         return gson.fromJson(json, Message.class);
     }
 
     public static Message fromData(String type, boolean success, Object data, String message) {
-        if(success) {
-            return Message.success(type, data, message);
-        }
-        return Message.error(type, message);
+        return success ? success(type, data, message) : error(type, message);
     }
 
     public boolean isSuccess() {

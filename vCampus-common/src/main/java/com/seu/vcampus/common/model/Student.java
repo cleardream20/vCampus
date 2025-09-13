@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Random;
 
 //public class User implements Serializable {
 //    private String cid; // card id 一卡通号
@@ -49,7 +48,7 @@ public class Student extends User implements Serializable {
         this.esState = esState;
     }
 
-    public String[] getData() {
+    public Object[] getRow() {
 //      "一卡通号","身份证号","学号","姓名","性别","电话号码","出生日期","家庭住址","入学日期","学籍号","学院","年级","学制","学籍状态"
         return new String[] {getCid(), nid, getTsid(), getName(), sex, getPhone(), birthday, address, endate, stid, major, grade, es, esState};
     }

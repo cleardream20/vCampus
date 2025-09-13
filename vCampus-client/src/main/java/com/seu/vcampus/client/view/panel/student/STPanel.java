@@ -2,10 +2,8 @@ package com.seu.vcampus.client.view.panel.student;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import com.seu.vcampus.client.controller.student.STController;
+import com.seu.vcampus.client.service.StudentService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
@@ -26,8 +24,13 @@ public class STPanel extends JPanel implements NavigatablePanel {
 //        User user = MainFrame.getInstance().getCurrentUser();
         User user = new User();
         String userId = user.getCid();
-        STController controller = new STController();
-        this.currentStudent = controller.getStudent(userId);
+        StudentService service = new StudentService();
+        try {
+            this.currentStudent = service.getStudent(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         initializeUI();
         setFieldsEditable(false); // 确保字段不可编辑
     }
@@ -193,8 +196,13 @@ public class STPanel extends JPanel implements NavigatablePanel {
     @Override
     public void refreshPanel(User user) {
         String userId = user.getCid();
-        STController controller = new STController();
-        Student student = controller.getStudent(userId);
+        StudentService service = new StudentService();
+        Student student = this.currentStudent;
+        try {
+            student = service.getStudent(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         this.currentStudent = student;
 
         // 更新所有字段

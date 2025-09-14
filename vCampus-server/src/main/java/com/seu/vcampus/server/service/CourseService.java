@@ -30,7 +30,7 @@ public interface CourseService {
     Message deleteCourse(String courseId);
 
     // 获取课程表
-    Message getCourseSchedule(String studentId);
+    Message getCourseSchedule(String studentId,String semester);
 
     Message getCourseById(String keyword);
 

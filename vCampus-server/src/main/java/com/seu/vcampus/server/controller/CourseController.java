@@ -53,7 +53,7 @@ public class CourseController {
 
         String studentId = user.getId();
         String courseId = (String) request.getData().get("courseId");
-
+        String semester= (String) request.getData().get("semester");
         switch (request.getType()) {
             case Message.SELECT_COURSE:
                 return courseService.selectCourse(studentId, courseId);
@@ -62,7 +62,7 @@ public class CourseController {
             case Message.GET_SELECTED_COURSES:
                 return courseService.getSelectedCourses(studentId);
             case Message.GET_COURSE_SCHEDULE:
-                return courseService.getCourseSchedule(studentId);
+                return courseService.getCourseSchedule(studentId,semester);
             default:
                 return createErrorResponse(request, ResponseCode.INTERNAL_SERVER_ERROR, "请求处理失败");
         }

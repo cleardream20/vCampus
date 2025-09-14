@@ -2,6 +2,7 @@ package com.seu.vcampus.client.controller;
 
 import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.model.Course;
+import com.seu.vcampus.common.model.CourseSchedule;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.ResponseCode;
@@ -101,5 +102,18 @@ public class CourseController {
         request.addData("user", user);
         Message response = socketHandler.sendMessage(request);
         return response.getStatus() == ResponseCode.OK;
+    }
+
+    public CourseSchedule getCoursesSchedual(String id, User user, String semester) {
+        Message request = new Message(Message.GET_COURSE_SCHEDULE);
+        request.addData("studentId", id);
+        request.addData("user", user);
+        request.addData("semester", semester);
+        Message response = socketHandler.sendMessage(request);
+
+        if (response.getStatus() == ResponseCode.OK) {
+            return (CourseSchedule) response.getData().get("schedule");
+        }
+        return null;
     }
 }

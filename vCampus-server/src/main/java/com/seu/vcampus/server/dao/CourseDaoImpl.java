@@ -454,6 +454,32 @@ public class CourseDaoImpl implements CourseDao {
         return records;
     }
 
+    @Override
+    public List<Course> getCourseSchedule(String studentId, String semester) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT c.* FROM Courses c " +
+                "JOIN SelectionRecords sr ON c.CourseID = sr.CourseID " +
+                "WHERE sr.StudentID = ? AND c.semester = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, studentId);
+            pstmt.setString(2, semester);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Course course = mapRowToCourse(rs);
+                    courses.add(course);
+                }
+            }
+            System.out.println("成功获取学生 " + studentId + " 在学期 " + semester + " 的 " + courses.size() + " 门课程");
+        } catch (SQLException e) {
+            System.err.println("获取课表失败: " + e.getMessage());
+            throw new RuntimeException("获取课表失败", e);
+        }
+        return courses;
+    }
 
     private Course mapRowToCourse(ResultSet rs) throws SQLException {
         Course course = new Course();

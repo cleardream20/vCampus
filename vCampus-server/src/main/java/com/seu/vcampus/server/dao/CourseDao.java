@@ -1,7 +1,6 @@
 package com.seu.vcampus.server.dao;
 
 import com.seu.vcampus.common.model.Course;
-import com.seu.vcampus.common.model.CourseSelectionRule;
 import com.seu.vcampus.common.model.SelectionRecord;
 
 import java.util.List;
@@ -38,4 +37,6 @@ public interface CourseDao {
     List<SelectionRecord> getSelectionRecords(String courseId);
 
     List<Course> getCoursesByName(String keyword);
+
+    List<Course> getCourseSchedule(String studentId, String semester);
 }

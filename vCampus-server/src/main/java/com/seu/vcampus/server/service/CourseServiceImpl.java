@@ -334,10 +334,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Message getCourseSchedule(String studentId) {
+    public Message getCourseSchedule(String studentId, String semester) {
         try {
             // 1. 获取学生已选课程
-            List<Course> selectedCourses = courseDao.getCoursesByStudentId(studentId);
+            List<Course> selectedCourses = courseDao.getCourseSchedule(studentId,semester);
 
             // 2. 构建课表数据结构
             CourseSchedule schedule = new CourseSchedule(studentId);

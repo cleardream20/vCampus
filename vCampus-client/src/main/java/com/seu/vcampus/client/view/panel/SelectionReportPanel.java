@@ -14,7 +14,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
-public class SelectionReportPanel extends JPanel {
+public class SelectionReportPanel extends JPanel implements CoursePanel.Refreshable{
     private JTable studentTable;
     private JComboBox<String> courseSelector;
     private User currentUser;
@@ -25,7 +25,6 @@ public class SelectionReportPanel extends JPanel {
         this.courseController = new CourseController();
         setLayout(new BorderLayout());
         initUI();
-        loadCourseList();
     }
 
     private void initUI() {
@@ -241,5 +240,11 @@ public class SelectionReportPanel extends JPanel {
             isPushed = false;
             return label;
         }
+    }
+
+    @Override
+    public void refreshData() {
+        loadCourseList(); // 调用原有的课程列表加载方法
+        System.out.println("[DEBUG] 选课统计数据已刷新");
     }
 }

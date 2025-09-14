@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CourseSchedulePanel extends JPanel {
+public class CourseSchedulePanel extends JPanel implements CoursePanel.Refreshable{
     private JTable scheduleTable;
     private JComboBox<Integer> weekSelector;
     private JComboBox<String> semesterSelector;
@@ -44,7 +44,6 @@ public class CourseSchedulePanel extends JPanel {
         this.courseController = new CourseController();
         setLayout(new BorderLayout());
         initUI();
-        loadSemesters();
     }
 
     private void initUI() {
@@ -332,5 +331,11 @@ public class CourseSchedulePanel extends JPanel {
         } catch (NumberFormatException e) {
             return -1;
         }
+    }
+
+    @Override
+    public void refreshData() {
+        loadSemesters(); // 调用原有的学期加载方法
+        System.out.println("[DEBUG] 课表数据已刷新");
     }
 }

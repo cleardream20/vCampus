@@ -10,7 +10,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
 
-public class CourseSelectionPanel extends JPanel {
+public class CourseSelectionPanel extends JPanel implements CoursePanel.Refreshable{
     private JTable selectedCoursesTable;
     private CourseController courseController;
     private User currentUser;
@@ -20,7 +20,6 @@ public class CourseSelectionPanel extends JPanel {
         this.courseController = new CourseController();
         setLayout(new BorderLayout());
         initUI();
-        loadSelectedCourses();
     }
 
     private void initUI() {
@@ -184,5 +183,11 @@ public class CourseSelectionPanel extends JPanel {
             isPushed = false;
             return super.stopCellEditing();
         }
+    }
+
+    @Override
+    public void refreshData() {
+        loadSelectedCourses(); // 调用原有的数据加载方法
+        System.out.println("[DEBUG] 选课数据已刷新");
     }
 }

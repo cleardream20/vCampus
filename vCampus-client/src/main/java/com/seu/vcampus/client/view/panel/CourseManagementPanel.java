@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseManagementPanel extends JPanel {
+public class CourseManagementPanel extends JPanel implements CoursePanel.Refreshable{
     private JTable courseTable;
     private CourseController courseController;
     private User currentUser;
@@ -22,7 +22,6 @@ public class CourseManagementPanel extends JPanel {
         this.currentUser = user;
         setLayout(new BorderLayout());
         initUI();
-        loadCourseData();
     }
 
     private void initUI() {
@@ -675,5 +674,11 @@ public class CourseManagementPanel extends JPanel {
                     "错误",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    @Override
+    public void refreshData() {
+        loadCourseData(); // 调用原有的数据加载方法
+        System.out.println("[DEBUG] 课程管理数据已刷新");
     }
 }

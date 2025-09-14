@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
         user.setEmail("xiaoming@qq.com");
         user.setPassword("123");
         user.setAge(18);
-        user.setRole("ST"); // 学生角色
+        user.setRole("AD"); // 学生角色
         return user;
     }
 

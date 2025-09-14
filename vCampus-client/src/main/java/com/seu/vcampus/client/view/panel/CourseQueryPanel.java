@@ -12,7 +12,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class CourseQueryPanel extends JPanel {
+public class CourseQueryPanel extends JPanel implements CoursePanel.Refreshable{
     private JTable courseTable;
     private JTextField searchField;
     private JComboBox<String> searchTypeComboBox;
@@ -24,7 +24,6 @@ public class CourseQueryPanel extends JPanel {
         this.courseController = new CourseController();
         setLayout(new BorderLayout());
         initUI();
-        loadCourseData();
     }
 
     private void initUI() {
@@ -230,5 +229,11 @@ public class CourseQueryPanel extends JPanel {
             isPushed = false;
             return super.stopCellEditing();
         }
+    }
+
+    @Override
+    public void refreshData() {
+        loadCourseData(); // 调用原有的数据加载方法
+        System.out.println("[DEBUG] 课程查询数据已刷新");
     }
 }

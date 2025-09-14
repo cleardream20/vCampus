@@ -433,24 +433,44 @@ public class CourseDaoImpl implements CourseDao {
     @Override
     public List<SelectionRecord> getSelectionRecords(String courseId) {
         List<SelectionRecord> records = new ArrayList<>();
-        String sql = "SELECT * FROM CourseSelections WHERE CourseID = ?";
+        String sql = "SELECT sr.StudentID, u.Name AS StudentName, sr.CourseID, c.CourseName, " +
+                "sr.SelectionTime, u.Department " +
+                "FROM SelectionRecords sr " +
+                "JOIN Users u ON sr.StudentID = u.ID " +
+                "JOIN Courses c ON sr.CourseID = c.CourseID " +
+                "WHERE sr.CourseID = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, courseId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    SelectionRecord record = new SelectionRecord();
-                    record.setStudentId(rs.getString("StudentID"));
-                    record.setCourseId(rs.getString("CourseID"));
-                    record.setSelectionTime(rs.getTimestamp("SelectionTime").toLocalDateTime());
-                    records.add(record);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                SelectionRecord record = new SelectionRecord();
+                record.setStudentId(rs.getString("StudentID"));
+                record.setStudentName(rs.getString("StudentName"));
+                record.setCourseId(rs.getString("CourseID"));
+                record.setCourseName(rs.getString("CourseName"));
+
+                // 关键修复：将Timestamp转为LocalDateTime
+                Timestamp timestamp = rs.getTimestamp("SelectionTime");
+                if (timestamp != null) {
+                    record.setSelectionTime(timestamp.toLocalDateTime());
+                } else {
+                    record.setSelectionTime(null); // 或设置默认值
                 }
+
+                record.setDepartment(rs.getString("Department"));
+                records.add(record);
             }
+
+            System.out.println("成功获取课程 " + courseId + " 的 " + records.size() + " 条选课记录");
         } catch (SQLException e) {
-            throw new RuntimeException("获取选课记录失败", e);
+            System.err.println("查询选课记录失败: " + e.getMessage());
+            throw new RuntimeException("查询选课记录失败", e);
         }
+
         return records;
     }
 

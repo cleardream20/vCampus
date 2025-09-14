@@ -18,11 +18,8 @@ public class CourseController {
                 return courseService.getCourseById((String) request.getData().get("keyword"));
             case Message.GET_COURSE_BY_NAME:
                 return courseService.getCourseByName((String) request.getData().get("keyword"));
-            case Message.GET_TEACHING_COURSES:
-                // 获取教师课程不需要用户信息
-                return courseService.getTeachingCourses(user.getId());
-            case Message.SELECT_COURSE:
             case Message.DROP_COURSE:
+            case Message.SELECT_COURSE:
             case Message.GET_SELECTED_COURSES:
             case Message.GET_COURSE_SCHEDULE:
                 // 学生选课相关操作
@@ -31,6 +28,8 @@ public class CourseController {
             case Message.ADD_COURSE:
             case Message.UPDATE_COURSE:
             case Message.DELETE_COURSE:
+            case Message.GET_SELECTION_RECORDS:
+            case Message.DROP_COURSE_AD:
                 // 管理员课程管理操作
                 return handleAdminCourseOperations(request, user);
 
@@ -93,6 +92,13 @@ public class CourseController {
                 String courseId = (String) request.getData().get("courseId");
                 return courseService.deleteCourse(courseId);
 
+            case Message.GET_SELECTION_RECORDS:
+                String courseId_1 = (String) request.getData().get("courseId");
+                return courseService.getSelectionRecords(courseId_1);
+            case Message.DROP_COURSE_AD:
+                String courseId_2 = (String) request.getData().get("courseId");
+                String studentId_2 = (String) request.getData().get("studentId");
+                return courseService.dropCourseAD(studentId_2, courseId_2);
             default:
                 return createErrorResponse(request, ResponseCode.INTERNAL_SERVER_ERROR, "请求处理失败");
         }

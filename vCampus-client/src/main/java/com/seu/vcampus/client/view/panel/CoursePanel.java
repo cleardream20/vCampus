@@ -2,7 +2,6 @@ package com.seu.vcampus.client.view.panel;
 
 import com.seu.vcampus.common.model.User;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -10,25 +9,29 @@ public class CoursePanel extends JPanel {
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private JTabbedPane userTabbedPane;
-    private JTable courseTable;
-    private User currentUser; // 添加用户变量
+    private JTabbedPane adminTabbedPane; // 修复：添加缺失的成员变量
+    private User currentUser;
 
-    // 修改构造函数以接收用户信息
+    // 定义刷新接口
+    public interface Refreshable {
+        void refreshData();
+    }
+
     public CoursePanel(User user) {
-        this.currentUser = user; // 保存用户信息
+        this.currentUser = user;
         setLayout(new BorderLayout());
         initUI();
 
         // 根据用户角色决定初始界面
         if ("AD".equals(user.getRole())) {
-            showAdminPanel(); // 管理员直接显示管理员界面
+            showAdminPanel();
         } else {
-            showUserPanel(); // 学生显示用户界面
+            showUserPanel();
         }
     }
 
     private void initUI() {
-        // 使用CardLayout实现界面切换
+        // 使用标准CardLayout（移除自定义实现）
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
@@ -40,41 +43,60 @@ public class CoursePanel extends JPanel {
         add(mainPanel, BorderLayout.CENTER);
     }
 
+    // 辅助方法：通过可见性判断当前卡片
+    private void refreshCurrentCard() {
+        for (Component comp : mainPanel.getComponents()) {
+            if (comp.isVisible() && comp instanceof Refreshable) {
+                ((Refreshable) comp).refreshData();
+            }
+        }
+    }
+
     private JPanel createUserPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
         // 顶部选项卡
         userTabbedPane = new JTabbedPane();
-        userTabbedPane.addTab("课程查询", new CourseQueryPanel(currentUser));
-        userTabbedPane.addTab("选课管理", new CourseSelectionPanel(currentUser));
-        userTabbedPane.addTab("我的课表", new CourseSchedulePanel(currentUser));
 
-        // 移除管理员登录按钮
-        // 不再显示右上角的管理员登录按钮
+        // 创建子面板（实现Refreshable接口）
+        CourseQueryPanel queryPanel = new CourseQueryPanel(currentUser);
+        CourseSelectionPanel selectionPanel = new CourseSelectionPanel(currentUser);
+        CourseSchedulePanel schedulePanel = new CourseSchedulePanel(currentUser);
 
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(userTabbedPane, BorderLayout.CENTER);
+        userTabbedPane.addTab("课程查询", queryPanel);
+        userTabbedPane.addTab("选课管理", selectionPanel);
+        userTabbedPane.addTab("我的课表", schedulePanel);
 
-        panel.add(topPanel, BorderLayout.CENTER);
+        // 添加选项卡切换监听
+        userTabbedPane.addChangeListener(e -> {
+            Component selected = userTabbedPane.getSelectedComponent();
+            if (selected instanceof Refreshable) {
+                ((Refreshable) selected).refreshData();
+            }
+        });
+
+        panel.add(userTabbedPane, BorderLayout.CENTER);
         return panel;
     }
 
     private JPanel createAdminPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        adminTabbedPane = new JTabbedPane(); // 修复：初始化成员变量
 
-        // 移除返回用户界面按钮
-        // 不再显示顶部的返回按钮
+        // 创建子面板（实现Refreshable接口）
+        CourseManagementPanel managementPanel = new CourseManagementPanel(currentUser);
+        SelectionReportPanel reportPanel = new SelectionReportPanel(currentUser);
 
-        // 管理员功能选项卡
-        JTabbedPane adminTabbedPane = new JTabbedPane();
+        adminTabbedPane.addTab("课程管理", managementPanel);
+        adminTabbedPane.addTab("选课统计", reportPanel);
 
-        // 创建课程管理面板 - 传递当前用户信息
-        JPanel courseManagementPanel = new CourseManagementPanel(currentUser);
-        adminTabbedPane.addTab("课程管理", courseManagementPanel);
-
-        // 创建选课统计面板
-        JPanel selectionReportPanel = new SelectionReportPanel(currentUser);
-        adminTabbedPane.addTab("选课统计", selectionReportPanel);
+        // 添加选项卡切换监听
+        adminTabbedPane.addChangeListener(e -> {
+            Component selected = adminTabbedPane.getSelectedComponent();
+            if (selected instanceof Refreshable) {
+                ((Refreshable) selected).refreshData();
+            }
+        });
 
         panel.add(adminTabbedPane, BorderLayout.CENTER);
         return panel;
@@ -82,9 +104,27 @@ public class CoursePanel extends JPanel {
 
     public void showUserPanel() {
         cardLayout.show(mainPanel, "user");
+        refreshCurrentCard(); // 触发刷新
+
+        // 默认刷新第一个选项卡
+        if (userTabbedPane != null && userTabbedPane.getTabCount() > 0) {
+            Component firstTab = userTabbedPane.getComponentAt(0);
+            if (firstTab instanceof Refreshable) {
+                ((Refreshable) firstTab).refreshData();
+            }
+        }
     }
 
     public void showAdminPanel() {
         cardLayout.show(mainPanel, "admin");
+        refreshCurrentCard(); // 触发刷新
+
+        // 默认刷新第一个选项卡
+        if (adminTabbedPane != null && adminTabbedPane.getTabCount() > 0) {
+            Component firstTab = adminTabbedPane.getComponentAt(0);
+            if (firstTab instanceof Refreshable) {
+                ((Refreshable) firstTab).refreshData();
+            }
+        }
     }
 }

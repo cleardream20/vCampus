@@ -3,6 +3,7 @@ package com.seu.vcampus.client.controller;
 import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.model.Course;
 import com.seu.vcampus.common.model.CourseSchedule;
+import com.seu.vcampus.common.model.SelectionRecord;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.ResponseCode;
@@ -115,5 +116,27 @@ public class CourseController {
             return (CourseSchedule) response.getData().get("schedule");
         }
         return null;
+    }
+
+    public List<SelectionRecord> getSelectionRecords(String courseId,User user) {
+        Message request = new Message(Message.GET_SELECTION_RECORDS);
+        request.addData("courseId", courseId);
+        request.addData("user", user);
+        Message response = socketHandler.sendMessage(request);
+
+        if (response.getStatus() == ResponseCode.OK) {
+            return (List<SelectionRecord>) response.getData().get("records");
+        }
+        return null;
+
+    }
+
+    public boolean dropCourseAD(String studentId, String courseId, User currentUser) {
+        Message request = new Message(Message.DROP_COURSE_AD);
+        request.addData("studentId", studentId);
+        request.addData("courseId", courseId);
+        request.addData("user", currentUser);
+        Message response = socketHandler.sendMessage(request);
+        return response.getStatus() == ResponseCode.OK;
     }
 }

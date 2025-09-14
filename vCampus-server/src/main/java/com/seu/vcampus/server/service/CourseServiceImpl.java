@@ -3,6 +3,7 @@ package com.seu.vcampus.server.service;
 import com.seu.vcampus.common.model.Course;
 import com.seu.vcampus.common.model.CourseSchedule;
 import com.seu.vcampus.common.model.CourseSelectionRule;
+import com.seu.vcampus.common.model.SelectionRecord;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.ResponseCode;
 import com.seu.vcampus.server.dao.CourseDao;
@@ -162,6 +163,27 @@ public class CourseServiceImpl implements CourseService {
             }
 
             // 执行退课
+            int result = courseDao.dropCourse(studentId, courseId);
+            if (result > 0) {
+                Message response = new Message(Message.DROP_COURSE);
+                response.setStatus(ResponseCode.OK);
+                response.setDescription("退课成功");
+                return response;
+            } else {
+                return createErrorResponse(Message.DROP_COURSE,
+                        ResponseCode.FAIL, "退课失败");
+            }
+        } catch (Exception e) {
+            return createErrorResponse(Message.DROP_COURSE,
+                    ResponseCode.INTERNAL_SERVER_ERROR, "退课异常: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Message dropCourseAD(String studentId, String courseId) {
+        try {
+            // 执行退课
+            System.out.print(studentId+" "+courseId);
             int result = courseDao.dropCourse(studentId, courseId);
             if (result > 0) {
                 Message response = new Message(Message.DROP_COURSE);
@@ -401,7 +423,30 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
+    @Override
+    public Message getSelectionRecords(String courseId) {
+        try {
+            // 1. 检查课程是否存在
+            Course course = courseDao.getCourseById(courseId);
+            if (course == null) {
+                return createErrorResponse(Message.GET_SELECTION_RECORDS,
+                        ResponseCode.NOT_FOUND, "课程不存在");
+            }
 
+            // 2. 获取该课程的选课记录
+            List<SelectionRecord> records = courseDao.getSelectionRecords(courseId);
+
+            // 3. 返回成功响应
+            Message response = new Message(Message.GET_SELECTION_RECORDS);
+            response.setStatus(ResponseCode.OK);
+            response.addData("records", records);
+            return response;
+
+        } catch (Exception e) {
+            return createErrorResponse(Message.GET_SELECTION_RECORDS,
+                    ResponseCode.INTERNAL_SERVER_ERROR, "获取选课记录失败: " + e.getMessage());
+        }
+    }
     // 辅助方法：创建错误响应
     private Message createErrorResponse(String type, int status, String description) {
         Message response = new Message(type);

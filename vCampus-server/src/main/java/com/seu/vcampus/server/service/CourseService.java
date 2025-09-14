@@ -35,4 +35,8 @@ public interface CourseService {
     Message getCourseById(String keyword);
 
     Message getCourseByName(String keyword);
+
+    Message getSelectionRecords(String courseId1);
+
+    Message dropCourseAD(String studentId2, String courseId2);
 }

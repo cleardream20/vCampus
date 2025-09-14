@@ -13,6 +13,7 @@ public class Message implements Serializable {
     private int status;
     private String description;
     public static final String GET_COURSE_BY_ID = "GET_COURSE_BY_ID";
+    public static final String DROP_COURSE_AD ="DROP_COURSE_AD" ;
     public static final String GET_COURSE_BY_NAME = "GET_COURSE_BY_NAME";
     public static final String GET_COURSE_LIST = "GET_COURSE_LIST";
     public static final String SELECT_COURSE = "SELECT_COURSE";
@@ -23,6 +24,7 @@ public class Message implements Serializable {
     public static final String UPDATE_COURSE = "UPDATE_COURSE";
     public static final String DELETE_COURSE = "DELETE_COURSE";
     public static final String GET_TEACHING_COURSES = "GET_TEACHING_COURSES";
+    public static final String GET_SELECTION_RECORDS = "GET_SELECTION_RECORDS ";
     public Message() {}
 
     public Message(String type) {

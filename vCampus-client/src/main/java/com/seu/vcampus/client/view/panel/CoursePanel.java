@@ -11,6 +11,7 @@ public class CoursePanel extends JPanel {
     private JTabbedPane userTabbedPane;
     private JTabbedPane adminTabbedPane; // 修复：添加缺失的成员变量
     private User currentUser;
+    private JButton returnButton;
 
     // 定义刷新接口
     public interface Refreshable {
@@ -21,6 +22,7 @@ public class CoursePanel extends JPanel {
         this.currentUser = user;
         setLayout(new BorderLayout());
         initUI();
+        initToolbar();
 
         // 根据用户角色决定初始界面
         if ("AD".equals(user.getRole())) {
@@ -28,6 +30,23 @@ public class CoursePanel extends JPanel {
         } else {
             showUserPanel();
         }
+    }
+
+    private void initToolbar() {
+        JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        toolBar.setLayout(new FlowLayout(FlowLayout.RIGHT)); // 右对齐
+
+        returnButton = new JButton("返回主界面");
+        returnButton.addActionListener(this::handleReturnAction);
+        toolBar.add(returnButton);
+
+        add(toolBar, BorderLayout.NORTH); // 添加到顶部
+    }
+
+    private void handleReturnAction(ActionEvent e) {
+        // 触发自定义事件通知父容器
+        firePropertyChange("RETURN_TO_MAIN", false, true);
     }
 
     private void initUI() {

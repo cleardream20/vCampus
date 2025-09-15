@@ -14,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Admin extends User implements Serializable {
-    private String modules;
+    private List<String> modules;
 }

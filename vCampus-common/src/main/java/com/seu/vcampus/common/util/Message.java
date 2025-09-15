@@ -74,4 +74,9 @@ public class Message implements Serializable {
     public boolean isSuccess() {
         return STATUS_SUCCESS.equals(status);
     }
+
+	public void setSender(String currentUserId) {
+		// TODO 自动生成的方法存根
+		
+	}
 }

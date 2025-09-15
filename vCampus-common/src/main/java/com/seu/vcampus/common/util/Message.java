@@ -69,6 +69,10 @@ public class Message implements Serializable {
         return new Message(type, STATUS_SUCCESS, data, message);
     }
 
+    public static Message success(String type, String message) {
+        return new Message(type, STATUS_SUCCESS, null, message);
+    }
+
     // Message.success() "特殊"的构造函数，专门构造STATUS_ERROR的Message
     public static Message error(String type, String error) {
         return new Message(type, STATUS_ERROR, null, error);

@@ -12,6 +12,7 @@ import com.seu.vcampus.common.util.Message;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class CourseController {
 
@@ -24,11 +25,9 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                List<Course> courses = Jsonable.fromJson(
-                        Jsonable.toJson(response.getData()),
-                        new TypeToken<List<Course>>(){}.getType()
-                );
-                return courses;
+                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                String coursesJson = Jsonable.toJson(responseData.get("courses"));
+                return Jsonable.fromJson(coursesJson, new TypeToken<List<Course>>(){}.getType());
             }
         } catch (IOException e) {
             System.err.println("获取课程列表出错: " + e.getMessage());
@@ -40,7 +39,7 @@ public class CourseController {
         Message request = new Message(Message.ADD_COURSE);
         JsonObject data = new JsonObject();
         data.addProperty("course", Jsonable.toJson(course));
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
 
         try {
@@ -56,7 +55,7 @@ public class CourseController {
         Message request = new Message(Message.UPDATE_COURSE);
         JsonObject data = new JsonObject();
         data.addProperty("course", Jsonable.toJson(course));
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
 
         try {
@@ -72,7 +71,7 @@ public class CourseController {
         Message request = new Message(Message.DELETE_COURSE);
         JsonObject data = new JsonObject();
         data.addProperty("courseId", courseId);
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
 
         try {
@@ -93,8 +92,8 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                JsonObject responseData = (JsonObject) response.getData();
-                String courseJson = responseData.get("course").getAsString();
+                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                String courseJson = Jsonable.toJson(responseData.get("course"));
                 return Jsonable.fromJson(courseJson, Course.class);
             }
         } catch (IOException e) {
@@ -112,8 +111,8 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                JsonObject responseData = (JsonObject) response.getData();
-                String coursesJson = responseData.get("courses").getAsString();
+                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                String coursesJson = Jsonable.toJson(responseData.get("courses"));
                 return Jsonable.fromJson(coursesJson, new TypeToken<List<Course>>(){}.getType());
             }
         } catch (IOException e) {
@@ -127,7 +126,7 @@ public class CourseController {
         JsonObject data = new JsonObject();
         data.addProperty("studentId", studentId);
         data.addProperty("courseId", courseId);
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
 
         try {
@@ -142,14 +141,14 @@ public class CourseController {
         Message request = new Message(Message.GET_SELECTED_COURSES);
         JsonObject data = new JsonObject();
         data.addProperty("studentId", studentId);
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
 
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                JsonObject responseData = (JsonObject) response.getData();
-                String coursesJson = responseData.get("courses").getAsString();
+                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                String coursesJson = Jsonable.toJson(responseData.get("courses"));
                 return Jsonable.fromJson(coursesJson, new TypeToken<List<Course>>(){}.getType());
             }
         } catch (IOException e) {
@@ -163,7 +162,7 @@ public class CourseController {
         JsonObject data = new JsonObject();
         data.addProperty("studentId", studentId);
         data.addProperty("courseId", courseId);
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
 
         try {
@@ -179,15 +178,15 @@ public class CourseController {
         Message request = new Message(Message.GET_COURSE_SCHEDULE);
         JsonObject data = new JsonObject();
         data.addProperty("studentId", id);
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         data.addProperty("semester", semester);
         request.setData(data);
 
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                JsonObject responseData = (JsonObject) response.getData();
-                String scheduleJson = responseData.get("schedule").getAsString();
+                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                String scheduleJson = Jsonable.toJson(responseData.get("schedule"));
                 return Jsonable.fromJson(scheduleJson, CourseSchedule.class);
             }
         } catch (IOException e) {
@@ -200,14 +199,14 @@ public class CourseController {
         Message request = new Message(Message.GET_SELECTION_RECORDS);
         JsonObject data = new JsonObject();
         data.addProperty("courseId", courseId);
-        data.addProperty("user", Jsonable.toJson(user));
+        data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
 
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                JsonObject responseData = (JsonObject) response.getData();
-                String recordsJson = responseData.get("records").getAsString();
+                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                String recordsJson = Jsonable.toJson(responseData.get("records"));
                 return Jsonable.fromJson(recordsJson, new TypeToken<List<SelectionRecord>>(){}.getType());
             }
         } catch (IOException e) {
@@ -221,7 +220,7 @@ public class CourseController {
         JsonObject data = new JsonObject();
         data.addProperty("studentId", studentId);
         data.addProperty("courseId", courseId);
-        data.addProperty("user", Jsonable.toJson(currentUser));
+        data.add("user", Jsonable.gson.toJsonTree(currentUser)); // 修改这里
         request.setData(data);
 
         try {

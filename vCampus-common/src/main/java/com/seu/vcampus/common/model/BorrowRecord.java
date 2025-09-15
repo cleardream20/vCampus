@@ -11,9 +11,9 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * 借阅记录实体类
- * 对应数据库中的 tblBorrowRecord 表
+/*
+  借阅记录实体类
+  对应数据库中的 tblBorrowRecord 表
  */
 public class BorrowRecord implements Serializable {
     private Long recordId;       // 记录ID

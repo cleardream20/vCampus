@@ -1,5 +1,6 @@
 package com.seu.vcampus.client.view.panel.course;
 
+import com.seu.vcampus.client.view.frame.MainFrame;
 import com.seu.vcampus.common.model.User;
 import javax.swing.*;
 import java.awt.*;
@@ -45,8 +46,9 @@ public class CoursePanel extends JPanel {
     }
 
     private void handleReturnAction(ActionEvent e) {
-        // 触发自定义事件通知父容器
-        firePropertyChange("RETURN_TO_MAIN", false, true);
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(currentUser);
+        });
     }
 
     private void initUI() {

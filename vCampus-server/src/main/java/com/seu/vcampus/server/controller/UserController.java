@@ -8,10 +8,11 @@ import com.seu.vcampus.server.service.UserServiceImpl;
 
 import java.sql.SQLException;
 
-public class UserController {
+public class UserController implements RequestController {
 
     private final UserService userService = new UserServiceImpl();
 
+    @Override
     public Message handleRequest(Message request) throws SQLException {
         String type = request.getType();
 

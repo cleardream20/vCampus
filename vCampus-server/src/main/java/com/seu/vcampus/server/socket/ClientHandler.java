@@ -1,10 +1,15 @@
 package com.seu.vcampus.server.socket;
 
 import com.seu.vcampus.common.util.Message;
+import com.seu.vcampus.server.controller.CourseController;
+import com.seu.vcampus.server.controller.RequestController;
 import com.seu.vcampus.server.controller.UserController;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 处理单个客户端请求的线程
@@ -13,10 +18,50 @@ public class ClientHandler implements Runnable {
 
     private final Socket socket;
     private final UserController userController;
+    private final CourseController courseController;
+    private final Map<String, RequestController> controllerMap = new HashMap<>();
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.userController = new UserController(); // 可改为依赖注入
+        this.courseController = new CourseController();
+        initializeControllers();
+    }
+
+    private void initializeControllers() {
+        addUserHandlers();
+        addCourseHandlers();
+    }
+
+    private void addUserHandlers() {
+        controllerMap.put(Message.LOGIN, userController);
+        controllerMap.put(Message.REGISTER, userController);
+//        controllerMap.put(Message.GET_USER_INFO, userController);
+//        controllerMap.put(Message.UPDATE_USER_INFO, userController);
+        // 添加其他用户相关消息类型...
+    }
+
+    private void addCourseHandlers() {
+        // 所有课程相关消息都路由到CourseController
+        String[] courseMessageTypes = {
+                Message.GET_COURSE_LIST,
+                Message.SELECT_COURSE,
+                Message.DROP_COURSE,
+                Message.DROP_COURSE_AD,
+                Message.GET_COURSE_BY_NAME,
+                Message.GET_COURSE_BY_ID,
+                Message.ADD_COURSE,
+                Message.UPDATE_COURSE,
+                Message.DELETE_COURSE,
+                Message.GET_SELECTED_COURSES,
+                Message.GET_COURSE_SCHEDULE,
+                Message.GET_SELECTION_RECORDS,
+                Message.GET_TEACHING_COURSES
+        };
+
+        for (String type : courseMessageTypes) {
+            controllerMap.put(type, courseController);
+        }
     }
 
     @Override
@@ -74,24 +119,16 @@ public class ClientHandler implements Runnable {
         System.out.println("==== 请求类型==== : " + type);
 
         // TODO: 可以用 Map<String, Controller> 优化
-        switch (type) {
-            case Message.LOGIN:
-                try {
-                    return userController.handleLogin(request);
-                } catch (Exception e) {
-                    System.err.println("登录异常: " + e.getMessage());
-                    return Message.error(Message.RESPONSE, "服务器登录出错");
-                }
-            case Message.REGISTER:
-                try {
-                    return userController.handleRegister(request);
-                } catch (Exception e) {
-                    System.err.println("传递request异常: " + e.getMessage());
-                    return Message.error(Message.RESPONSE, "服务器注册出错");
-                }
-
-            default:
-                return Message.fromData(Message.RESPONSE, false, null, "未知请求类型: " + type);
+        RequestController requestController = controllerMap.get(type);
+        if (requestController != null) {
+            try {
+                return requestController.handleRequest(request);
+            } catch (SQLException e) {
+                System.err.println("处理请求异常: " + e.getMessage());
+                return Message.error(type, "服务器处理错误");
+            }
         }
+
+        return Message.error(type, "未知类型: " + type);
     }
 }

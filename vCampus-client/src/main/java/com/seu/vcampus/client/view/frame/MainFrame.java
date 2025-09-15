@@ -3,7 +3,7 @@ package com.seu.vcampus.client.view.frame;
 import javax.swing.*;
 import java.awt.*;
 
-import com.seu.vcampus.client.view.panel.CoursePanel;
+import com.seu.vcampus.client.view.panel.course.CoursePanel;
 import com.seu.vcampus.client.view.panel.main.MainPanel;
 import com.seu.vcampus.client.view.panel.RegisterPanel;
 import com.seu.vcampus.client.view.panel.library.LibraryMainPanel; // 新的图书馆主面板
@@ -138,17 +138,13 @@ public class MainFrame extends JFrame {
 //            mainPanel.remove(libraryMainPanel);
 //        }
 
-        // 创建新的 LibraryMainPanel
         libraryMainPanel = new LibraryMainPanel(userId, userRole);
 
-        // 将新面板添加到 "LIBRARY" 名称下（覆盖原有）
         mainPanel.add(libraryMainPanel, "LIBRARY");
 
-        // 刷新布局
         mainPanel.revalidate();
         mainPanel.repaint();
 
-        // 显示该面板
         showPanel("LIBRARY");
     }
 

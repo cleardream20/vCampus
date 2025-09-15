@@ -23,7 +23,21 @@ public class Message implements Serializable {
     public static final String ENTER_USER_CENTER = "ENTER_USER_CENTER";
     public static final String AD_STUDENT =  "AD_STUDENT";
     public static final String ST_STUDENT =  "ST_STUDENT";
+
+    // 选课相关
+    public static final String GET_COURSE_BY_ID = "GET_COURSE_BY_ID";
+    public static final String DROP_COURSE_AD ="DROP_COURSE_AD" ;
+    public static final String GET_COURSE_BY_NAME = "GET_COURSE_BY_NAME";
+    public static final String GET_COURSE_LIST = "GET_COURSE_LIST";
     public static final String SELECT_COURSE = "SELECT_COURSE";
+    public static final String DROP_COURSE = "DROP_COURSE";
+    public static final String GET_SELECTED_COURSES = "GET_SELECTED_COURSES";
+    public static final String GET_COURSE_SCHEDULE = "GET_COURSE_SCHEDULE";
+    public static final String ADD_COURSE = "ADD_COURSE";
+    public static final String UPDATE_COURSE = "UPDATE_COURSE";
+    public static final String DELETE_COURSE = "DELETE_COURSE";
+    public static final String GET_TEACHING_COURSES = "GET_TEACHING_COURSES";
+    public static final String GET_SELECTION_RECORDS = "GET_SELECTION_RECORDS ";
 
     public static final String STATUS_SUCCESS = "SUCCESS";
     public static final String STATUS_ERROR = "ERROR";
@@ -34,6 +48,15 @@ public class Message implements Serializable {
     private String status;
     private Object data;
     private String message; // 帮助信息
+
+    public Message(String type) {
+        this.type = type;
+    }
+
+    public Message(String type, String status) {
+        this.type = type;
+        this.status = status;
+    }
 
     public Message(String type, Object data) {
         this.type = type;

@@ -18,7 +18,7 @@ public class StudentDaoImpl implements StudentDao {
         List<Student> students = new ArrayList<>();
         //一卡通号、身份证号、学号、姓名、性别、电话号码、出生日期、家庭住址、入学日期、学籍号、学院、年级、学制、学籍状态
         String[] args = new String[] {"cid", "nid", "tsid", "name", "sex", "phone", "birthday", "address", "endate", "stid", "major", "grade", "es", "esState"};
-        String sql = "select \"cid\", \"nid\", \"tsid\", \"name\", \"sex\", \"phone\", \"birthday\", \"address\", \"endate\", \"stid\", \"major\", \"grade\", \"es\", \"esState\" from students where 1";
+        String sql = "select \"cid\", \"nid\", \"tsid\", \"name\", \"sex\", \"phone\", \"birthday\", \"address\", \"endate\", \"stid\", \"major\", \"grade\", \"es\", \"esState\" from tblStudent where 1";
         for(HashMap.Entry<Integer, String> entry : filters.entrySet()){
             String filterText = entry.getValue().trim();
             if (!filterText.isEmpty()) {
@@ -64,7 +64,9 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     public Student getStudent(String cid) throws SQLException {
         Student student = null;
-        String sql = "select \"cid\", \"nid\", \"tsid\", \"name\", \"sex\", \"phone\", \"birthday\", \"address\", \"endate\", \"stid\", \"major\", \"grade\", \"es\", \"esState\" from students where cid = ?";
+        String sql = "select tu.cid as cid, tu.*, ts.* from tblStudent ts " +
+                     "inner join tblUser tu on ts.cid = tu.cid " +
+                     "where ts.cid = ?";
         try (Connection conn = DBConnector.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, cid);
             try (ResultSet rs = ps.executeQuery()) {
@@ -73,11 +75,11 @@ public class StudentDaoImpl implements StudentDao {
                         rs.getString("cid"),
                         "-",
                         rs.getString("tsid"),
-                        rs.getString("name"),
+                        rs.getString("tname"),
                         "-",
                         rs.getString("phone"),
                         "-",
-                        rs.getString("sex"),
+                        rs.getString("gender"),
                         rs.getString("birthday"),
                         rs.getString("address"),
                         rs.getString("nid"),
@@ -87,16 +89,13 @@ public class StudentDaoImpl implements StudentDao {
                         rs.getString("stid"),
                         rs.getString("es"),
                         rs.getString("esState")
-
                     );
                 }
             } catch (SQLException se) {
                 se.printStackTrace();
-                return null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
         }
         return student;
     }

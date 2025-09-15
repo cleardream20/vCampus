@@ -227,7 +227,7 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         // 从数据库获取筛选后的数据
         List<Student> filteredData = new ArrayList<>();
         try {
-            service.getDataWithFilters(filters);
+            filteredData = service.getDataWithFilters(filters);
 
             // 更新表格模型
             tableModel.setRowCount(0); // 清空现有数据

@@ -15,7 +15,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student getStudent(String cid) throws SQLException {
         if (cid == null) {
-            throw new SQLException("cid is null");
+            throw new SQLException("Cid is null");
         }
         return studentDao.getStudent(cid);
     }

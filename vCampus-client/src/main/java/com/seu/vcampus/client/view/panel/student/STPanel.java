@@ -7,6 +7,7 @@ import com.seu.vcampus.client.service.StudentService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
+import com.seu.vcampus.client.view.frame.MainFrame;
 
 public class STPanel extends JPanel implements NavigatablePanel {
     private Student currentStudent;
@@ -21,8 +22,8 @@ public class STPanel extends JPanel implements NavigatablePanel {
     private JButton backButton; // 保留返回按钮
 
     public STPanel() {
-//        User user = MainFrame.getInstance().getCurrentUser();
-        User user = new User();
+        User user = MainFrame.getInstance().getCurrentUser();
+//        User user = new User();
         String userId = user.getCid();
         StudentService service = new StudentService();
         try {

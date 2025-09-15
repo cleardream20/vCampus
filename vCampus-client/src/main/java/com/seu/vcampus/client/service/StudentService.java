@@ -19,10 +19,12 @@ public class StudentService {
             throw new IllegalArgumentException("cid is null");
         }
 
-        JsonObject data = new JsonObject();
-        data.addProperty("cid", cid.trim());
+//        JsonObject data = new JsonObject();
+//        data.addProperty("cid", cid.trim());
+        Student _student = new Student();
+        _student.setCid(cid);
 
-        Message request = new Message(Message.ST_STUDENT, data.toString());
+        Message request = new Message(Message.ST_STUDENT, _student);
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if(response == null) {
@@ -33,12 +35,7 @@ public class StudentService {
                 throw new Exception(response.getMessage() != null ? response.getMessage() : "查询失败");
             }
 
-            String userData = (String) response.getData();
-            if(userData == null || userData.trim().isEmpty()) {
-                throw new Exception("出错：未返回用户信息");
-            }
-
-            Student student = Jsonable.fromJson(userData, Student.class);
+            Student student = Jsonable.fromJson(Jsonable.toJson(response.getData()), Student.class);
             if(student == null) {
                 throw new Exception("信息解析失败");
             }

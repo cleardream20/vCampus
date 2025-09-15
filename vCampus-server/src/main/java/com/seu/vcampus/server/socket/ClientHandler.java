@@ -1,6 +1,7 @@
 package com.seu.vcampus.server.socket;
 
 import com.seu.vcampus.common.util.Message;
+import com.seu.vcampus.server.controller.StudentController;
 import com.seu.vcampus.server.controller.UserController;
 
 import java.io.*;
@@ -13,10 +14,12 @@ public class ClientHandler implements Runnable {
 
     private final Socket socket;
     private final UserController userController;
+    private final StudentController studentController;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.userController = new UserController(); // 可改为依赖注入
+        this.studentController = new StudentController();
     }
 
     @Override
@@ -88,6 +91,13 @@ public class ClientHandler implements Runnable {
                 } catch (Exception e) {
                     System.err.println("传递request异常: " + e.getMessage());
                     return Message.error(Message.RESPONSE, "服务器注册出错");
+                }
+            case Message.ST_STUDENT:
+                try {
+                    return studentController.handleRequest(request);
+                } catch (Exception e) {
+                    System.err.println("查询异常：" + e.getMessage());
+                    return Message.error(Message.RESPONSE, "查询错误");
                 }
 
             default:

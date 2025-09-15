@@ -12,17 +12,14 @@ public class DormAdminPanel extends JPanel {
 
     // 管理端卡片名称常量
     private static final String CARD_HOME = "ADMIN_HOME";
-    private static final String CARD_DORM_MGMT = "DORM_MGMT";
-    private static final String CARD_INFO_VIEW = "INFO_VIEW";
-    private static final String CARD_INFO_EDIT = "INFO_EDIT";
     private static final String CARD_APPROVAL = "APPROVAL";
     private static final String CARD_SERVICE_MGMT = "SERVICE_MGMT";
-    private static final String CARD_REPAIR_MGMT = "REPAIR_MGMT";
-    private static final String CARD_COMPLAINT_MGMT = "COMPLAINT_MGMT";
+    private static final String CARD_INFO_VIEW = "INFO_VIEW";
 
     public DormAdminPanel() {
         setLayout(new BorderLayout(0, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(new Color(245, 245, 245));
 
         // 创建顶部导航栏（管理端使用不同的颜色主题）
         JPanel navPanel = createAdminNavPanel();
@@ -31,16 +28,13 @@ public class DormAdminPanel extends JPanel {
         // 创建主卡片面板
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
+        cardPanel.setBackground(new Color(245, 245, 245));
 
         // 创建并添加所有管理端子页面
         cardPanel.add(createAdminHomePanel(), CARD_HOME);
-        cardPanel.add(createDormMgmtPanel(), CARD_DORM_MGMT);
-        cardPanel.add(createInfoViewPanel(), CARD_INFO_VIEW);
-        cardPanel.add(createInfoEditPanel(), CARD_INFO_EDIT);
         cardPanel.add(createApprovalPanel(), CARD_APPROVAL);
         cardPanel.add(createServiceMgmtPanel(), CARD_SERVICE_MGMT);
-        cardPanel.add(createRepairMgmtPanel(), CARD_REPAIR_MGMT);
-        cardPanel.add(createComplaintMgmtPanel(), CARD_COMPLAINT_MGMT);
+        cardPanel.add(createInfoViewPanel(), CARD_INFO_VIEW);
 
         // 默认显示管理端首页
         cardLayout.show(cardPanel, CARD_HOME);
@@ -50,21 +44,30 @@ public class DormAdminPanel extends JPanel {
     private JPanel createAdminNavPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
-        panel.setBackground(new Color(255, 240, 245)); // 浅红色背景区分管理端
+        panel.setBackground(new Color(255, 230, 230)); // 浅红色背景区分管理端
 
         JButton btnHome = new JButton("管理首页");
         JButton btnBack = new JButton("返回");
 
-        btnHome.setBackground(new Color(255, 220, 230));
-        btnBack.setBackground(new Color(255, 220, 230));
+        btnHome.setBackground(new Color(255, 210, 210));
+        btnBack.setBackground(new Color(255, 210, 210));
         btnHome.setFocusPainted(false);
         btnBack.setFocusPainted(false);
+        btnHome.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        btnBack.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         btnHome.addActionListener(e -> cardLayout.show(cardPanel, CARD_HOME));
         btnBack.addActionListener(e -> cardLayout.show(cardPanel, CARD_HOME));
 
         panel.add(btnHome);
         panel.add(btnBack);
+        
+        // 添加标题
+        JLabel title = new JLabel("宿舍管理系统 - 管理端");
+        title.setFont(new Font("微软雅黑", Font.BOLD, 16));
+        title.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        panel.add(title);
+        
         return panel;
     }
 
@@ -72,22 +75,49 @@ public class DormAdminPanel extends JPanel {
      * 1. 管理端首页
      */
     private JPanel createAdminHomePanel() {
-        JPanel panel = new JPanel(new GridLayout(2, 1, 10, 10));
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(245, 245, 245));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // 住宿管理功能区
-        JPanel dormSection = createAdminSectionPanel("住宿管理", new Color(255, 230, 230));
-        JButton btnToDormMgmt = new JButton("进入");
-        btnToDormMgmt.addActionListener(e -> cardLayout.show(cardPanel, CARD_DORM_MGMT));
-        dormSection.add(btnToDormMgmt);
-        panel.add(dormSection);
+        // 欢迎标题
+        JLabel welcomeLabel = new JLabel("宿舍管理控制台", JLabel.CENTER);
+        welcomeLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        welcomeLabel.setForeground(new Color(200, 0, 0));
+        gbc.gridwidth = 2;
+        panel.add(welcomeLabel, gbc);
 
-        // 服务管理功能区
-        JPanel serviceSection = createAdminSectionPanel("服务管理", new Color(230, 230, 255));
-        JButton btnToServiceMgmt = new JButton("进入");
+        // 住宿申请审核功能区
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        JPanel approvalSection = createAdminSectionPanel("住宿申请审核", new Color(255, 230, 230));
+        JButton btnToApproval = new JButton("处理申请");
+        btnToApproval.addActionListener(e -> cardLayout.show(cardPanel, CARD_APPROVAL));
+        approvalSection.add(btnToApproval, BorderLayout.CENTER);
+        panel.add(approvalSection, gbc);
+
+        // 宿舍服务处理功能区
+        gbc.gridx = 1;
+        JPanel serviceSection = createAdminSectionPanel("宿舍服务处理", new Color(230, 230, 255));
+        JButton btnToServiceMgmt = new JButton("处理服务");
         btnToServiceMgmt.addActionListener(e -> cardLayout.show(cardPanel, CARD_SERVICE_MGMT));
-        serviceSection.add(btnToServiceMgmt);
-        panel.add(serviceSection);
+        serviceSection.add(btnToServiceMgmt, BorderLayout.CENTER);
+        panel.add(serviceSection, gbc);
+
+        // 住宿情况查询功能区
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        JPanel infoSection = createAdminSectionPanel("住宿情况查询", new Color(230, 255, 230));
+        JButton btnToInfoView = new JButton("查看住宿情况");
+        btnToInfoView.addActionListener(e -> cardLayout.show(cardPanel, CARD_INFO_VIEW));
+        infoSection.add(btnToInfoView, BorderLayout.CENTER);
+        panel.add(infoSection, gbc);
 
         return panel;
     }
@@ -96,139 +126,64 @@ public class DormAdminPanel extends JPanel {
         JPanel section = new JPanel(new BorderLayout(10, 10));
         section.setBackground(bgColor);
         section.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true),
             BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
+        section.setPreferredSize(new Dimension(250, 120));
 
         JLabel titleLabel = new JLabel(title, JLabel.CENTER);
         titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 16));
+        titleLabel.setForeground(new Color(70, 70, 70));
         section.add(titleLabel, BorderLayout.NORTH);
-
-        JPanel buttonPanel = new JPanel();
-        section.add(buttonPanel, BorderLayout.CENTER);
 
         return section;
     }
 
     /**
-     * 2. 住宿管理页面
-     */
-    private JPanel createDormMgmtPanel() {
-        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        JButton btnInfoView = createAdminButton("住宿信息查看", "查看所有学生的住宿信息");
-        JButton btnInfoEdit = createAdminButton("住宿信息修改", "修改学生住宿信息");
-        JButton btnApproval = createAdminButton("申请审核", "审核学生的住宿申请");
-
-        btnInfoView.addActionListener(e -> cardLayout.show(cardPanel, CARD_INFO_VIEW));
-        btnInfoEdit.addActionListener(e -> cardLayout.show(cardPanel, CARD_INFO_EDIT));
-        btnApproval.addActionListener(e -> cardLayout.show(cardPanel, CARD_APPROVAL));
-
-        panel.add(btnInfoView);
-        panel.add(btnInfoEdit);
-        panel.add(btnApproval);
-
-        return panel;
-    }
-
-    private JButton createAdminButton(String text, String tooltip) {
-        JButton button = new JButton(text);
-        button.setToolTipText(tooltip);
-        button.setPreferredSize(new Dimension(200, 45));
-        button.setBackground(new Color(255, 240, 245));
-        return button;
-    }
-
-    /**
-     * 住宿信息查看页面
-     */
-    private JPanel createInfoViewPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-
-        // 搜索栏
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchPanel.add(new JLabel("搜索学生:"));
-        searchPanel.add(new JTextField(15));
-        JButton searchBtn = new JButton("搜索");
-        searchPanel.add(searchBtn);
-
-        panel.add(searchPanel, BorderLayout.NORTH);
-
-        // 学生住宿信息表格
-        String[] columns = {"学号", "姓名", "楼栋", "房间号", "床位号", "状态"};
-        String[][] data = {}; // 清空测试数据
-
-        JTable table = new JTable(data, columns);
-        JScrollPane scrollPane = new JScrollPane(table);
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    /**
-     * 住宿信息修改页面
-     */
-    private JPanel createInfoEditPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JLabel title = new JLabel("住宿信息修改", JLabel.CENTER);
-        title.setFont(new Font("微软雅黑", Font.BOLD, 18));
-        panel.add(title, BorderLayout.NORTH);
-
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        formPanel.add(new JLabel("学号:"));
-        formPanel.add(new JTextField());
-        
-        formPanel.add(new JLabel("楼栋:"));
-        formPanel.add(new JTextField());
-        
-        formPanel.add(new JLabel("房间号:"));
-        formPanel.add(new JTextField());
-        
-        formPanel.add(new JLabel("床位号:"));
-        formPanel.add(new JTextField());
-        
-        formPanel.add(new JLabel("状态:"));
-        JComboBox<String> statusCombo = new JComboBox<>(new String[]{"在住", "已退宿", "预留"});
-        formPanel.add(statusCombo);
-
-        panel.add(formPanel, BorderLayout.CENTER);
-
-        JButton saveBtn = new JButton("保存修改");
-        saveBtn.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "信息更新成功！"));
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(saveBtn);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-
-        return panel;
-    }
-
-    /**
-     * 申请审核页面 - 简化版本，不使用表格按钮
+     * 申请审核页面
      */
     private JPanel createApprovalPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(new Color(245, 245, 245));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JLabel title = new JLabel("住宿申请审核", JLabel.CENTER);
         title.setFont(new Font("微软雅黑", Font.BOLD, 18));
+        title.setForeground(new Color(200, 0, 0));
         panel.add(title, BorderLayout.NORTH);
 
-        String[] columns = {"申请ID", "学号", "姓名", "申请类型", "申请时间", "状态"};
-        Object[][] data = {}; // 清空测试数据
+        // 表头
+        String[] columns = {"申请ID", "学号", "申请类型", "申请时间", "状态"};
+        Object[][] data = {
+            {"1", "20240011", "调整", "2025-09-12", "待审核"},
+            {"2", "20250088", "入住", "2025-08-23", "已批准"}
+        };
 
         JTable table = new JTable(data, columns);
+        table.setFillsViewportHeight(true);
+        table.setRowHeight(25);
+        table.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        
+        // 设置表头样式
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("微软雅黑", Font.BOLD, 13));
+        header.setBackground(new Color(255, 210, 210));
+        
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         panel.add(scrollPane, BorderLayout.CENTER);
 
         // 添加操作按钮面板
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(245, 245, 245));
         JButton approveBtn = new JButton("批准");
         JButton rejectBtn = new JButton("拒绝");
+        
+        approveBtn.setBackground(new Color(100, 200, 100));
+        approveBtn.setForeground(Color.WHITE);
+        rejectBtn.setBackground(new Color(255, 100, 100));
+        rejectBtn.setForeground(Color.WHITE);
+        
         buttonPanel.add(approveBtn);
         buttonPanel.add(rejectBtn);
 
@@ -239,9 +194,9 @@ public class DormAdminPanel extends JPanel {
                 String applicationId = (String) table.getValueAt(selectedRow, 0);
                 JOptionPane.showMessageDialog(panel, "已批准申请: " + applicationId);
                 // 更新表格状态
-                table.setValueAt("已批准", selectedRow, 5);
+                table.setValueAt("已批准", selectedRow, 4);
             } else {
-                JOptionPane.showMessageDialog(panel, "请先选择一行");
+                JOptionPane.showMessageDialog(panel, "请先选择一行申请");
             }
         });
 
@@ -250,9 +205,9 @@ public class DormAdminPanel extends JPanel {
             if (selectedRow != -1) {
                 String applicationId = (String) table.getValueAt(selectedRow, 0);
                 JOptionPane.showMessageDialog(panel, "已拒绝申请: " + applicationId);
-                table.setValueAt("已拒绝", selectedRow, 5);
+                table.setValueAt("已拒绝", selectedRow, 4);
             } else {
-                JOptionPane.showMessageDialog(panel, "请先选择一行");
+                JOptionPane.showMessageDialog(panel, "请先选择一行申请");
             }
         });
 
@@ -262,73 +217,129 @@ public class DormAdminPanel extends JPanel {
     }
 
     /**
-     * 3. 服务管理页面
+     * 服务管理页面
      */
     private JPanel createServiceMgmtPanel() {
-        JPanel panel = new JPanel(new GridLayout(2, 1, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(new Color(245, 245, 245));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JButton btnRepairMgmt = createAdminButton("报修处理", "处理学生报修请求");
-        JButton btnComplaintMgmt = createAdminButton("投诉建议处理", "处理学生投诉和建议");
+        JLabel title = new JLabel("宿舍服务处理", JLabel.CENTER);
+        title.setFont(new Font("微软雅黑", Font.BOLD, 18));
+        title.setForeground(new Color(200, 0, 0));
+        panel.add(title, BorderLayout.NORTH);
 
-        btnRepairMgmt.addActionListener(e -> cardLayout.show(cardPanel, CARD_REPAIR_MGMT));
-        btnComplaintMgmt.addActionListener(e -> cardLayout.show(cardPanel, CARD_COMPLAINT_MGMT));
-
-        panel.add(btnRepairMgmt);
-        panel.add(btnComplaintMgmt);
-
-        return panel;
-    }
-
-    /**
-     * 报修处理页面 - 简化版本，不使用表格按钮
-     */
-    private JPanel createRepairMgmtPanel() {
-        return createServiceMgmtSubPanel("报修处理", new String[]{
-            "", "", "", "", ""
-        });
-    }
-
-    /**
-     * 投诉建议处理页面 - 简化版本，不使用表格按钮
-     */
-    private JPanel createComplaintMgmtPanel() {
-        return createServiceMgmtSubPanel("投诉与建议处理", new String[]{
-            "", "", "", "", ""
-        });
-    }
-
-    private JPanel createServiceMgmtSubPanel(String title, String[] exampleData) {
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JLabel titleLabel = new JLabel(title, JLabel.CENTER);
-        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 18));
-        panel.add(titleLabel, BorderLayout.NORTH);
-
-        String[] columns = {"服务ID", "位置", "问题描述", "提交时间", "状态"};
-        String[][] data = {}; // 清空测试数据
+        // 表头
+        String[] columns = {"服务ID", "学号", "问题描述", "提交时间", "状态", "负责人"};
+        Object[][] data = {
+            {"1", "20210001", "空调报修", "2025-09-13", "待处理", "张三"},
+            {"2", "20220003", "厕所漏水", "2025-09-01", "已完成", "李四"},
+            {"3", "20230005", "宿舍清理", "2025-09-09", "处理中", "王五"}
+        };
 
         JTable table = new JTable(data, columns);
+        table.setFillsViewportHeight(true);
+        table.setRowHeight(25);
+        table.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        
+        // 设置表头样式
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("微软雅黑", Font.BOLD, 13));
+        header.setBackground(new Color(230, 230, 255));
+        
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         panel.add(scrollPane, BorderLayout.CENTER);
 
         // 添加操作按钮
         JPanel buttonPanel = new JPanel();
-        JButton processBtn = new JButton("处理");
+        buttonPanel.setBackground(new Color(245, 245, 245));
+        JButton processBtn = new JButton("开始处理");
+        JButton completeBtn = new JButton("标记完成");
+        
+        processBtn.setBackground(new Color(100, 180, 255));
+        processBtn.setForeground(Color.WHITE);
+        completeBtn.setBackground(new Color(100, 200, 100));
+        completeBtn.setForeground(Color.WHITE);
+        
         buttonPanel.add(processBtn);
+        buttonPanel.add(completeBtn);
 
         processBtn.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
                 String serviceId = (String) table.getValueAt(selectedRow, 0);
-                JOptionPane.showMessageDialog(panel, "开始处理: " + serviceId);
+                JOptionPane.showMessageDialog(panel, "开始处理服务: " + serviceId);
                 table.setValueAt("处理中", selectedRow, 4);
             } else {
-                JOptionPane.showMessageDialog(panel, "请先选择一行");
+                JOptionPane.showMessageDialog(panel, "请先选择一行服务");
+            }
+        });
+
+        completeBtn.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                String serviceId = (String) table.getValueAt(selectedRow, 0);
+                JOptionPane.showMessageDialog(panel, "标记服务完成: " + serviceId);
+                table.setValueAt("已完成", selectedRow, 4);
+            } else {
+                JOptionPane.showMessageDialog(panel, "请先选择一行服务");
             }
         });
 
         panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    /**
+     * 住宿信息查看页面
+     */
+    private JPanel createInfoViewPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(new Color(245, 245, 245));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        JLabel title = new JLabel("学生住宿情况", JLabel.CENTER);
+        title.setFont(new Font("微软雅黑", Font.BOLD, 18));
+        title.setForeground(new Color(200, 0, 0));
+        panel.add(title, BorderLayout.NORTH);
+
+        // 搜索栏
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        searchPanel.setBackground(new Color(245, 245, 245));
+        searchPanel.add(new JLabel("搜索学生:"));
+        
+        JTextField searchField = new JTextField(15);
+        searchPanel.add(searchField);
+        
+        JButton searchBtn = new JButton("搜索");
+        searchBtn.setBackground(new Color(100, 180, 255));
+        searchBtn.setForeground(Color.WHITE);
+        searchPanel.add(searchBtn);
+
+        panel.add(searchPanel, BorderLayout.NORTH);
+
+        // 学生住宿信息表格
+        String[] columns = {"学号", "姓名", "楼栋", "房间号", "床位号", "状态"};
+        Object[][] data = {
+            {"20200025", "张五", "梅七B", "111", "2", "已退宿"},
+            {"20250066", "张四", "桃八A", "221", "1", "在住"}
+        };
+
+        JTable table = new JTable(data, columns);
+        table.setFillsViewportHeight(true);
+        table.setRowHeight(25);
+        table.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        
+        // 设置表头样式
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("微软雅黑", Font.BOLD, 13));
+        header.setBackground(new Color(230, 255, 230));
+        
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         return panel;
     }

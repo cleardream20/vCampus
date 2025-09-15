@@ -1,152 +1,363 @@
-// DormDaoImpl.java
 package com.seu.vcampus.server.dao;
 
 import com.seu.vcampus.common.model.Dorm;
-import java.util.*;
+import com.seu.vcampus.common.util.DBConnector;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DormDaoImpl implements DormDao {
-    // 模拟数据存储
-    private Map<String, Dorm> dormMap = new HashMap<>();
-    private Map<String, Dorm> applicationMap = new HashMap<>(); // 存储申请信息
-    private Map<String, Dorm> serviceRequestMap = new HashMap<>(); // 存储服务请求
-
-    public DormDaoImpl() {
-        // 初始化一些模拟数据
-        initializeMockData();
-    }
-
-    private void initializeMockData() {
-        // 初始化模拟住宿信息
-        Dorm dorm1 = new Dorm();
-        dorm1.setStudentId("123456789");
-        dorm1.setName("张三");
-        dorm1.setCollege("计算机科学与技术");
-        dorm1.setMajor("软件工程");
-        dorm1.setBuilding("紫荆1号楼");
-        dorm1.setRoomNumber("101A");
-        dorm1.setBedNumber("1");
-        dorm1.setDormType("4人间");
-        dorm1.setCheckInDate("2023-09-01");
-        dorm1.setExpectedCheckOutDate("2027-06-30");
-        dorm1.setStatus("在住");
-        dorm1.setDormPhone("010-12345678");
-        dorm1.setRoommates("李四, 王五, 赵六");
-        dorm1.setDormManager("陈老师");
-        dorm1.setManagerPhone("010-87654321");
-        dormMap.put(dorm1.getStudentId(), dorm1);
-        
-        // 可以添加更多模拟数据...
-    }
-
+    // 住宿信息相关操作实现
+    
     @Override
-    public Dorm getDormByStudentId(String studentId) {
-        return dormMap.get(studentId);
-    }
-
-    @Override
-    public List<Dorm> getAllDorms() {
-        return new ArrayList<>(dormMap.values());
-    }
-
-    @Override
-    public boolean updateDorm(Dorm dorm) {
-        if (dorm.getStudentId() != null) {
-            dormMap.put(dorm.getStudentId(), dorm);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean createDorm(Dorm dorm) {
-        if (dorm.getStudentId() != null) {
-            dormMap.put(dorm.getStudentId(), dorm);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean submitApplication(Dorm application) {
-        if (application.getStudentId() != null) {
-            application.setApplicationTime(new Date());
-            application.setApplicationStatus("待审核");
-            applicationMap.put(application.getStudentId(), application);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public List<Dorm> getApplicationsByStudentId(String studentId) {
-        List<Dorm> result = new ArrayList<>();
-        Dorm application = applicationMap.get(studentId);
-        if (application != null) {
-            result.add(application);
-        }
-        return result;
-    }
-
-    @Override
-    public List<Dorm> getPendingApplications() {
-        List<Dorm> result = new ArrayList<>();
-        for (Dorm app : applicationMap.values()) {
-            if ("待审核".equals(app.getApplicationStatus())) {
-                result.add(app);
+    public Dorm getDormInfoByStudentId(String studentId) throws SQLException {
+        String sql = "SELECT * FROM tblDormInfo WHERE studentId = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Dorm dorm = new Dorm();
+                    dorm.setStudentId(rs.getString("studentId"));
+                    dorm.setName(rs.getString("name"));
+                    dorm.setBuilding(rs.getString("building"));
+                    dorm.setRoomNumber(rs.getString("roomNumber"));
+                    dorm.setBedNumber(rs.getString("bedNumber"));
+                    
+                    // 处理日期字段
+                    java.sql.Date checkInDate = rs.getDate("checkInDate");
+                    if (checkInDate != null) {
+                        dorm.setCheckInDate(new java.util.Date(checkInDate.getTime()));
+                    }
+                    
+                    dorm.setStatus(rs.getString("status"));
+                    return dorm;
+                }
             }
+        } catch (SQLException ex) {
+            System.err.println("获取住宿信息失败: " + ex.getMessage());
+            throw ex;
         }
-        return result;
+        return null;
     }
 
     @Override
-    public boolean updateApplicationStatus(String studentId, String status, String reviewer, String remarks) {
-        Dorm app = applicationMap.get(studentId);
-        if (app != null) {
-            app.setApplicationStatus(status);
-            app.setReviewer(reviewer);
-            app.setReviewRemarks(remarks);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean submitServiceRequest(Dorm serviceRequest) {
-        if (serviceRequest.getStudentId() != null) {
-            serviceRequest.setServiceTime(new Date());
-            serviceRequest.setServiceStatus("待处理");
-            serviceRequestMap.put(serviceRequest.getStudentId(), serviceRequest);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public List<Dorm> getServiceRequestsByStudentId(String studentId) {
-        List<Dorm> result = new ArrayList<>();
-        Dorm serviceRequest = serviceRequestMap.get(studentId);
-        if (serviceRequest != null) {
-            result.add(serviceRequest);
-        }
-        return result;
-    }
-
-    @Override
-    public List<Dorm> getAllServiceRequests() {
-        return new ArrayList<>(serviceRequestMap.values());
-    }
-
-    @Override
-    public boolean updateServiceRequestStatus(String studentId, String status, String processor) {
-        Dorm sr = serviceRequestMap.get(studentId);
-        if (sr != null) {
-            sr.setServiceStatus(status);
-            sr.setServiceProcessor(processor);
-            if ("处理中".equals(status)) {
-                sr.setExpectedCompletionTime(new Date(System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000)); // 3天后
+    public List<Dorm> getAllDormInfo() throws SQLException {
+        List<Dorm> dorms = new ArrayList<>();
+        String sql = "SELECT * FROM tblDormInfo";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Dorm dorm = new Dorm();
+                dorm.setStudentId(rs.getString("studentId"));
+                dorm.setName(rs.getString("name"));
+                dorm.setBuilding(rs.getString("building"));
+                dorm.setRoomNumber(rs.getString("roomNumber"));
+                dorm.setBedNumber(rs.getString("bedNumber"));
+                
+                // 处理日期字段
+                java.sql.Date checkInDate = rs.getDate("checkInDate");
+                if (checkInDate != null) {
+                    dorm.setCheckInDate(new java.util.Date(checkInDate.getTime()));
+                }
+                
+                dorm.setStatus(rs.getString("status"));
+                dorms.add(dorm);
             }
-            return true;
+        } catch (SQLException ex) {
+            System.err.println("获取所有住宿信息失败: " + ex.getMessage());
+            throw ex;
         }
-        return false;
+        return dorms;
+    }
+
+    @Override
+    public boolean updateDormInfo(Dorm dorm) throws SQLException {
+        String sql = "UPDATE tblDormInfo SET name = ?, building = ?, roomNumber = ?, " +
+                     "bedNumber = ?, checkInDate = ?, status = ? WHERE studentId = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dorm.getName());
+            ps.setString(2, dorm.getBuilding());
+            ps.setString(3, dorm.getRoomNumber());
+            ps.setString(4, dorm.getBedNumber());
+            
+            // 处理日期字段
+            if (dorm.getCheckInDate() != null) {
+                ps.setDate(5, new java.sql.Date(dorm.getCheckInDate().getTime()));
+            } else {
+                ps.setNull(5, Types.DATE);
+            }
+            
+            ps.setString(6, dorm.getStatus());
+            ps.setString(7, dorm.getStudentId());
+            
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException ex) {
+            System.err.println("更新住宿信息失败: " + ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    public boolean addDormInfo(Dorm dorm) throws SQLException {
+        String sql = "INSERT INTO tblDormInfo (studentId, name, building, roomNumber, " +
+                     "bedNumber, checkInDate, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dorm.getStudentId());
+            ps.setString(2, dorm.getName());
+            ps.setString(3, dorm.getBuilding());
+            ps.setString(4, dorm.getRoomNumber());
+            ps.setString(5, dorm.getBedNumber());
+            
+            // 处理日期字段
+            if (dorm.getCheckInDate() != null) {
+                ps.setDate(6, new java.sql.Date(dorm.getCheckInDate().getTime()));
+            } else {
+                ps.setNull(6, Types.DATE);
+            }
+            
+            ps.setString(7, dorm.getStatus());
+            
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException ex) {
+            System.err.println("添加住宿信息失败: " + ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    public boolean deleteDormInfo(String studentId) throws SQLException {
+        String sql = "DELETE FROM tblDormInfo WHERE studentId = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException ex) {
+            System.err.println("删除住宿信息失败: " + ex.getMessage());
+            throw ex;
+        }
+    }
+    
+    // 住宿申请相关操作实现
+    
+    @Override
+    public boolean addApplication(Dorm application) throws SQLException {
+        String sql = "INSERT INTO tblDormApplication (studentId, applicationType, " +
+                     "applicationTime, applicationStatus, reviewer) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, application.getStudentId());
+            ps.setString(2, application.getApplicationType());
+            
+            // 处理时间字段
+            if (application.getApplicationTime() != null) {
+                ps.setTimestamp(3, new Timestamp(application.getApplicationTime().getTime()));
+            } else {
+                ps.setNull(3, Types.TIMESTAMP);
+            }
+            
+            ps.setString(4, application.getApplicationStatus());
+            ps.setString(5, application.getReviewer());
+            
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException ex) {
+            System.err.println("添加申请失败: " + ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    public List<Dorm> getApplicationsByStudentId(String studentId) throws SQLException {
+        List<Dorm> applications = new ArrayList<>();
+        String sql = "SELECT * FROM tblDormApplication WHERE studentId = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Dorm application = new Dorm();
+                    application.setApplicationId(rs.getString("applicationId"));
+                    application.setStudentId(rs.getString("studentId"));
+                    application.setApplicationType(rs.getString("applicationType"));
+                    
+                    // 处理时间字段
+                    Timestamp applicationTime = rs.getTimestamp("applicationTime");
+                    if (applicationTime != null) {
+                        application.setApplicationTime(new java.util.Date(applicationTime.getTime()));
+                    }
+                    
+                    application.setApplicationStatus(rs.getString("applicationStatus"));
+                    application.setReviewer(rs.getString("reviewer"));
+                    applications.add(application);
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("获取申请记录失败: " + ex.getMessage());
+            throw ex;
+        }
+        return applications;
+    }
+
+    @Override
+    public List<Dorm> getPendingApplications() throws SQLException {
+        List<Dorm> applications = new ArrayList<>();
+        String sql = "SELECT * FROM tblDormApplication WHERE applicationStatus = '待审核'";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Dorm application = new Dorm();
+                application.setApplicationId(rs.getString("applicationId"));
+                application.setStudentId(rs.getString("studentId"));
+                application.setApplicationType(rs.getString("applicationType"));
+                
+                // 处理时间字段
+                Timestamp applicationTime = rs.getTimestamp("applicationTime");
+                if (applicationTime != null) {
+                    application.setApplicationTime(new java.util.Date(applicationTime.getTime()));
+                }
+                
+                application.setApplicationStatus(rs.getString("applicationStatus"));
+                application.setReviewer(rs.getString("reviewer"));
+                applications.add(application);
+            }
+        } catch (SQLException ex) {
+            System.err.println("获取待审核申请失败: " + ex.getMessage());
+            throw ex;
+        }
+        return applications;
+    }
+
+    @Override
+    public boolean updateApplicationStatus(String applicationId, String status, String reviewer) throws SQLException {
+        String sql = "UPDATE tblDormApplication SET applicationStatus = ?, reviewer = ? WHERE applicationId = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setString(2, reviewer);
+            ps.setString(3, applicationId);
+            
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException ex) {
+            System.err.println("更新申请状态失败: " + ex.getMessage());
+            throw ex;
+        }
+    }
+    
+    // 宿舍服务相关操作实现
+    
+    @Override
+    public boolean addService(Dorm service) throws SQLException {
+        String sql = "INSERT INTO tblDormService (studentId, serviceDescription, " +
+                     "serviceTime, serviceStatus, serviceProcessor) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, service.getStudentId());
+            ps.setString(2, service.getServiceDescription());
+            
+            // 处理时间字段
+            if (service.getServiceTime() != null) {
+                ps.setTimestamp(3, new Timestamp(service.getServiceTime().getTime()));
+            } else {
+                ps.setNull(3, Types.TIMESTAMP);
+            }
+            
+            ps.setString(4, service.getServiceStatus());
+            ps.setString(5, service.getServiceProcessor());
+            
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException ex) {
+            System.err.println("添加服务失败: " + ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    public List<Dorm> getServicesByStudentId(String studentId) throws SQLException {
+        List<Dorm> services = new ArrayList<>();
+        String sql = "SELECT * FROM tblDormService WHERE studentId = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Dorm service = new Dorm();
+                    service.setServiceId(rs.getString("serviceId"));
+                    service.setStudentId(rs.getString("studentId"));
+                    service.setServiceDescription(rs.getString("serviceDescription"));
+                    
+                    // 处理时间字段
+                    Timestamp serviceTime = rs.getTimestamp("serviceTime");
+                    if (serviceTime != null) {
+                        service.setServiceTime(new java.util.Date(serviceTime.getTime()));
+                    }
+                    
+                    service.setServiceStatus(rs.getString("serviceStatus"));
+                    service.setServiceProcessor(rs.getString("serviceProcessor"));
+                    services.add(service);
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("获取服务记录失败: " + ex.getMessage());
+            throw ex;
+        }
+        return services;
+    }
+
+    @Override
+    public List<Dorm> getAllServices() throws SQLException {
+        List<Dorm> services = new ArrayList<>();
+        String sql = "SELECT * FROM tblDormService";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Dorm service = new Dorm();
+                service.setServiceId(rs.getString("serviceId"));
+                service.setStudentId(rs.getString("studentId"));
+                service.setServiceDescription(rs.getString("serviceDescription"));
+                
+                // 处理时间字段
+                Timestamp serviceTime = rs.getTimestamp("serviceTime");
+                if (serviceTime != null) {
+                    service.setServiceTime(new java.util.Date(serviceTime.getTime()));
+                }
+                
+                service.setServiceStatus(rs.getString("serviceStatus"));
+                service.setServiceProcessor(rs.getString("serviceProcessor"));
+                services.add(service);
+            }
+        } catch (SQLException ex) {
+            System.err.println("获取所有服务记录失败: " + ex.getMessage());
+            throw ex;
+        }
+        return services;
+    }
+
+    @Override
+    public boolean updateServiceStatus(String serviceId, String status, String processor) throws SQLException {
+        String sql = "UPDATE tblDormService SET serviceStatus = ?, serviceProcessor = ? WHERE serviceId = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setString(2, processor);
+            ps.setString(3, serviceId);
+            
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException ex) {
+            System.err.println("更新服务状态失败: " + ex.getMessage());
+            throw ex;
+        }
     }
 }

@@ -1,25 +1,26 @@
-// DormDao.java
 package com.seu.vcampus.server.dao;
 
 import com.seu.vcampus.common.model.Dorm;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface DormDao {
-    // 基本住宿信息操作
-    Dorm getDormByStudentId(String studentId);
-    List<Dorm> getAllDorms();
-    boolean updateDorm(Dorm dorm);
-    boolean createDorm(Dorm dorm);
+    // 住宿信息相关操作
+    Dorm getDormInfoByStudentId(String studentId) throws SQLException;
+    List<Dorm> getAllDormInfo() throws SQLException;
+    boolean updateDormInfo(Dorm dorm) throws SQLException;
+    boolean addDormInfo(Dorm dorm) throws SQLException;
+    boolean deleteDormInfo(String studentId) throws SQLException;
     
-    // 申请相关操作
-    boolean submitApplication(Dorm application);
-    List<Dorm> getApplicationsByStudentId(String studentId);
-    List<Dorm> getPendingApplications();
-    boolean updateApplicationStatus(String studentId, String status, String reviewer, String remarks);
+    // 住宿申请相关操作
+    boolean addApplication(Dorm application) throws SQLException;
+    List<Dorm> getApplicationsByStudentId(String studentId) throws SQLException;
+    List<Dorm> getPendingApplications() throws SQLException;
+    boolean updateApplicationStatus(String applicationId, String status, String reviewer) throws SQLException;
     
-    // 服务请求相关操作
-    boolean submitServiceRequest(Dorm serviceRequest);
-    List<Dorm> getServiceRequestsByStudentId(String studentId);
-    List<Dorm> getAllServiceRequests();
-    boolean updateServiceRequestStatus(String studentId, String status, String processor);
+    // 宿舍服务相关操作
+    boolean addService(Dorm service) throws SQLException;
+    List<Dorm> getServicesByStudentId(String studentId) throws SQLException;
+    List<Dorm> getAllServices() throws SQLException;
+    boolean updateServiceStatus(String serviceId, String status, String processor) throws SQLException;
 }

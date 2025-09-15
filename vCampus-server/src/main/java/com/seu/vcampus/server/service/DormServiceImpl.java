@@ -1,104 +1,135 @@
-package com.seu.vcampus.server.service; 
+package com.seu.vcampus.server.service;
 
-import com.seu.vcampus.server.dao.DormDao;
 import com.seu.vcampus.common.model.Dorm;
+import com.seu.vcampus.server.dao.DormDaoImpl;
 
+import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
-public class DormServiceImpl implements DormService {
-    private final DormDao dormDao;
+public class DormServiceImpl implements IDormService {
+    private final DormDaoImpl dormDao = new DormDaoImpl();
 
-    public DormServiceImpl(DormDao dormDao) {
-        this.dormDao = dormDao;
+    // 学生端功能实现
+    
+    @Override
+    public Dorm getDormInfo(String studentId) throws SQLException {
+        try {
+            return dormDao.getDormInfoByStudentId(studentId);
+        } catch (SQLException e) {
+            System.err.println("获取住宿信息失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public Dorm getDormInfo(String studentId) {
-        return dormDao.getDormByStudentId(studentId);
+    public List<Dorm> getApplications(String studentId) throws SQLException {
+        try {
+            return dormDao.getApplicationsByStudentId(studentId);
+        } catch (SQLException e) {
+            System.err.println("获取申请记录失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public List<Dorm> getAllDorms() {
-        return dormDao.getAllDorms();
+    public boolean submitApplication(Dorm application) throws SQLException {
+        try {
+            // 设置默认值
+            application.setApplicationTime(new Date());
+            application.setApplicationStatus("待审核");
+            
+            return dormDao.addApplication(application);
+        } catch (SQLException e) {
+            System.err.println("提交申请失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public boolean updateDorm(Dorm dorm) {
-        return dormDao.updateDorm(dorm);
+    public List<Dorm> getServices(String studentId) throws SQLException {
+        try {
+            return dormDao.getServicesByStudentId(studentId);
+        } catch (SQLException e) {
+            System.err.println("获取服务记录失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public boolean createDorm(Dorm dorm) {
-        return dormDao.createDorm(dorm);
+    public boolean submitService(Dorm service) throws SQLException {
+        try {
+            // 设置默认值
+            service.setServiceTime(new Date());
+            service.setServiceStatus("待处理");
+            
+            return dormDao.addService(service);
+        } catch (SQLException e) {
+            System.err.println("提交服务申请失败: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // 管理端功能实现
+    
+    @Override
+    public List<Dorm> getAllDormInfo() throws SQLException {
+        try {
+            return dormDao.getAllDormInfo();
+        } catch (SQLException e) {
+            System.err.println("获取所有住宿信息失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public boolean submitApplication(Dorm application) {
-        return dormDao.submitApplication(application);
+    public List<Dorm> getPendingApplications() throws SQLException {
+        try {
+            return dormDao.getPendingApplications();
+        } catch (SQLException e) {
+            System.err.println("获取待审核申请失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public List<Dorm> getStudentApplications(String studentId) {
-        return dormDao.getApplicationsByStudentId(studentId);
+    public boolean updateApplicationStatus(String applicationId, String status, String reviewer) throws SQLException {
+        try {
+            // 验证状态值
+            if (!"已批准".equals(status) && !"已拒绝".equals(status)) {
+                throw new SQLException("无效的申请状态: " + status);
+            }
+            
+            return dormDao.updateApplicationStatus(applicationId, status, reviewer);
+        } catch (SQLException e) {
+            System.err.println("更新申请状态失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public List<Dorm> getPendingApplications() {
-        return dormDao.getPendingApplications();
+    public List<Dorm> getAllServices() throws SQLException {
+        try {
+            return dormDao.getAllServices();
+        } catch (SQLException e) {
+            System.err.println("获取所有服务记录失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public boolean approveApplication(String studentId, String reviewer, String remarks) {
-        return dormDao.updateApplicationStatus(studentId, "已批准", reviewer, remarks);
-    }
-
-    @Override
-    public boolean rejectApplication(String studentId, String reviewer, String remarks) {
-        return dormDao.updateApplicationStatus(studentId, "已拒绝", reviewer, remarks);
-    }
-
-    @Override
-    public boolean submitServiceRequest(Dorm serviceRequest) {
-        return dormDao.submitServiceRequest(serviceRequest);
-    }
-
-    @Override
-    public List<Dorm> getStudentServiceRequests(String studentId) {
-        return dormDao.getServiceRequestsByStudentId(studentId);
-    }
-
-    @Override
-    public List<Dorm> getAllServiceRequests() {
-        return dormDao.getAllServiceRequests();
-    }
-
-    @Override
-    public boolean processServiceRequest(String studentId, String processor) {
-        return dormDao.updateServiceRequestStatus(studentId, "处理中", processor);
-    }
-
-    // 添加缺失的方法实现
-    @Override
-    public boolean deleteDorm(Long dormId) {
-        // 实现删除逻辑
-        return false;
-    }
-
-    @Override
-    public boolean hasAvailableBed(Long dormId) {
-        // 实现检查床位逻辑
-        return false;
-    }
-
-    @Override
-    public List<Dorm> searchDorms(String keyword) {
-        // 实现搜索逻辑
-        return null;
-    }
-
-    @Override
-    public boolean updateDorm(Long dormId, Dorm dorm) {
-        // 实现更新逻辑
-        return false;
+    public boolean updateServiceStatus(String serviceId, String status, String processor) throws SQLException {
+        try {
+            // 验证状态值
+            if (!"处理中".equals(status) && !"已完成".equals(status)) {
+                throw new SQLException("无效的服务状态: " + status);
+            }
+            
+            return dormDao.updateServiceStatus(serviceId, status, processor);
+        } catch (SQLException e) {
+            System.err.println("更新服务状态失败: " + e.getMessage());
+            throw e;
+        }
     }
 }
+

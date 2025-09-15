@@ -20,5 +20,6 @@ public class Book implements Serializable {
     private int availableCopies;
     private String location;
     private String imagePath;
+    private String description;
 
 }

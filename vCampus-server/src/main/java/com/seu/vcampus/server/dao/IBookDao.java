@@ -3,6 +3,7 @@ package com.seu.vcampus.server.dao;
 
 import com.seu.vcampus.common.model.Book;
 import com.seu.vcampus.common.model.BorrowRecord;
+import com.seu.vcampus.common.model.Reservation;
 
 import java.util.List;
 
@@ -49,7 +50,9 @@ public interface IBookDao {
     boolean borrowBook(String userId, String isbn);
     boolean canUserBorrow(String userId);
     boolean returnBook(Long recordId);
-
-
+    boolean cancelReservation(Long recordId);
+    List<Reservation> getReservationsByUserId(String userId);
+    boolean reserveBook(String userId, String isbn);
+    boolean renewBook(long recordId);
 }
 

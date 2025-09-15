@@ -1,5 +1,6 @@
 package com.seu.vcampus.server.controller;
 import com.seu.vcampus.common.model.BorrowRecord;
+import com.seu.vcampus.common.model.Reservation;
 import com.seu.vcampus.server.service.ILibraryService;
 import com.seu.vcampus.server.service.LibraryServiceImpl;
 import com.seu.vcampus.common.util.Message;
@@ -31,6 +32,12 @@ public class LibraryController {
                 List<BorrowRecord> borrowRecords = libraryService.getBorrowRecordsByUserId(UserID);
                 response.setStatus(Message.STATUS_SUCCESS);
                 response.setData(borrowRecords);
+
+            } else if (LibraryMessage.GET_RESERVATIONS.equals(request.getType())) {
+                String UserID = (String) request.getData();
+                List<Reservation> reservations= libraryService.getReservationsByUserId(UserID);
+                response.setStatus(Message.STATUS_SUCCESS);
+                response.setData(reservations);
 
 
             } else if (LibraryMessage.ADD_BOOK.equals(request.getType())) {
@@ -71,7 +78,7 @@ public class LibraryController {
                 }
 
             } else if (LibraryMessage.BORROW_BOOKS.equals(request.getType())) {
-                 //填补
+
                 Map<String, String> borrowRequest = (Map<String, String>) request.getData();
                 String userId = borrowRequest.get("userId");
                 String isbn = borrowRequest.get("isbn");
@@ -84,6 +91,20 @@ public class LibraryController {
                     response.setStatus(Message.STATUS_ERROR);
                     response.setData("借阅失败：图书不可用或用户已达借阅上限");
                 }
+            } else if (LibraryMessage.RESERVE_BOOKS.equals(request.getType())) {
+
+                Map<String, String> reserveRequest = (Map<String, String>) request.getData();
+                String userId = reserveRequest.get("userId");
+                String isbn = reserveRequest.get("isbn");
+
+                boolean success = libraryService.reserveBook(userId, isbn);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("预约成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("预约失败");
+                }
 
             } else if (LibraryMessage.RETURN_BOOK.equals(request.getType())) {
                 Long RecordID = (Long) request.getData();
@@ -95,6 +116,29 @@ public class LibraryController {
                 } else {
                     response.setStatus(Message.STATUS_ERROR);
                     response.setData("归还失败");
+                }
+            } else if (LibraryMessage.RENEW_BOOK.equals(request.getType())) {
+                Long RecordID = (Long) request.getData();
+
+                boolean success = libraryService.renewBook(RecordID);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("续借成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("续借失败");
+                }
+
+            } else if (LibraryMessage.CANCEL_RESERVATION.equals(request.getType())) {
+                Long RecordID = (Long) request.getData();
+
+                boolean success = libraryService.cancelReservation(RecordID);
+                if (success) {
+                    response.setStatus(Message.STATUS_SUCCESS);
+                    response.setData("取消预约成功");
+                } else {
+                    response.setStatus(Message.STATUS_ERROR);
+                    response.setData("取消预约失败");
                 }
             } else if (LibraryMessage.GETBOOKBYISBN.equals(request.getType())) {
                 String ISBN = (String) request.getData();

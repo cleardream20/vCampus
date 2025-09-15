@@ -3,6 +3,7 @@ package com.seu.vcampus.client.controller;
 import com.seu.vcampus.common.model.Book;
 import com.seu.vcampus.common.model.BorrowRecord;
 import com.seu.vcampus.client.socket.ClientSocketHandler;
+import com.seu.vcampus.common.model.Reservation;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.LibraryMessage;
 
@@ -90,6 +91,20 @@ public class LibraryController {
             return Collections.emptyList();
         }
     }
+    public List<Reservation> getReservationsByUserId(String UserID){
+        Message request = new Message();
+        request.setType(LibraryMessage.GET_RESERVATIONS);
+        request.setData(UserID);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return (List<Reservation>) response.getData();
+        } else {
+            System.err.println("搜索预约图书列表失败: " + response.getData());
+            return Collections.emptyList();
+        }
+    }
 
 
     public boolean borrowBook(String userId, String isbn) {
@@ -128,6 +143,59 @@ public class LibraryController {
         }
     }
 
+    public boolean renewBook(Long RecordID) {
+
+        Message request = new Message();
+        request.setType(LibraryMessage.RENEW_BOOK);
+        request.setData(RecordID);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("续借失败: " + response.getData());
+            return false;
+        }
+    }
+
+    public boolean cancelReservation(Long reservationID) {
+
+        Message request = new Message();
+        request.setType(LibraryMessage.CANCEL_RESERVATION);
+        request.setData(reservationID);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("取消预约失败: " + response.getData());
+            return false;
+        }
+    }
+
+
+    public boolean reserveBook(String userId, String isbn) {
+        Map<String, String> reserveRequest = new HashMap<>();
+        reserveRequest.put("userId", userId);
+        reserveRequest.put("isbn", isbn);
+
+        Message request = new Message();
+        request.setType(LibraryMessage.RESERVE_BOOKS);
+        request.setData(reserveRequest);
+
+        Message response = socketHandler.sendRequest(request);
+
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
+            return true;
+        } else {
+            System.err.println("预约图书失败: " + response.getData());
+            return false;
+        }
+    }
+
+
     public boolean addBook(Book book) {
         Message request = new Message();
         request.setType(LibraryMessage.ADD_BOOK);
@@ -142,7 +210,6 @@ public class LibraryController {
             return false;
         }
     }
-
     public boolean updateBook(Book book) {
         Message request = new Message();
         request.setType(LibraryMessage.UPDATE_BOOK);

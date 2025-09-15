@@ -39,7 +39,7 @@ public class UserController {
 //        }
 
         // 账号别处登录，踢出
-        if(userService.checkOnlineUser(user.getCid())) return Message.error(Message.KICKED, "账号在别处登录");
+//        if(userService.checkOnlineUser(user.getCid())) return Message.error(Message.KICKED, "账号在别处登录");
 
         User result = userService.login(user.getCid(), user.getPassword());
         if (result == null || !result.getPassword().equals(user.getPassword())) {

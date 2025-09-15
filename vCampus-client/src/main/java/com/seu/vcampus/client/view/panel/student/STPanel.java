@@ -2,10 +2,8 @@ package com.seu.vcampus.client.view.panel.student;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import com.seu.vcampus.client.controller.student.STController;
+import com.seu.vcampus.client.service.StudentService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
@@ -20,20 +18,21 @@ public class STPanel extends JPanel implements NavigatablePanel {
     private JTextField addressField;
     private JTextField nidField;
     private JTextField endateField;
-    private JButton modifyButton;
-    private JButton submitButton;
-    private JButton refreshButton;
-    private JButton backButton; // 添加返回按钮
+    private JButton backButton; // 保留返回按钮
 
     public STPanel() {
 //        User user = MainFrame.getInstance().getCurrentUser();
         User user = new User();
         String userId = user.getCid();
-        STController controller = new STController();
-        this.currentStudent = controller.getStudent(userId);
+        StudentService service = new StudentService();
+        try {
+            this.currentStudent = service.getStudent(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         initializeUI();
-        setFieldsEditable(false);
-        submitButton.setEnabled(false);
+        setFieldsEditable(false); // 确保字段不可编辑
     }
 
     private void initializeUI() {
@@ -151,22 +150,6 @@ public class STPanel extends JPanel implements NavigatablePanel {
 
         contentPanel.add(formPanel, BorderLayout.CENTER);
 
-        // 按钮面板
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        modifyButton = new JButton("修改");
-        submitButton = new JButton("提交");
-        refreshButton = new JButton("刷新");
-
-        modifyButton.setFocusPainted(false);
-        submitButton.setFocusPainted(false);
-        refreshButton.setFocusPainted(false);
-
-        buttonPanel.add(modifyButton);
-        buttonPanel.add(submitButton);
-        buttonPanel.add(refreshButton);
-
-        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
-
         // 将内容面板添加到主面板
         add(contentPanel, BorderLayout.CENTER);
 
@@ -175,47 +158,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
     }
 
     private void setupEventListeners() {
-        modifyButton.addActionListener(e -> {
-            setFieldsEditable(true);
-            modifyButton.setEnabled(false);
-            submitButton.setEnabled(true);
-        });
-
-        submitButton.addActionListener(e -> {
-            // 更新学生对象
-            currentStudent.setName(nameField.getText());
-            currentStudent.setEmail(emailField.getText());
-            currentStudent.setPhone(phoneField.getText());
-            currentStudent.setSex(sexField.getText());
-            currentStudent.setBirthday(birthdayField.getText());
-            currentStudent.setAddress(addressField.getText());
-            currentStudent.setNid(nidField.getText());
-            currentStudent.setEndate(endateField.getText());
-
-            // 这里调用服务器接口提交修改
-            boolean success = true;
-
-            // 假设提交成功
-            JOptionPane.showMessageDialog(STPanel.this,
-                    "修改申请已提交，等待审核", "提示", JOptionPane.INFORMATION_MESSAGE);
-
-            setFieldsEditable(false);
-            modifyButton.setEnabled(true);
-            submitButton.setEnabled(false);
-        });
-
-        refreshButton.addActionListener(e -> {
-            // 这里调用服务器接口获取最新数据
-            // Student updatedStudent = fetchLatestStudentData();
-            Student updateStudent = new Student();
-            // 假设从服务器获取了更新后的数据
-            refreshPanel(updateStudent);
-
-            JOptionPane.showMessageDialog(STPanel.this,
-                    "页面已刷新", "提示", JOptionPane.INFORMATION_MESSAGE);
-        });
-
-        // 添加返回按钮的事件监听
+        // 只保留返回按钮的事件监听
         backButton.addActionListener(e -> {
             // 这里实现返回逻辑，例如返回到上一个界面
             // 可能需要调用主框架的导航方法
@@ -253,8 +196,13 @@ public class STPanel extends JPanel implements NavigatablePanel {
     @Override
     public void refreshPanel(User user) {
         String userId = user.getCid();
-        STController controller = new STController();
-        Student student = controller.getStudent(userId);
+        StudentService service = new StudentService();
+        Student student = this.currentStudent;
+        try {
+            student = service.getStudent(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         this.currentStudent = student;
 
         // 更新所有字段
@@ -267,9 +215,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
         nidField.setText(student.getNid());
         endateField.setText(student.getEndate());
 
-        // 重置编辑状态
+        // 确保字段不可编辑
         setFieldsEditable(false);
-        modifyButton.setEnabled(true);
-        submitButton.setEnabled(false);
     }
 }

@@ -8,6 +8,8 @@ import java.awt.*;
 
 public class ClientMain {
     public static void main(String[] args) {
+//        System.out.println(System.getProperty("java.io.tmpdir"));
+
         // 1. 设置 Swing 系统外观（可选，让界面更美观）
         setSystemLookAndFeel();
 

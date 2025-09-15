@@ -44,21 +44,3 @@ public class ClientSocketUtil {
         }
     }
 }
-
-/*
-ClientSocketUtil: send message 工具人
-// 1. 构造请求
-Message request = new Message("login", userDataJson);
-
-// 2. 发送
-Message response = ClientSocketUtil.sendRequest(request);
-
-// 3. 处理
-if (response.isSuccess()) {
-    User user = User.fromJson(response.getData());
-    UserSession.setUser(user);
-    mainFrame.showHome();
-} else {
-    showError(response.getMessage());
-}
- */

@@ -52,7 +52,7 @@ public interface UserService {
      * @return 成功登录的user
      * @throws SQLException 数据库查询出错时
      */
-    User Login(String cid, String password) throws SQLException;
+    User login(String cid, String password) throws SQLException;
 
     /**
      * 用户注册
@@ -60,6 +60,14 @@ public interface UserService {
      * @return 成功注册的user
      * @throws SQLException 数据库查询出错时
      */
-    User Register(User user) throws SQLException;
+    User register(User user) throws SQLException;
 
+    /**
+     * 检查用户是否已登录
+     * @param cid 用户cid
+     * @return 是否已登录
+     */
+    boolean checkOnlineUser(String cid);
+
+    void logout(String cid) throws SQLException;
 }

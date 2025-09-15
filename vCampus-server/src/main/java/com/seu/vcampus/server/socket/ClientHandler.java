@@ -80,12 +80,14 @@ public class ClientHandler implements Runnable {
                     return userController.handleLogin(request);
                 } catch (Exception e) {
                     System.err.println("登录异常: " + e.getMessage());
+                    return Message.error(Message.RESPONSE, "服务器登录出错");
                 }
             case Message.REGISTER:
                 try {
-                    return userController.handleRequest(request);
+                    return userController.handleRegister(request);
                 } catch (Exception e) {
                     System.err.println("传递request异常: " + e.getMessage());
+                    return Message.error(Message.RESPONSE, "服务器注册出错");
                 }
 
             default:

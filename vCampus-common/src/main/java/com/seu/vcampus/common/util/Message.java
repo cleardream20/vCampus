@@ -18,6 +18,7 @@ public class Message implements Serializable {
     public static final String LOGIN = "LOGIN";
     public static final String REGISTER = "REGISTER";
     public static final String LOGOUT = "LOGOUT";
+    public static final String KICKED = "KICKED";
     public static final String RESPONSE = "RESPONSE";
     public static final String ENTER_USER_CENTER = "ENTER_USER_CENTER";
     public static final String CONTROL_STUDENT =  "CONTROL_STUDENT";

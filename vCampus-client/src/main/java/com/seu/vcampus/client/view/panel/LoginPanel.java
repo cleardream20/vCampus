@@ -123,8 +123,6 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
         SwingWorker<User, Void> worker = new SwingWorker<>() {
             @Override
             protected User doInBackground() throws Exception {
-//                LoginController controller = new LoginController();
-//                User user = controller.login(cid, password);
                 LoginService  loginService = new LoginService();
                 User user = loginService.login(cid, password);
                 if (user != null) {
@@ -145,11 +143,30 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
                     SwingUtilities.invokeLater(() -> {
                         MainFrame mainFrame = MainFrame.getInstance();
                         mainFrame.showMainPanel(user); // 设置当前用户
-                        // mainFrame.show...()
                     });
 
                 } catch (InterruptedException | ExecutionException ex) {
-                    lblStatus.setText("登录失败: " + ex.getMessage());
+                    // 异常处理
+                    String msg = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
+                    if(msg.contains("账号在别处登录")) {
+                        JOptionPane.showMessageDialog(
+                                LoginPanel.this,
+                                "账号在别处登录",
+                                "登陆失败",
+                                JOptionPane.WARNING_MESSAGE
+                        );
+                    }
+
+                    if(msg.contains("服务器登录出错")) {
+                        JOptionPane.showMessageDialog(
+                                LoginPanel.this,
+                                "账号或密码错误",
+                                "登陆失败",
+                                JOptionPane.WARNING_MESSAGE
+                        );
+                    }
+//                    lblStatus.setText("登录失败: " + ex.getMessage());
+                    lblStatus.setText("登录失败: " + msg);
                     lblStatus.setForeground(Color.RED);
                     ex.printStackTrace();
                 }
@@ -159,7 +176,6 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
     }
 
     private void attemptRegister() {
-//        JOptionPane.showMessageDialog(this, "注册功能正在开发中", "提示", JOptionPane.INFORMATION_MESSAGE);
         SwingUtilities.invokeLater(() -> {
             MainFrame.getInstance().showPanel("REGISTER");
         });

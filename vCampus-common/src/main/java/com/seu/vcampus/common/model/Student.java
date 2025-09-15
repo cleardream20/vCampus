@@ -39,6 +39,7 @@ public class Student extends User implements Serializable {
     }
 
     private String sex;
+//    private int age;
     private String birthday; // 出生日期 YY-MM-DD
     private String address;
     private String nid;

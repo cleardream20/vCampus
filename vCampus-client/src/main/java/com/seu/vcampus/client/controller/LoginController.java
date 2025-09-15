@@ -6,12 +6,6 @@ public class LoginController {
     public User login(String cid, String password){
         return new User();
     }
-//    private ClientSocketHandler clientSocketHandler;
-//
-//    public LoginController() {
-//        this.clientSocketHandler = clientSocketHandler.getInstance(); // 单例模式获取客户端连接
-//    }
-//
 //    public boolean login(String cid, String password) {
 //        try {
 //            User user = new User();

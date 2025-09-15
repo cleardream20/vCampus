@@ -39,7 +39,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean addUser(User user) throws SQLException {
-        String sql = "INSERT INTO tblUser (cid, password, tsid, name, email, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tblUser (cid, password, tsid, tname, email, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
             ps.setString(1,  user.getCid());
@@ -63,7 +63,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean updateUser(User user) throws SQLException {
-        String sql = "UPDATE tblUser SET password = ?, tsid = ?, name = ?, email = ?, phone = ?, role = ? WHERE cid = ?";
+        String sql = "UPDATE tblUser SET password = ?, tsid = ?, tname = ?, email = ?, phone = ?, role = ? WHERE cid = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
             ps.setString(1, user.getPassword());

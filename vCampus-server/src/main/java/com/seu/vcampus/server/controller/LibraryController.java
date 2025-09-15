@@ -39,7 +39,6 @@ public class LibraryController {
                 response.setStatus(Message.STATUS_SUCCESS);
                 response.setData(reservations);
 
-
             } else if (LibraryMessage.ADD_BOOK.equals(request.getType())) {
                 Book book=(Book) request.getData();
 
@@ -51,7 +50,6 @@ public class LibraryController {
                     response.setStatus(Message.STATUS_ERROR);
                     response.setData("增添图书失败");
                 }
-
 
             } else if (LibraryMessage.DELETE_BOOK.equals(request.getType())) {
                 String isbn=(String) request.getData();

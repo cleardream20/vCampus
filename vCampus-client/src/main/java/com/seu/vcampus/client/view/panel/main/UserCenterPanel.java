@@ -1,6 +1,7 @@
 package com.seu.vcampus.client.view.panel.main;
 
 import com.seu.vcampus.client.service.LoginService;
+import com.seu.vcampus.client.service.UserService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.client.view.frame.MainFrame;
 import com.seu.vcampus.common.model.User;
@@ -328,7 +329,8 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
             // 示例：ClientSocket.getInstance().sendMessage(Message.TYPE_SEND_VERIFY_CODE, Map.of("cid", currentUser.getCid()));
 
             // 模拟生成验证码（仅用于演示，生产环境由服务器生成）
-            String code = String.format("%06d", new java.util.Random().nextInt(1000000));
+//            String code = String.format("%06d", new java.util.Random().nextInt(1000000));
+            String code = "123456";
             storedCode[0] = code;
             codeSent[0] = true;
 

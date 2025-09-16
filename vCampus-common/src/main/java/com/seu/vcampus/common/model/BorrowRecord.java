@@ -8,6 +8,8 @@ import java.util.Date;
  * 对应数据库中的 tblBorrowRecord 表
  */
 public class BorrowRecord implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long recordId;       // 记录ID
     private String userId;       // 用户ID
     private String bookIsbn;     // 图书ISBN

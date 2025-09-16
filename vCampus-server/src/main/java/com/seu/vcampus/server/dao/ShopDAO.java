@@ -6,6 +6,7 @@ import com.seu.vcampus.common.model.Order;
 import com.seu.vcampus.common.model.OrderItem;
 import com.seu.vcampus.common.util.DatabaseUtil;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +23,13 @@ public class ShopDAO {
 
             while (rs.next()) {
                 Product product = new Product();
-                product.setProductId(rs.getInt("ProductID"));
+                product.setProductId(rs.getString("ProductID"));
                 product.setProductName(rs.getString("ProductName"));
                 product.setDescription(rs.getString("Description"));
-                product.setPrice(rs.getDouble("Price"));
+                product.setPrice(rs.getBigDecimal("Price"));
                 product.setStock(rs.getInt("Stock"));
                 product.setCategory(rs.getString("Category"));
-                product.setImageUrl(rs.getString("ImageURL"));
+                product.setImageURL(rs.getString("ImageURL"));
 
                 products.add(product);
             }
@@ -49,13 +50,13 @@ public class ShopDAO {
 
             if (rs.next()) {
                 Product product = new Product();
-                product.setProductId(rs.getInt("ProductID"));
+                product.setProductId(rs.getString("ProductID"));
                 product.setProductName(rs.getString("ProductName"));
                 product.setDescription(rs.getString("Description"));
-                product.setPrice(rs.getDouble("Price"));
+                product.setPrice(rs.getBigDecimal("Price"));
                 product.setStock(rs.getInt("Stock"));
                 product.setCategory(rs.getString("Category"));
-                product.setImageUrl(rs.getString("ImageURL"));
+                product.setImageURL(rs.getString("ImageURL"));
 
                 return product;
             }
@@ -132,9 +133,10 @@ public class ShopDAO {
         String updateStockSql = "UPDATE Products SET Stock = Stock - ? WHERE ProductID = ?";
 
         // 计算总金额
-        double totalAmount = 0;
+        BigDecimal totalAmount = BigDecimal.ZERO;
         for (CartItem item : items) {
-            totalAmount += item.getTotalPrice();
+            BigDecimal subTotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            totalAmount = totalAmount.add(subTotal);
         }
 
         Connection conn = null;
@@ -145,7 +147,7 @@ public class ShopDAO {
             // 创建订单
             PreparedStatement orderStmt = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS);
             orderStmt.setInt(1, userId);
-            orderStmt.setDouble(2, totalAmount);
+            orderStmt.setBigDecimal(2, totalAmount);
             orderStmt.executeUpdate();
 
             // 获取生成的订单ID
@@ -159,9 +161,9 @@ public class ShopDAO {
             PreparedStatement detailStmt = conn.prepareStatement(detailSql);
             for (CartItem item : items) {
                 detailStmt.setInt(1, orderId);
-                detailStmt.setInt(2, item.getProductId());
+                detailStmt.setString(2, item.getProductId());
                 detailStmt.setInt(3, item.getQuantity());
-                detailStmt.setDouble(4, item.getPrice());
+                detailStmt.setBigDecimal(4, item.getPrice());
                 detailStmt.addBatch();
             }
             detailStmt.executeBatch();
@@ -170,7 +172,7 @@ public class ShopDAO {
             PreparedStatement updateStockStmt = conn.prepareStatement(updateStockSql);
             for (CartItem item : items) {
                 updateStockStmt.setInt(1, item.getQuantity());
-                updateStockStmt.setInt(2, item.getProductId());
+                updateStockStmt.setString(2, item.getProductId());
                 updateStockStmt.addBatch();
             }
             updateStockStmt.executeBatch();
@@ -233,7 +235,7 @@ public class ShopDAO {
                 order.setOrderId(orderRs.getInt("OrderID"));
                 order.setUserId(orderRs.getInt("UserID"));
                 order.setOrderDate(orderRs.getTimestamp("OrderDate"));
-                order.setTotalAmount(orderRs.getDouble("TotalAmount"));
+                order.setTotalAmount(orderRs.getBigDecimal("TotalAmount"));
                 order.setStatus(orderRs.getString("Status"));
 
                 // 获取订单明细
@@ -244,9 +246,9 @@ public class ShopDAO {
 
                     while (detailRs.next()) {
                         OrderItem item = new OrderItem();
-                        item.setProductId(detailRs.getInt("ProductID"));
+                        item.setProductId(detailRs.getString("ProductID"));
                         item.setProductName(detailRs.getString("ProductName"));
-                        item.setPrice(detailRs.getDouble("Price"));
+                        item.setPrice(detailRs.getBigDecimal("Price"));
                         item.setQuantity(detailRs.getInt("Quantity"));
 
                         items.add(item);

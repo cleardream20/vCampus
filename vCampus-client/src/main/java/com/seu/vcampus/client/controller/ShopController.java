@@ -6,6 +6,7 @@ import com.seu.vcampus.common.model.Product;
 import com.seu.vcampus.common.model.CartItem;
 import com.seu.vcampus.common.model.Order;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,9 +39,13 @@ public class ShopController {
         Message response = socketHandler.sendRequest(request);
 
         if (response.getStatus() == Message.STATUS_SUCCESS) {
-            @SuppressWarnings("unchecked")
-            List<Product> products = (List<Product>) response.getData();
-            return products;
+            try {
+                @SuppressWarnings("unchecked")
+                List<Product> products = (List<Product>) response.getData();
+                return products;
+            } catch (ClassCastException e) {
+                throw new RuntimeException("响应数据类型不匹配: " + e.getMessage());
+            }
         } else {
             throw new RuntimeException("获取商品列表失败: " + response.getData());
         }
@@ -88,7 +93,7 @@ public class ShopController {
         }
     }
 
-    public boolean addToCart(int userId, int productId, int quantity) {
+    public boolean addToCart(int userId, String productId, int quantity) {
         if (!ensureConnected()) {
             throw new RuntimeException("无法连接到服务器");
         }
@@ -107,11 +112,7 @@ public class ShopController {
         // 发送请求并获取响应
         Message response = socketHandler.sendRequest(request);
 
-        if (response.getStatus() == Message.STATUS_SUCCESS) {
-            return true;
-        } else {
-            throw new RuntimeException("添加到购物车失败: " + response.getData());
-        }
+        return response.getStatus() == Message.STATUS_SUCCESS;
     }
 
     public List<CartItem> getCartItems(int userId) {
@@ -136,7 +137,7 @@ public class ShopController {
         }
     }
 
-    public boolean updateCartItemQuantity(int userId, int productId, int quantity) {
+    public boolean updateCartItemQuantity(int userId, String productId, int quantity) {
         if (!ensureConnected()) {
             throw new RuntimeException("无法连接到服务器");
         }
@@ -155,14 +156,10 @@ public class ShopController {
         // 发送请求并获取响应
         Message response = socketHandler.sendRequest(request);
 
-        if (response.getStatus() == Message.STATUS_SUCCESS) {
-            return true;
-        } else {
-            throw new RuntimeException("更新购物车失败: " + response.getData());
-        }
+        return response.getStatus() == Message.STATUS_SUCCESS;
     }
 
-    public boolean removeFromCart(int userId, int productId) {
+    public boolean removeFromCart(int userId, String productId) {
         if (!ensureConnected()) {
             throw new RuntimeException("无法连接到服务器");
         }
@@ -180,11 +177,7 @@ public class ShopController {
         // 发送请求并获取响应
         Message response = socketHandler.sendRequest(request);
 
-        if (response.getStatus() == Message.STATUS_SUCCESS) {
-            return true;
-        } else {
-            throw new RuntimeException("从购物车移除失败: " + response.getData());
-        }
+        return response.getStatus() == Message.STATUS_SUCCESS;
     }
 
     public boolean clearCart(int userId) {
@@ -200,31 +193,29 @@ public class ShopController {
         // 发送请求并获取响应
         Message response = socketHandler.sendRequest(request);
 
-        if (response.getStatus() == Message.STATUS_SUCCESS) {
-            return true;
-        } else {
-            throw new RuntimeException("清空购物车失败: " + response.getData());
-        }
+        return response.getStatus() == Message.STATUS_SUCCESS;
     }
 
-    public boolean createOrder(int userId) {
+    public boolean createOrder(int userId, String shippingAddress, String contactPhone) {
         if (!ensureConnected()) {
             throw new RuntimeException("无法连接到服务器");
         }
 
+        // 创建请求数据
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", userId);
+        data.put("shippingAddress", shippingAddress);
+        data.put("contactPhone", contactPhone);
+
         // 创建请求消息
         Message request = new Message();
         request.setType("SHOP_CREATE_ORDER");
-        request.setData(userId);
+        request.setData(data);
 
         // 发送请求并获取响应
         Message response = socketHandler.sendRequest(request);
 
-        if (response.getStatus() == Message.STATUS_SUCCESS) {
-            return true;
-        } else {
-            throw new RuntimeException("创建订单失败: " + response.getData());
-        }
+        return response.getStatus() == Message.STATUS_SUCCESS;
     }
 
     public List<Order> getUserOrders(int userId) {
@@ -269,12 +260,13 @@ public class ShopController {
         }
     }
 
-    public double getCartTotal(int userId) {
+    public BigDecimal getCartTotal(int userId) {
         List<CartItem> cartItems = getCartItems(userId);
-        double total = 0;
+        BigDecimal total = BigDecimal.ZERO;
 
         for (CartItem item : cartItems) {
-            total += item.getPrice().doubleValue() * item.getQuantity();
+            BigDecimal itemTotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            total = total.add(itemTotal);
         }
 
         return total;

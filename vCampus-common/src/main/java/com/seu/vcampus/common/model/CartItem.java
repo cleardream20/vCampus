@@ -13,9 +13,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItem implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Integer id;
     private Integer userId;
-    private Integer productId;
+    private String productId;
     private String productName;
     private Integer quantity;
     private BigDecimal price;

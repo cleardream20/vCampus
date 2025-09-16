@@ -10,6 +10,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String cid; // card id 一卡通号
     private String password; // 密码
     private String tsid; // sid学生学号 + tid教职工号

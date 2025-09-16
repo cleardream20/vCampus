@@ -8,6 +8,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class CartDialog extends JDialog {
@@ -183,7 +184,7 @@ public class CartDialog extends JDialog {
             return;
         }
 
-        int productId = (Integer) tableModel.getValueAt(selectedRow, 0);
+        String productId = (String) tableModel.getValueAt(selectedRow, 0);
         String productName = (String) tableModel.getValueAt(selectedRow, 1);
 
         int confirm = JOptionPane.showConfirmDialog(this,
@@ -276,14 +277,47 @@ public class CartDialog extends JDialog {
     }
 
     private void purchaseAllItems() {
+        if (currentCartItems == null || currentCartItems.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "购物车为空，无法结算", "提示", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
         // 计算总价
-        double total = 0;
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            total += (Double) tableModel.getValueAt(i, 4);
+        BigDecimal total = BigDecimal.ZERO;
+        for (CartItem item : currentCartItems) {
+            BigDecimal itemTotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            total = total.add(itemTotal);
+        }
+
+        // 创建配送信息输入对话框
+        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
+        JTextField addressField = new JTextField();
+        JTextField phoneField = new JTextField();
+
+        panel.add(new JLabel("配送地址:"));
+        panel.add(addressField);
+        panel.add(new JLabel("联系电话:"));
+        panel.add(phoneField);
+        panel.add(new JLabel("总金额:"));
+        panel.add(new JLabel(total.setScale(2, BigDecimal.ROUND_HALF_UP).toString() + " 元"));
+
+        int option = JOptionPane.showConfirmDialog(this, panel, "请输入配送信息",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (option != JOptionPane.OK_OPTION) {
+            return; // 用户取消
+        }
+
+        String shippingAddress = addressField.getText().trim();
+        String contactPhone = phoneField.getText().trim();
+
+        if (shippingAddress.isEmpty() || contactPhone.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "配送地址和联系电话不能为空", "错误", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         int confirm = JOptionPane.showConfirmDialog(this,
-                "确认购买购物车中的所有商品? 总价: " + String.format("%.2f", total) + " 元",
+                "确认购买购物车中的所有商品? 总价: " + total.setScale(2, BigDecimal.ROUND_HALF_UP) + " 元",
                 "确认购买", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
@@ -294,7 +328,7 @@ public class CartDialog extends JDialog {
             SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                 @Override
                 protected Boolean doInBackground() throws Exception {
-                    return shopController.createOrder(userId);
+                    return shopController.createOrder(userId, shippingAddress, contactPhone);
                 }
 
                 @Override
@@ -335,28 +369,29 @@ public class CartDialog extends JDialog {
             return;
         }
 
-        double total = 0;
+        BigDecimal total = BigDecimal.ZERO;
         for (CartItem item : currentCartItems) {
-            double subtotal = item.getPrice().doubleValue() * item.getQuantity();
+            BigDecimal subtotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
             Object[] row = {
                     item.getProductId(),
                     item.getProductName(),
-                    item.getPrice().doubleValue(),
+                    item.getPrice(),
                     item.getQuantity(),
                     subtotal
             };
             tableModel.addRow(row);
-            total += subtotal;
+            total = total.add(subtotal);
         }
 
-        totalLabel.setText(String.format("总计: %.2f 元", total));
+        totalLabel.setText("总计: " + total.setScale(2, BigDecimal.ROUND_HALF_UP).toString() + " 元");
         updateButtonStates(true);
     }
 
     private void updateButtonStates(boolean hasItems) {
         purchaseButton.setEnabled(hasItems);
         clearButton.setEnabled(hasItems);
-        removeButton.setEnabled(hasItems);
+        removeButton.setEnabled(hasItems && cartTable.getSelectedRow() != -1);
     }
+
 
 }

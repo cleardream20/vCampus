@@ -3,12 +3,15 @@ package com.seu.vcampus.common.util;
 import java.io.Serializable;
 
 public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static final String STATUS_SUCCESS = "SUCCESS";
     public static final String STATUS_ERROR = "ERROR";
 
     private String type;
     private String status;
     private Object data;
+    private String message;
 
     public Message() {}
 

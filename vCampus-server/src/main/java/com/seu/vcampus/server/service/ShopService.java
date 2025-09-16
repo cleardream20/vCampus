@@ -8,8 +8,11 @@ import com.seu.vcampus.server.dao.ProductDAO;
 import com.seu.vcampus.common.model.CartItem;
 import com.seu.vcampus.common.model.OrderItem;
 import com.seu.vcampus.common.model.Product;
+import com.seu.vcampus.common.util.DatabaseUtil;
 
+import java.sql.*;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +30,38 @@ public class ShopService {
 
     // 商品相关方法
     public List<Product> getAllProducts() {
-        return productDAO.getAllProducts();
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM Product";
+
+        try (Connection conn = DatabaseUtil.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            System.out.println("执行SQL查询: " + sql);
+
+            while (rs.next()) {
+                Product product = new Product();
+                product.setId(rs.getInt("ID"));
+                product.setProductId(rs.getString("ProductId"));
+                product.setProductName(rs.getString("ProductName"));
+                product.setDescription(rs.getString("Description"));
+                product.setPrice(rs.getBigDecimal("Price"));
+                product.setStock(rs.getInt("Stock"));
+                product.setCategory(rs.getString("Category"));
+                product.setImageURL(rs.getString("ImageURL"));
+                product.setLocation(rs.getString("Location"));
+
+                products.add(product);
+            }
+
+            System.out.println("成功获取 " + products.size() + " 个商品");
+        } catch (SQLException e) {
+            System.err.println("数据库查询失败: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
+        return products;
     }
 
     public Product getProductById(String productId) {
@@ -59,11 +93,28 @@ public class ShopService {
         return cartDAO.addToCart(cartItem);
     }
 
-    public boolean updateCartItemQuantity(Integer userId, Integer productId, int quantity) {
+    // 购物车相关方法需要处理String类型的productId
+    public boolean addToCart(Integer userId, String productId, int quantity) {
+        Product product = productDAO.getProductById(productId);
+        if (product == null) {
+            return false;
+        }
+
+        CartItem cartItem = new CartItem();
+        cartItem.setUserId(userId);
+        cartItem.setProductId(productId);  // 使用String类型
+        cartItem.setProductName(product.getProductName());
+        cartItem.setQuantity(quantity);
+        cartItem.setPrice(product.getPrice());
+
+        return cartDAO.addToCart(cartItem);
+    }
+
+    public boolean updateCartItemQuantity(Integer userId, String productId, int quantity) {
         return cartDAO.updateCartItemQuantity(userId, productId, quantity);
     }
 
-    public boolean removeFromCart(Integer userId, Integer productId) {
+    public boolean removeFromCart(Integer userId, String productId) {
         return cartDAO.removeFromCart(userId, productId);
     }
 
@@ -71,7 +122,7 @@ public class ShopService {
         return cartDAO.clearCart(userId);
     }
 
-    public CartItem getCartItem(Integer userId, Integer productId) {
+    public CartItem getCartItem(Integer userId, String productId) {
         return cartDAO.getCartItem(userId, productId);
     }
 
@@ -116,8 +167,8 @@ public class ShopService {
         order.setStatus("待付款");
 
         // 计算订单总金额并创建订单项
-        double totalAmount = 0;
         List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (CartItem cartItem : cartItems) {
             OrderItem orderItem = new OrderItem();
@@ -130,7 +181,7 @@ public class ShopService {
             orderItem.setSubtotal(subtotal);
 
             orderItems.add(orderItem);
-            totalAmount += subtotal.doubleValue();
+            totalAmount = totalAmount.add(subtotal);   // ← BigDecimal 累加
         }
 
         order.setTotalAmount(totalAmount);

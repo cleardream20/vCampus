@@ -14,9 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int id;
-    private String orderId;
-    private String userId;
+    private Integer orderId;
+    private Integer userId;
     private Date orderDate;
     private BigDecimal totalAmount;
     private String status;

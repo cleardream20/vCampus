@@ -2,14 +2,18 @@ package com.seu.vcampus.client.socket;
 
 import com.seu.vcampus.common.util.Message;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ClientSocketHandler {
     private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 8888;
+    private static final int CONNECTION_TIMEOUT = 10000; // 10秒
+    private static final int READ_TIMEOUT = 30000; // 30秒
 
     private Socket socket;
     private ObjectOutputStream oos;
@@ -28,10 +32,16 @@ public class ClientSocketHandler {
 
     private boolean connectToServer() {
         try {
-            socket = new Socket(SERVER_HOST, SERVER_PORT);
+            System.out.println("尝试连接到服务器 " + SERVER_HOST + ":" + SERVER_PORT);
+            socket = new Socket();
+            socket.connect(new java.net.InetSocketAddress(SERVER_HOST, SERVER_PORT), CONNECTION_TIMEOUT);
+            socket.setSoTimeout(READ_TIMEOUT);
+
             oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.flush(); // 刷新输出流头
             ois = new ObjectInputStream(socket.getInputStream());
             connected = true;
+
             System.out.println("已连接到服务器");
             return true;
         } catch (IOException e) {
@@ -49,15 +59,38 @@ public class ClientSocketHandler {
         }
 
         try {
+            System.out.println("发送请求: " + request.getType());
+
             // 发送请求
             oos.writeObject(request);
             oos.flush();
+            System.out.println("请求已发送");
 
             // 接收响应
-            return (Message) ois.readObject();
+            Object responseObj = ois.readObject();
+
+            if (responseObj instanceof Message) {
+                Message response = (Message) responseObj;
+                System.out.println("收到响应: " + response.getType() + ", 状态: " + response.getStatus());
+                return response;
+            } else {
+                System.err.println("响应格式错误，期望Message对象，收到: " +
+                        (responseObj != null ? responseObj.getClass().getName() : "null"));
+                return createErrorResponse("服务器响应格式错误: 期望Message对象");
+            }
+        } catch (EOFException e) {
+            System.err.println("EOFException: 服务器可能已关闭连接或响应格式不正确");
+            e.printStackTrace();
+            connected = false;
+            return createErrorResponse("服务器响应格式错误: " + e.getMessage());
+        } catch (SocketTimeoutException e) {
+            System.err.println("请求超时: " + e.getMessage());
+            connected = false;
+            return createErrorResponse("请求超时: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("发送请求失败: " + e.getMessage());
-            connected = false; // 标记为断开连接
+            e.printStackTrace();
+            connected = false;
             return createErrorResponse("网络错误: " + e.getMessage());
         }
     }

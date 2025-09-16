@@ -24,8 +24,10 @@ public class OrderDAO {
                 pstmt.setInt(1, order.getOrderId());
                 pstmt.setInt(2, order.getUserId());
                 pstmt.setTimestamp(3, new Timestamp(order.getOrderDate().getTime()));
-                pstmt.setDouble(4, order.getTotalAmount());
+                pstmt.setBigDecimal(4, order.getTotalAmount());
                 pstmt.setString(5, order.getStatus());
+                pstmt.setString(6, order.getShippingAddress());
+                pstmt.setString(7, order.getContactPhone());
 
                 pstmt.executeUpdate();
             }
@@ -37,7 +39,7 @@ public class OrderDAO {
             try (PreparedStatement pstmt = conn.prepareStatement(itemSql)) {
                 for (OrderItem item : items) {
                     pstmt.setInt(1, order.getOrderId());
-                    pstmt.setInt(2, item.getProductId());
+                    pstmt.setString(2, item.getProductId());
                     pstmt.setString(3, item.getProductName());
                     pstmt.setBigDecimal(4, item.getPrice());
                     pstmt.setInt(5, item.getQuantity());
@@ -87,7 +89,7 @@ public class OrderDAO {
                 order.setOrderId(rs.getInt("OrderId"));
                 order.setUserId(rs.getInt("UserId"));
                 order.setOrderDate(rs.getTimestamp("OrderDate"));
-                order.setTotalAmount(rs.getDouble("TotalAmount"));
+                order.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                 order.setStatus(rs.getString("Status"));
 
                 // 获取订单项
@@ -116,7 +118,7 @@ public class OrderDAO {
                 OrderItem item = new OrderItem();
                 item.setId(rs.getInt("ID"));
                 item.setOrderId(rs.getInt("OrderId"));
-                item.setProductId(rs.getInt("ProductId"));
+                item.setProductId(rs.getString("ProductId"));
                 item.setProductName(rs.getString("ProductName"));
                 item.setPrice(rs.getBigDecimal("Price"));
                 item.setQuantity(rs.getInt("Quantity"));
@@ -163,7 +165,7 @@ public class OrderDAO {
                 order.setOrderId(rs.getInt("OrderId"));
                 order.setUserId(rs.getInt("UserId"));
                 order.setOrderDate(rs.getTimestamp("OrderDate"));
-                order.setTotalAmount(rs.getDouble("TotalAmount"));
+                order.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                 order.setStatus(rs.getString("Status"));
                 order.setItems(getOrderItems(orderId));
             }

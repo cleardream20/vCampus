@@ -11,6 +11,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 
 public class Book implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String isbn;
     private String title;
     private String author;

@@ -11,6 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Teacher extends User implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private String age;
     private String sex;
     private String address;

@@ -23,7 +23,7 @@ public class CartDAO {
                 CartItem item = new CartItem();
                 item.setId(rs.getInt("ID"));
                 item.setUserId(rs.getInt("UserId"));
-                item.setProductId(rs.getInt("ProductId"));
+                item.setProductId(rs.getString("ProductId"));
                 item.setProductName(rs.getString("ProductName"));
                 item.setQuantity(rs.getInt("Quantity"));
                 item.setPrice(rs.getBigDecimal("Price"));
@@ -48,7 +48,7 @@ public class CartDAO {
              PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
 
             checkStmt.setInt(1, cartItem.getUserId());
-            checkStmt.setInt(2, cartItem.getProductId());
+            checkStmt.setString(2, cartItem.getProductId());
             ResultSet rs = checkStmt.executeQuery();
 
             if (rs.next()) {
@@ -56,7 +56,7 @@ public class CartDAO {
                     updateStmt.setInt(1, cartItem.getQuantity());
                     updateStmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
                     updateStmt.setInt(3, cartItem.getUserId());
-                    updateStmt.setInt(4, cartItem.getProductId());
+                    updateStmt.setString(4, cartItem.getProductId());
 
                     int affectedRows = updateStmt.executeUpdate();
                     return affectedRows > 0;
@@ -64,7 +64,7 @@ public class CartDAO {
             } else {
                 try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                     insertStmt.setInt(1, cartItem.getUserId());
-                    insertStmt.setInt(2, cartItem.getProductId());
+                    insertStmt.setString(2, cartItem.getProductId());
                     insertStmt.setString(3, cartItem.getProductName());
                     insertStmt.setInt(4, cartItem.getQuantity());
                     insertStmt.setBigDecimal(5, cartItem.getPrice());
@@ -80,7 +80,7 @@ public class CartDAO {
         }
     }
 
-    public boolean updateCartItemQuantity(Integer userId, Integer productId, int quantity) {
+    public boolean updateCartItemQuantity(Integer userId, String productId, int quantity) {
         String sql = "UPDATE CartItem SET Quantity = ? WHERE UserId = ? AND ProductId = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
@@ -88,7 +88,7 @@ public class CartDAO {
 
             pstmt.setInt(1, quantity);
             pstmt.setInt(2, userId);
-            pstmt.setInt(3, productId);
+            pstmt.setString(3, productId);
 
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
@@ -98,14 +98,14 @@ public class CartDAO {
         }
     }
 
-    public boolean removeFromCart(Integer userId, Integer productId) {
+    public boolean removeFromCart(Integer userId, String productId) {
         String sql = "DELETE FROM CartItem WHERE UserId = ? AND ProductId = ?";
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
-            pstmt.setInt(2, productId);
+            pstmt.setString(2, productId);
 
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
@@ -131,7 +131,7 @@ public class CartDAO {
         }
     }
 
-    public CartItem getCartItem(Integer userId, Integer productId) {
+    public CartItem getCartItem(Integer userId, String productId) {
         CartItem item = null;
         String sql = "SELECT * FROM CartItem WHERE UserId = ? AND ProductId = ?";
 
@@ -139,14 +139,14 @@ public class CartDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
-            pstmt.setInt(2, productId);
+            pstmt.setString(2, productId);
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 item = new CartItem();
                 item.setId(rs.getInt("ID"));
                 item.setUserId(rs.getInt("UserId"));
-                item.setProductId(rs.getInt("ProductId"));
+                item.setProductId(rs.getString("ProductId"));
                 item.setProductName(rs.getString("ProductName"));
                 item.setQuantity(rs.getInt("Quantity"));
                 item.setPrice(rs.getBigDecimal("Price"));

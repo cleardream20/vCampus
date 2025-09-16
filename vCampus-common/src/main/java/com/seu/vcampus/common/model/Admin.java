@@ -12,5 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Admin extends User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private List<String> modules; // module - panel
 }

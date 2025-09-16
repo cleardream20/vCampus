@@ -1,6 +1,7 @@
 package com.seu.vcampus.client.view.panel;
 
 import com.seu.vcampus.client.controller.ShopController;
+import com.seu.vcampus.common.model.CartItem;
 import com.seu.vcampus.common.model.Product;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.client.view.frame.CartDialog;
@@ -9,6 +10,7 @@ import com.seu.vcampus.client.view.frame.MainFrame;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.*;
 
@@ -171,13 +173,40 @@ public class ShopPanel extends JPanel {
             protected void done() {
                 try {
                     allProducts = get();
-                    updateCategoryFilter();
-                    filterProducts();
+                    tableModel.setRowCount(0);
+
+                    if (allProducts != null && !allProducts.isEmpty()) {
+                        for (Product product : allProducts) {
+                            Object[] row = {
+                                    product.getProductId(),
+                                    product.getProductName(),
+                                    product.getDescription(),
+                                    product.getPrice(),
+                                    product.getStock(),
+                                    product.getCategory()
+                            };
+                            tableModel.addRow(row);
+                        }
+                        updateCategoryFilter();
+                    } else {
+                        JOptionPane.showMessageDialog(ShopPanel.this,
+                                "暂无商品",
+                                "提示",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(ShopPanel.this,
-                            "加载商品失败: " + ex.getMessage(),
-                            "错误",
-                            JOptionPane.ERROR_MESSAGE);
+                    String errorMessage = ex.getMessage();
+                    if (errorMessage.contains("无法连接到服务器")) {
+                        JOptionPane.showMessageDialog(ShopPanel.this,
+                                "无法连接到服务器。\n请确保服务器正在运行并监听端口8888",
+                                "连接错误",
+                                JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(ShopPanel.this,
+                                "加载商品失败: " + errorMessage,
+                                "错误",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                     refreshButton.setEnabled(true);
@@ -287,7 +316,7 @@ public class ShopPanel extends JPanel {
         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() throws Exception {
-                return shopController.addToCart(currentUser.getUserId(), Integer.parseInt(productId), quantity);
+                return shopController.addToCart(currentUser.getUserId(), productId, quantity);
             }
 
             @Override
@@ -334,13 +363,40 @@ public class ShopPanel extends JPanel {
             return;
         }
 
-        double price = (Double) tableModel.getValueAt(selectedRow, 3);
-        double totalPrice = price * quantity;
+        BigDecimal price = (BigDecimal) tableModel.getValueAt(selectedRow, 3);
+        BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(quantity));
         String productName = (String) tableModel.getValueAt(selectedRow, 1);
+
+        // 创建配送信息输入对话框
+        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
+        JTextField addressField = new JTextField();
+        JTextField phoneField = new JTextField();
+
+        panel.add(new JLabel("配送地址:"));
+        panel.add(addressField);
+        panel.add(new JLabel("联系电话:"));
+        panel.add(phoneField);
+        panel.add(new JLabel("总金额:"));
+        panel.add(new JLabel(totalPrice.setScale(2, BigDecimal.ROUND_HALF_UP).toString() + " 元"));
+
+        int option = JOptionPane.showConfirmDialog(this, panel, "请输入配送信息",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (option != JOptionPane.OK_OPTION) {
+            return; // 用户取消
+        }
+
+        String shippingAddress = addressField.getText().trim();
+        String contactPhone = phoneField.getText().trim();
+
+        if (shippingAddress.isEmpty() || contactPhone.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "配送地址和联系电话不能为空", "错误", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         int confirm = JOptionPane.showConfirmDialog(this,
                 "确认购买 " + quantity + " 件 '" + productName +
-                        "'? 总价: " + String.format("%.2f", totalPrice) + "元",
+                        "'? 总价: " + totalPrice.setScale(2, BigDecimal.ROUND_HALF_UP) + "元",
                 "确认购买", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
@@ -351,11 +407,11 @@ public class ShopPanel extends JPanel {
                 @Override
                 protected Boolean doInBackground() throws Exception {
                     // 先添加到购物车
-                    boolean added = shopController.addToCart(currentUser.getUserId(), Integer.parseInt(productId), quantity);
+                    boolean added = shopController.addToCart(currentUser.getUserId(), productId, quantity);
                     if (!added) return false;
 
                     // 然后创建订单
-                    return shopController.createOrder(currentUser.getUserId());
+                    return shopController.createOrder(currentUser.getUserId(), shippingAddress, contactPhone);
                 }
 
                 @Override
@@ -412,10 +468,10 @@ public class ShopPanel extends JPanel {
         SwingWorker<Integer, Void> worker = new SwingWorker<Integer, Void>() {
             @Override
             protected Integer doInBackground() throws Exception {
-                List<com.seu.vcampus.common.model.CartItem> cartItems =
+                List<CartItem> cartItems =
                         shopController.getCartItems(currentUser.getUserId());
                 int count = 0;
-                for (com.seu.vcampus.common.model.CartItem item : cartItems) {
+                for (CartItem item : cartItems) {
                     count += item.getQuantity();
                 }
                 return count;

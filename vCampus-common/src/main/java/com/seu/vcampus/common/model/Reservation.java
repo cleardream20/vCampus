@@ -8,6 +8,8 @@ import java.util.Date;
  * 对应数据库中的 tblReservation 表
  */
 public class Reservation implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long reserveId;     // 预约ID
     private String userId;      // 用户ID
     private String bookIsbn;    // 图书ISBN

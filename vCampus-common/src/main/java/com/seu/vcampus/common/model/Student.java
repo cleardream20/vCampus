@@ -10,6 +10,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student extends User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String sex;
     private String age;
     private String address;

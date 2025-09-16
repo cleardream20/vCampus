@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +14,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Admin extends User implements Serializable {
+public class Admin extends User implements Serializable, Jsonable {
     private String modules;
 }

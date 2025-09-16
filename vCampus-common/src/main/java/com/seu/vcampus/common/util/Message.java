@@ -20,7 +20,6 @@ public class Message implements Serializable {
     public static final String REGISTER = "REGISTER";
     public static final String LOGOUT = "LOGOUT";
     public static final String KICKED = "KICKED";
-
     public static final String DELETE_USER = "DELETE_USER";
     public static final String ADD_USER = "ADD_USER";
     public static final String GET_USER = "GET_USER";

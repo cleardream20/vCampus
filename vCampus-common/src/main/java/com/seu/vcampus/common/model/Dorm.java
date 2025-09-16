@@ -1,15 +1,17 @@
 package com.seu.vcampus.common.model;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dorm {
+public class Dorm implements Serializable, Jsonable {
     // 基本住宿信息 (对应 tblDormInfo 表)
     private String studentId;
     private String name;

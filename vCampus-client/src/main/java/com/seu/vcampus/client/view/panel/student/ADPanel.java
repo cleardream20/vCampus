@@ -22,6 +22,7 @@ import com.seu.vcampus.client.service.StudentService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
+import com.seu.vcampus.common.util.Jsonable;
 
 public class ADPanel extends JPanel implements NavigatablePanel {
     private JTable table;
@@ -53,8 +54,6 @@ public class ADPanel extends JPanel implements NavigatablePanel {
 
     private void initTable() {
         // 初始时不加载数据，表格为空
-
-
         tableModel = new DefaultTableModel(null, columnNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -225,13 +224,14 @@ public class ADPanel extends JPanel implements NavigatablePanel {
 
     private void loadDataWithFilters(){
         // 从数据库获取筛选后的数据
-        List<Student> filteredData = new ArrayList<>();
+        List filteredData;
         try {
-            service.getDataWithFilters(filters);
+            filteredData = service.getDataWithFilters(filters);
 
             // 更新表格模型
             tableModel.setRowCount(0); // 清空现有数据
-            for (Student student : filteredData) {
+            for (Object st : filteredData) {
+                Student student = Jsonable.fromJson(Jsonable.toJson(st), Student.class);
                 Object[] row = student.getRow();
                 tableModel.addRow(row);
             }

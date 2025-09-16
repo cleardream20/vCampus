@@ -1,8 +1,7 @@
 package com.seu.vcampus.client.service;
 
 import com.seu.vcampus.client.socket.ClientSocketUtil;
-import com.seu.vcampus.common.model.User;
-import com.seu.vcampus.common.model.VerificationCode;
+import com.seu.vcampus.common.model.*;
 import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 
@@ -123,5 +122,17 @@ public class UserService {
             }
             return false;
         }
+    }
+
+    public Student getStudentByUser(User user) {
+        return new Student();
+    }
+
+    public Teacher getTeacherByUser(User user) {
+        return new Teacher();
+    }
+
+    public Admin getAdminByUser(User user) {
+        return new Admin();
     }
 }

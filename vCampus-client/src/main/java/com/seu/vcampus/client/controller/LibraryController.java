@@ -1,9 +1,11 @@
 package com.seu.vcampus.client.controller;
 
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.client.socket.ClientSocketUtil;
 import com.seu.vcampus.common.model.Book;
 import com.seu.vcampus.common.model.BorrowRecord;
 import com.seu.vcampus.common.model.Reservation;
+import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.LibraryMessage;
 
@@ -26,7 +28,11 @@ public class LibraryController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Book>) response.getData();
+//                return (List<Book>) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<List<Book>>() {}.getType()
+                );
             } else {
                 System.err.println("获取所有图书失败: " + response.getData());
                 return Collections.emptyList();

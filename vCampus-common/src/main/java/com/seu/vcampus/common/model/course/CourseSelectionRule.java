@@ -1,15 +1,17 @@
 package com.seu.vcampus.common.model.course;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseSelectionRule {
+public class CourseSelectionRule implements Serializable, Jsonable {
     private String batchName;
     private LocalDateTime startTime;
     private LocalDateTime endTime;

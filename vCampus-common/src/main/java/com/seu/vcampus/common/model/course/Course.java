@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model.course;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Course implements Serializable {
+public class Course implements Serializable, Jsonable {
     private String courseId;
     private String courseName;
     private String teacherName;

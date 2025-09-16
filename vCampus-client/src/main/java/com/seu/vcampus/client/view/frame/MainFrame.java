@@ -3,14 +3,20 @@ package com.seu.vcampus.client.view.frame;
 import javax.swing.*;
 import java.awt.*;
 
+import com.seu.vcampus.client.service.LoginService;
+import com.seu.vcampus.client.service.UserService;
 import com.seu.vcampus.client.view.panel.course.CoursePanel;
 import com.seu.vcampus.client.view.panel.dorm.DormPanel;
 import com.seu.vcampus.client.view.panel.main.MainPanel;
 import com.seu.vcampus.client.view.panel.RegisterPanel;
 import com.seu.vcampus.client.view.panel.library.LibraryMainPanel; // 新的图书馆主面板
 import com.seu.vcampus.client.view.panel.main.UserCenterPanel;
+import com.seu.vcampus.client.view.panel.shop.ShopPanel;
 import com.seu.vcampus.client.view.panel.student.ADPanel;
 import com.seu.vcampus.client.view.panel.student.STPanel;
+import com.seu.vcampus.common.model.Admin;
+import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.client.view.panel.login.LoginPanel;
 import lombok.Getter;
@@ -25,9 +31,21 @@ public class MainFrame extends JFrame {
     @Getter
     @Setter
     private User currentUser;
+    @Getter
+    @Setter
+    private Student currentStudent;
+    @Getter
+    @Setter
+    private Teacher currentTeacher;
+    @Getter
+    @Setter
+    private Admin currentAdmin;
 
     private CardLayout cardLayout;
     private JPanel mainPanel; // 主容器面板
+
+    private LoginService  loginService;
+    private UserService userService;
 
     private LoginPanel loginPanel;
     private RegisterPanel registerPanel;
@@ -37,6 +55,7 @@ public class MainFrame extends JFrame {
     private STPanel stPanel;
     private ADPanel adPanel;
     private CoursePanel coursePanel;
+    private ShopPanel  shopPanel;
     private DormPanel dormPanel;
 
     // 私有的静态成员变量，用于存储单例实例
@@ -44,6 +63,8 @@ public class MainFrame extends JFrame {
 
     // 私有构造函数，防止外部实例化
     private MainFrame() {
+        loginService = new LoginService();
+        userService = new UserService();
         initializeUI();
         showLoginPanel();
     }
@@ -86,9 +107,32 @@ public class MainFrame extends JFrame {
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "STUDENT");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "COURSE");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "USER_CENTER");
+        mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "SHOP");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "DORM");
 
         add(mainPanel);
+
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                performLogout();
+            }
+        });
+    }
+
+    private void performLogout() {
+        int confirm = JOptionPane.showConfirmDialog(this, "确定要退出吗？", "确认", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (currentUser == null) return;
+
+            if (currentUser.getCid() == null || currentUser.getCid().isEmpty()) {
+                currentUser = null;
+                return;
+            }
+
+            loginService.logout(currentUser.getCid());
+            currentUser = null;
+        }
     }
 
     // 切换面板的方法
@@ -110,6 +154,11 @@ public class MainFrame extends JFrame {
 
     public void showMainPanel(User user) {
         this.currentUser = user;
+
+        if (user.getRole().equals("ST")) this.currentStudent = userService.getStudentByUser(user);
+        if (user.getRole().equals("TC")) this.currentTeacher = userService.getTeacherByUser(user);
+        if (user.getRole().equals("AD")) this.currentAdmin = userService.getAdminByUser(user);
+
         Component[] components = mainPanel.getComponents();
         for (Component comp : components) {
             if (comp instanceof MainPanel) {
@@ -194,5 +243,13 @@ public class MainFrame extends JFrame {
         mainPanel.revalidate();
         mainPanel.repaint();
         showPanel("DORM");
+    }
+
+    public void showShopPanel() {
+        shopPanel = new ShopPanel();
+        mainPanel.add(shopPanel, "SHOP");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        showPanel("SHOP");
     }
 }

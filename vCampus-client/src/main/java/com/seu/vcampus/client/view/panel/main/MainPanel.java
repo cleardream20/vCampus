@@ -80,6 +80,7 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         btnStudent.addActionListener(e -> attemptEnterStudent());
         btnLibrary.addActionListener(e -> attemptEnterLibrary());
         btnCourse.addActionListener(e -> attemptEnterCourse());
+        btnDorm.addActionListener(e -> attemptEnterDorm());
     }
 
     private void attemptEnterUserCenter() {
@@ -100,6 +101,11 @@ public class MainPanel extends JPanel implements NavigatablePanel {
     private void attemptEnterCourse() {
         MainFrame mainFrame = MainFrame.getInstance();
         mainFrame.showCoursePanel();
+    }
+
+    private void attemptEnterDorm() {
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.showDormPanel();
     }
 
     @Override

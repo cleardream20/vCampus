@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import com.seu.vcampus.client.view.panel.course.CoursePanel;
+import com.seu.vcampus.client.view.panel.dorm.DormPanel;
 import com.seu.vcampus.client.view.panel.main.MainPanel;
 import com.seu.vcampus.client.view.panel.RegisterPanel;
 import com.seu.vcampus.client.view.panel.library.LibraryMainPanel; // 新的图书馆主面板
@@ -36,6 +37,7 @@ public class MainFrame extends JFrame {
     private STPanel stPanel;
     private ADPanel adPanel;
     private CoursePanel coursePanel;
+    private DormPanel dormPanel;
 
     // 私有的静态成员变量，用于存储单例实例
     private static volatile MainFrame instance;
@@ -84,6 +86,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "STUDENT");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "COURSE");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "USER_CENTER");
+        mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "DORM");
 
         add(mainPanel);
     }
@@ -92,11 +95,6 @@ public class MainFrame extends JFrame {
     public void showPanel(String panelName) {
         cardLayout.show(mainPanel, panelName);
     }
-
-    // 具体的面板切换方法
-//    public void showLoginPanel() {
-//        showPanel("LOGIN");
-//    }
 
     public void showLoginPanel() {
         loginPanel.refreshPanel(new User());
@@ -188,5 +186,13 @@ public class MainFrame extends JFrame {
         mainPanel.revalidate();
         mainPanel.repaint();
         showPanel("COURSE");
+    }
+
+    public void showDormPanel() {
+        dormPanel = new DormPanel();
+        mainPanel.add(dormPanel, "DORM");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        showPanel("DORM");
     }
 }

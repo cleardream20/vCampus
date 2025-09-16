@@ -178,10 +178,7 @@ public class DormPanel extends JPanel {
 
         // 添加信息字段
         String[][] infoFields = {
-            {"学号:", "20250066"}, {"姓名:", "张四"},
-            {"楼栋:", "桃八A"}, {"房间号:", "221"},
-            {"床位号:", "1"}, {"入住日期:", "2025-09-01"},
-            {"状态:", "在住"}
+
         };
 
         for (String[] field : infoFields) {
@@ -281,8 +278,7 @@ public class DormPanel extends JPanel {
         // 表头
         String[] columns = {"申请ID", "类型", "申请时间", "处理状态", "审核人"};
         Object[][] data = {
-            {"1", "入住", "2025-09-01", "已批准", "张六"},
-            {"2", "调换", "2025-09-05", "待审核", ""}
+
         };
 
         JTable table = new JTable(data, columns);
@@ -384,9 +380,7 @@ public class DormPanel extends JPanel {
         // 表头
         String[] columns = {"服务ID", "问题描述", "提交时间", "处理状态", "负责人"};
         Object[][] data = {
-            {"1", "空调报修", "2025-09-10", "待处理", "张三"},
-            {"2", "厕所漏水", "2025-09-08", "已完成", "李四"},
-            {"3", "宿舍清理", "2025-09-05", "处理中", "王五"}
+
         };
 
         JTable table = new JTable(data, columns);

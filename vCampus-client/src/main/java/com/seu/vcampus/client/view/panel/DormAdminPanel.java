@@ -155,8 +155,7 @@ public class DormAdminPanel extends JPanel {
         // 表头
         String[] columns = {"申请ID", "学号", "申请类型", "申请时间", "状态"};
         Object[][] data = {
-            {"1", "20240011", "调整", "2025-09-12", "待审核"},
-            {"2", "20250088", "入住", "2025-08-23", "已批准"}
+
         };
 
         JTable table = new JTable(data, columns);
@@ -232,9 +231,7 @@ public class DormAdminPanel extends JPanel {
         // 表头
         String[] columns = {"服务ID", "学号", "问题描述", "提交时间", "状态", "负责人"};
         Object[][] data = {
-            {"1", "20210001", "空调报修", "2025-09-13", "待处理", "张三"},
-            {"2", "20220003", "厕所漏水", "2025-09-01", "已完成", "李四"},
-            {"3", "20230005", "宿舍清理", "2025-09-09", "处理中", "王五"}
+
         };
 
         JTable table = new JTable(data, columns);
@@ -323,8 +320,7 @@ public class DormAdminPanel extends JPanel {
         // 学生住宿信息表格
         String[] columns = {"学号", "姓名", "楼栋", "房间号", "床位号", "状态"};
         Object[][] data = {
-            {"20200025", "张五", "梅七B", "111", "2", "已退宿"},
-            {"20250066", "张四", "桃八A", "221", "1", "在住"}
+
         };
 
         JTable table = new JTable(data, columns);

@@ -29,7 +29,7 @@ public class ShopService {
     }
 
     // 商品相关方法
-    public List<Product> getAllProducts() {
+    public List<Product> getAllProducts() throws SQLException {
         List<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM Product";
 
@@ -58,7 +58,7 @@ public class ShopService {
         } catch (SQLException e) {
             System.err.println("数据库查询失败: " + e.getMessage());
             e.printStackTrace();
-            return null;
+            throw e;
         }
 
         return products;

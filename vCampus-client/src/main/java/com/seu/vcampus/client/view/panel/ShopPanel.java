@@ -256,7 +256,7 @@ public class ShopPanel extends JPanel {
         for (Product product : allProducts) {
             // 分类筛选
             if (!"所有分类".equals(selectedCategory) &&
-                    !selectedCategory.equals(product.getCategory())) {
+                    !Objects.equals(selectedCategory, product.getCategory())) {
                 continue;
             }
 

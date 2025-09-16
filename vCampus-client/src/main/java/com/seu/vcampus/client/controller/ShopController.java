@@ -7,6 +7,7 @@ import com.seu.vcampus.common.model.CartItem;
 import com.seu.vcampus.common.model.Order;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,23 +32,23 @@ public class ShopController {
             throw new RuntimeException("无法连接到服务器");
         }
 
-        // 创建请求消息
         Message request = new Message();
         request.setType("SHOP_GET_PRODUCTS");
 
-        // 发送请求并获取响应
         Message response = socketHandler.sendRequest(request);
 
-        if (response.getStatus() == Message.STATUS_SUCCESS) {
+        if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
             try {
                 @SuppressWarnings("unchecked")
                 List<Product> products = (List<Product>) response.getData();
-                return products;
+                return products == null ? Collections.emptyList() : products;
             } catch (ClassCastException e) {
-                throw new RuntimeException("响应数据类型不匹配: " + e.getMessage());
+                throw new RuntimeException("响应数据类型不匹配", e);
             }
         } else {
-            throw new RuntimeException("获取商品列表失败: " + response.getData());
+            // 只把服务端回的错误描述抛出去，不要把整个列表当字符串
+            String err = (String) response.getData();
+            throw new RuntimeException("获取商品列表失败: " + err);
         }
     }
 

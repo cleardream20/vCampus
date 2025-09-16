@@ -9,6 +9,7 @@ import com.seu.vcampus.server.service.ShopService;
 import com.seu.vcampus.server.controller.ShopController;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ShopController {
     }
 
     // 商品相关方法
-    public List<Product> getAllProducts() {
+    public List<Product> getAllProducts() throws SQLException {
         return shopService.getAllProducts();
     }
 

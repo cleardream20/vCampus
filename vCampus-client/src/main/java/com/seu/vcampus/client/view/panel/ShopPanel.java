@@ -1,4 +1,5 @@
 package com.seu.vcampus.client.view.panel;
+
 import com.seu.vcampus.client.controller.ShopController;
 import com.seu.vcampus.common.model.Product;
 import com.seu.vcampus.common.model.User;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import java.util.*;
 
 public class ShopPanel extends JPanel {
     private JTable productTable;
@@ -19,6 +21,11 @@ public class ShopPanel extends JPanel {
     private JLabel cartItemCountLabel;
     private ShopController shopController;
     private User currentUser;
+    private JButton refreshButton;
+    private JComboBox<String> categoryFilter;
+    private JTextField searchField;
+    private JButton searchButton;
+    private List<Product> allProducts; // 缓存所有商品
 
     public ShopPanel() {
         this.shopController = new ShopController();
@@ -26,15 +33,37 @@ public class ShopPanel extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
 
         // 顶部面板
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // 标题
         JLabel titleLabel = new JLabel("校园商店", SwingConstants.CENTER);
         titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 24));
         topPanel.add(titleLabel, BorderLayout.CENTER);
+
+        // 搜索和筛选面板
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+
+        // 分类筛选
+        filterPanel.add(new JLabel("分类:"));
+        categoryFilter = new JComboBox<>();
+        categoryFilter.addItem("所有分类");
+        categoryFilter.addActionListener(e -> filterProducts());
+        filterPanel.add(categoryFilter);
+
+        // 搜索框
+        filterPanel.add(new JLabel("搜索:"));
+        searchField = new JTextField(15);
+        filterPanel.add(searchField);
+
+        searchButton = new JButton("搜索");
+        searchButton.addActionListener(e -> filterProducts());
+        filterPanel.add(searchButton);
+
+        topPanel.add(filterPanel, BorderLayout.SOUTH);
 
         // 购物车图标和数量显示
         JPanel cartPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -87,7 +116,8 @@ public class ShopPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         // 底部面板
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel quantityLabel = new JLabel("数量:");
         quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
@@ -101,7 +131,7 @@ public class ShopPanel extends JPanel {
         viewCartButton = new JButton("查看购物车");
         viewCartButton.addActionListener(e -> viewCart());
 
-        JButton refreshButton = new JButton("刷新");
+        refreshButton = new JButton("刷新");
         refreshButton.addActionListener(e -> refreshProducts());
 
         JButton backButton = new JButton("返回主界面");
@@ -116,6 +146,9 @@ public class ShopPanel extends JPanel {
         bottomPanel.add(backButton);
 
         add(bottomPanel, BorderLayout.SOUTH);
+
+        // 初始加载商品
+        refreshProducts();
     }
 
     public void setCurrentUser(User user) {
@@ -124,46 +157,107 @@ public class ShopPanel extends JPanel {
     }
 
     public void refreshProducts() {
+        // 显示加载状态
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        refreshButton.setEnabled(false);
+
         SwingWorker<List<Product>, Void> worker = new SwingWorker<List<Product>, Void>() {
             @Override
             protected List<Product> doInBackground() throws Exception {
-                return shopController.getAvailableProducts();
+                return shopController.getAllProducts();
             }
 
             @Override
             protected void done() {
                 try {
-                    List<Product> products = get();
-                    tableModel.setRowCount(0);
-
-                    if (products != null && !products.isEmpty()) {
-                        for (Product product : products) {
-                            Object[] row = {
-                                    product.getProductId(),
-                                    product.getProductName(),
-                                    product.getDescription(),
-                                    product.getPrice(),
-                                    product.getStock(),
-                                    product.getCategory()
-                            };
-                            tableModel.addRow(row);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(ShopPanel.this,
-                                "暂无商品",
-                                "提示",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    }
+                    allProducts = get();
+                    updateCategoryFilter();
+                    filterProducts();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(ShopPanel.this,
                             "加载商品失败: " + ex.getMessage(),
                             "错误",
                             JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    setCursor(Cursor.getDefaultCursor());
+                    refreshButton.setEnabled(true);
                 }
             }
         };
 
         worker.execute();
+    }
+
+    private void updateCategoryFilter() {
+        if (allProducts == null) return;
+
+        // 收集所有分类
+        Set<String> categories = new TreeSet<>();
+        for (Product product : allProducts) {
+            if (product.getCategory() != null && !product.getCategory().isEmpty()) {
+                categories.add(product.getCategory());
+            }
+        }
+
+        // 更新分类筛选器
+        String selectedCategory = (String) categoryFilter.getSelectedItem();
+        categoryFilter.removeAllItems();
+        categoryFilter.addItem("所有分类");
+
+        for (String category : categories) {
+            categoryFilter.addItem(category);
+        }
+
+        // 恢复之前的选择
+        if (selectedCategory != null) {
+            categoryFilter.setSelectedItem(selectedCategory);
+        } else {
+            categoryFilter.setSelectedIndex(0);
+        }
+    }
+
+    private void filterProducts() {
+        if (allProducts == null) return;
+
+        String selectedCategory = (String) categoryFilter.getSelectedItem();
+        String searchText = searchField.getText().toLowerCase();
+
+        tableModel.setRowCount(0);
+
+        for (Product product : allProducts) {
+            // 分类筛选
+            if (!"所有分类".equals(selectedCategory) &&
+                    !selectedCategory.equals(product.getCategory())) {
+                continue;
+            }
+
+            // 关键词搜索
+            if (!searchText.isEmpty()) {
+                boolean matches = product.getProductName().toLowerCase().contains(searchText) ||
+                        (product.getDescription() != null &&
+                                product.getDescription().toLowerCase().contains(searchText)) ||
+                        (product.getCategory() != null &&
+                                product.getCategory().toLowerCase().contains(searchText));
+                if (!matches) continue;
+            }
+
+            Object[] row = {
+                    product.getProductId(),
+                    product.getProductName(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getStock(),
+                    product.getCategory()
+            };
+            tableModel.addRow(row);
+        }
+
+        if (tableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "没有找到符合条件的商品",
+                    "提示",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private void addToCart() {
@@ -178,7 +272,7 @@ public class ShopPanel extends JPanel {
             return;
         }
 
-        int productId = (Integer) tableModel.getValueAt(selectedRow, 0);
+        String productId = (String) tableModel.getValueAt(selectedRow, 0);
         int quantity = (Integer) quantitySpinner.getValue();
         int stock = (Integer) tableModel.getValueAt(selectedRow, 4);
 
@@ -187,14 +281,36 @@ public class ShopPanel extends JPanel {
             return;
         }
 
-        boolean success = shopController.addToCart(productId, quantity);
+        // 显示加载状态
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        if (success) {
-            JOptionPane.showMessageDialog(this, "已添加到购物车");
-            updateCartItemCount();
-        } else {
-            JOptionPane.showMessageDialog(this, "添加失败");
-        }
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return shopController.addToCart(currentUser.getUserId(), Integer.parseInt(productId), quantity);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    boolean success = get();
+                    if (success) {
+                        JOptionPane.showMessageDialog(ShopPanel.this, "已添加到购物车");
+                        updateCartItemCount();
+                    } else {
+                        JOptionPane.showMessageDialog(ShopPanel.this, "添加失败");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(ShopPanel.this,
+                            "添加失败: " + e.getMessage(),
+                            "错误", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    setCursor(Cursor.getDefaultCursor());
+                }
+            }
+        };
+
+        worker.execute();
     }
 
     private void purchaseItems() {
@@ -209,7 +325,7 @@ public class ShopPanel extends JPanel {
             return;
         }
 
-        int productId = (Integer) tableModel.getValueAt(selectedRow, 0);
+        String productId = (String) tableModel.getValueAt(selectedRow, 0);
         int quantity = (Integer) quantitySpinner.getValue();
         int stock = (Integer) tableModel.getValueAt(selectedRow, 4);
 
@@ -218,34 +334,58 @@ public class ShopPanel extends JPanel {
             return;
         }
 
-        double totalPrice = (Double) tableModel.getValueAt(selectedRow, 3) * quantity;
+        double price = (Double) tableModel.getValueAt(selectedRow, 3);
+        double totalPrice = price * quantity;
+        String productName = (String) tableModel.getValueAt(selectedRow, 1);
+
         int confirm = JOptionPane.showConfirmDialog(this,
-                "确认购买 " + quantity + " 件 '" +
-                        tableModel.getValueAt(selectedRow, 1) + "'? 总价: " +
-                        totalPrice + "元",
+                "确认购买 " + quantity + " 件 '" + productName +
+                        "'? 总价: " + String.format("%.2f", totalPrice) + "元",
                 "确认购买", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            boolean success = shopController.purchaseProduct(currentUser.getUserId(), productId, quantity);
+            // 显示加载状态
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            if (success) {
-                JOptionPane.showMessageDialog(this, "购买成功");
-                refreshProducts(); // 刷新商品列表
-                updateCartItemCount();
-            } else {
-                JOptionPane.showMessageDialog(this, "购买失败，请重试");
-            }
+            SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                @Override
+                protected Boolean doInBackground() throws Exception {
+                    // 先添加到购物车
+                    boolean added = shopController.addToCart(currentUser.getUserId(), Integer.parseInt(productId), quantity);
+                    if (!added) return false;
+
+                    // 然后创建订单
+                    return shopController.createOrder(currentUser.getUserId());
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        boolean success = get();
+                        if (success) {
+                            JOptionPane.showMessageDialog(ShopPanel.this, "购买成功");
+                            refreshProducts(); // 刷新商品列表
+                            updateCartItemCount();
+                        } else {
+                            JOptionPane.showMessageDialog(ShopPanel.this, "购买失败，请重试");
+                        }
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(ShopPanel.this,
+                                "购买失败: " + e.getMessage(),
+                                "错误", JOptionPane.ERROR_MESSAGE);
+                    } finally {
+                        setCursor(Cursor.getDefaultCursor());
+                    }
+                }
+            };
+
+            worker.execute();
         }
     }
 
     private void viewCart() {
         if (currentUser == null) {
             JOptionPane.showMessageDialog(this, "请先登录系统");
-            return;
-        }
-
-        if (shopController.getCartItemCount() == 0) {
-            JOptionPane.showMessageDialog(this, "购物车为空");
             return;
         }
 
@@ -263,8 +403,36 @@ public class ShopPanel extends JPanel {
     }
 
     private void updateCartItemCount() {
-        int count = shopController.getCartItemCount();
-        cartItemCountLabel.setText(String.valueOf(count));
+        if (currentUser == null) {
+            cartItemCountLabel.setText("0");
+            return;
+        }
+
+        // 使用异步方式获取购物车数量
+        SwingWorker<Integer, Void> worker = new SwingWorker<Integer, Void>() {
+            @Override
+            protected Integer doInBackground() throws Exception {
+                List<com.seu.vcampus.common.model.CartItem> cartItems =
+                        shopController.getCartItems(currentUser.getUserId());
+                int count = 0;
+                for (com.seu.vcampus.common.model.CartItem item : cartItems) {
+                    count += item.getQuantity();
+                }
+                return count;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    int count = get();
+                    cartItemCountLabel.setText(String.valueOf(count));
+                } catch (Exception e) {
+                    cartItemCountLabel.setText("0");
+                }
+            }
+        };
+
+        worker.execute();
     }
 
     private void goBackToMain() {
@@ -272,7 +440,25 @@ public class ShopPanel extends JPanel {
     }
 
     public void clearCart() {
-        shopController.clearCart();
-        updateCartItemCount();
+        if (currentUser != null) {
+            SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                @Override
+                protected Boolean doInBackground() throws Exception {
+                    return shopController.clearCart(currentUser.getUserId());
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        get(); // 等待操作完成
+                        updateCartItemCount();
+                    } catch (Exception e) {
+                        // 忽略错误
+                    }
+                }
+            };
+
+            worker.execute();
+        }
     }
 }

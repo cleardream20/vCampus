@@ -9,7 +9,7 @@ import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.client.view.panel.LoginPanel;
 import com.seu.vcampus.client.view.panel.ShopPanel;
 import lombok.Getter;
-
+import lombok.Setter;
 /**
  * MainFrame 单例模式
  * MainFrame mainFrame = MainFrame.getInstance();
@@ -17,6 +17,7 @@ import lombok.Getter;
  */
 public class MainFrame extends JFrame {
     @Getter
+    @Setter
     private User currentUser;
     private CardLayout cardLayout;
     private JPanel mainPanel; // 主容器面板
@@ -28,25 +29,29 @@ public class MainFrame extends JFrame {
     private ShopPanel shopPanel; // 商店面板
 
     // 私有的静态成员变量，用于存储单例实例
-    private static volatile MainFrame instance;
-
+    private static class MainFrameHolder {
+        private static final MainFrame INSTANCE = new MainFrame();
+    }
     // 私有构造函数，防止外部实例化
     private MainFrame() {
+        // 先设置基本属性
+        setTitle("虚拟校园系统");
+        setSize(1000, 700);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // 初始化UI组件
         initializeUI();
+
+        // 显示登录面板
         showLoginPanel();
     }
 
     // 提供全局访问点，获取唯一实例
     // 双重检查锁定方式
+    // 提供全局访问点
     public static MainFrame getInstance() {
-        if (instance == null) { // 第一次检查
-            synchronized (MainFrame.class) {
-                if (instance == null) { // 第二次检查
-                    instance = new MainFrame();
-                }
-            }
-        }
-        return instance;
+        return MainFrameHolder.INSTANCE;
     }
 
     private void initializeUI() {
@@ -62,26 +67,41 @@ public class MainFrame extends JFrame {
         // 初始化各个面板
         LoginPanel loginPanel = new LoginPanel();
         RegisterPanel registerPanel = new RegisterPanel();
-        MainPanel mainPanel = new MainPanel();
-        shopPanel = new ShopPanel(); // 初始化商店面板
+        mainContentPanel = new MainPanel();
+        shopPanel = createShopPanel(); // 初始化商店面板
 
         // 添加面板到主容器
         mainPanel.add(loginPanel, "LOGIN");
         mainPanel.add(registerPanel, "REGISTER");
-        mainPanel.add(mainPanel, "MAIN");
+        mainPanel.add(mainContentPanel, "MAIN");
         mainPanel.add(shopPanel, "SHOP"); // 添加商店面板
 
         add(mainPanel);
     }
 
+    // 创建商店面板的工厂方法
+    private ShopPanel createShopPanel() {
+        ShopPanel panel = new ShopPanel();
+        // 可以进行其他初始化操作
+        return panel;
+    }
+
     // 切换面板的方法
     public void showPanel(String panelName) {
+        System.out.println("切换到面板: " + panelName);
         cardLayout.show(mainPanel, panelName);
 
-        // 如果切换到商店面板，更新商店面板的用户信息
-        if ("STORE".equals(panelName) && currentUser != null) {
-            shopPanel.setCurrentUser(currentUser);
-            shopPanel.refreshProducts(); // 刷新商品列表
+        // 添加面板切换后的回调
+        if ("SHOP".equals(panelName) && currentUser != null) {
+            // 延迟一点时间确保面板已显示
+            Timer timer = new Timer(100, e -> {
+                if (shopPanel != null) {
+                    shopPanel.setCurrentUser(currentUser);
+                    shopPanel.refreshProducts();
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
         }
     }
 
@@ -102,9 +122,16 @@ public class MainFrame extends JFrame {
 
     public void showShopPanel() {
         if (currentUser != null) {
-            shopPanel.setCurrentUser(currentUser);
-            shopPanel.refreshProducts();
-            showPanel("SHOP");
+            // 确保在 EDT 中执行界面更新
+            SwingUtilities.invokeLater(() -> {
+                showPanel("STORE");
+
+                // 更新商店面板的用户信息
+                if (shopPanel != null) {
+                    shopPanel.setCurrentUser(currentUser);
+                    shopPanel.refreshProducts();
+                }
+            });
         } else {
             JOptionPane.showMessageDialog(this,
                     "请先登录系统",

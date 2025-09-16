@@ -1,19 +1,24 @@
+// Product.java
 package com.seu.vcampus.common.model;
 
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product implements Serializable {
-    private Integer productId;
+    private Integer id;
+    private String productId;
     private String productName;
     private String description;
-    private Double price;
+    private BigDecimal price;
     private Integer stock;
     private String category;
-    private String imageUrl; // 商品图片URL
+    private String imageURL;
+    private String location;
 }

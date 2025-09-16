@@ -17,4 +17,8 @@ public class User implements Serializable {
     private String email; // 邮箱辅助找回密码
     private String phone; // 电话号码
     private String role; // 角色：ST | TC | AD
+
+    public int getUserId() {
+        return 0;
+    }
 }

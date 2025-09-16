@@ -37,8 +37,8 @@ public class MainPanel extends JPanel implements NavigatablePanel {
 
         // 用户中心按钮
         JPanel userCenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        String txtUserName = MainFrame.getInstance().getCurrentUser().getName();
-        btnUser = new JButton("您好！ " + txtUserName);
+
+        btnUser = new JButton("您好！请登陆 ");
         btnUser.setFont(new Font("微软雅黑",  Font.BOLD, 18));
         btnUser.setPreferredSize(new Dimension(90, 30));
 
@@ -68,6 +68,12 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         btnShop.setFont(commonFont);
         btnShop.setPreferredSize(commonDimension);
 
+        // 确保正确添加事件监听器
+        btnShop.addActionListener(e -> {
+            System.out.println("商店按钮被点击");
+            openStore();
+        });
+
         subPanels.add(btnStudent);
         subPanels.add(btnCourse);
         subPanels.add(btnLibrary);
@@ -85,12 +91,56 @@ public class MainPanel extends JPanel implements NavigatablePanel {
     }
 
     private void openStore() {
-        MainFrame.getInstance().showShopPanel();
+        System.out.println("尝试打开商店");
+        try {
+            MainFrame mainFrame = MainFrame.getInstance();
+            if (mainFrame.getCurrentUser() != null) {
+                mainFrame.showShopPanel();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "请先登录系统",
+                        "提示",
+                        JOptionPane.WARNING_MESSAGE);
+                mainFrame.showLoginPanel();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "打开商店时发生错误: " + ex.getMessage(),
+                    "错误",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void attemptEnterUserCenter() {
+        // 安全地获取 MainFrame 实例
         MainFrame mainFrame = MainFrame.getInstance();
-        mainFrame.showUserCenterPanel(mainFrame.getCurrentUser());
+        User currentUser = mainFrame.getCurrentUser();
+
+        if (currentUser != null) {
+            mainFrame.showUserCenterPanel(currentUser);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "请先登录系统",
+                    "提示",
+                    JOptionPane.WARNING_MESSAGE);
+            mainFrame.showLoginPanel();
+        }
+    }
+
+    private void openShop() {
+        // 安全地获取 MainFrame 实例
+        MainFrame mainFrame = MainFrame.getInstance();
+
+        if (mainFrame.getCurrentUser() != null) {
+            mainFrame.showShopPanel();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "请先登录系统",
+                    "提示",
+                    JOptionPane.WARNING_MESSAGE);
+            mainFrame.showLoginPanel();
+        }
     }
 
     private void attemptEnterStudent() {
@@ -107,5 +157,10 @@ public class MainPanel extends JPanel implements NavigatablePanel {
     public String getPanelName() {
         return "MAIN";
     }
+
+    public void setCurrentUser(User user) {
+    }
+
+
 }
 

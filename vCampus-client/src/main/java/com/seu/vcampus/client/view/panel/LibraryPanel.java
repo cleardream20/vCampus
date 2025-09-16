@@ -71,8 +71,9 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
         add(toolBar, BorderLayout.NORTH); // 添加到顶部
     }
     private void handleReturnAction(ActionEvent e) {
-        // 触发自定义事件通知父容器
-        firePropertyChange("RETURN_TO_MAIN", false, true);
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(currentUser);
+        });
     }
 
     public LibraryPanel() {

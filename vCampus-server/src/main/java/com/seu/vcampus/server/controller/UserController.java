@@ -19,6 +19,7 @@ public class UserController implements RequestController {
         return switch (type) {
             case Message.LOGIN -> handleLogin(request);
             case Message.REGISTER -> handleRegister(request);
+            case Message.LOGOUT -> handleLogout(request);
             default -> Message.fromData(Message.RESPONSE, false, null, "不支持的操作");
         };
     }
@@ -57,5 +58,13 @@ public class UserController implements RequestController {
         if (result == null || !result.getPassword().equals(user.getPassword())) return Message.error(Message.REGISTER, "注册数据异常");
 
         return Message.success(Message.REGISTER, result, "注册成功");
+    }
+
+    public Message handleLogout(Message request) throws SQLException {
+        String cid = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+        if (cid == null) return Message.error(Message.LOGOUT, "用户数据无效");
+        userService.logout(cid);
+
+        return Message.success(Message.REGISTER, null, "登出成功");
     }
 }

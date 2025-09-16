@@ -23,4 +23,7 @@ public class Book implements Serializable, Jsonable {
     private String imagePath;
     private String description;
 
+    public boolean isAvailable() {
+        return availableCopies > 0;
+    }
 }

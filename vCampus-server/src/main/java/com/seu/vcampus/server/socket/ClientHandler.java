@@ -36,6 +36,7 @@ public class ClientHandler implements Runnable {
     private void addUserHandlers() {
         controllerMap.put(Message.LOGIN, userController);
         controllerMap.put(Message.REGISTER, userController);
+        controllerMap.put(Message.LOGOUT, userController);
 //        controllerMap.put(Message.GET_USER_INFO, userController);
 //        controllerMap.put(Message.UPDATE_USER_INFO, userController);
         // 添加其他用户相关消息类型...
@@ -118,7 +119,7 @@ public class ClientHandler implements Runnable {
 
         System.out.println("==== 请求类型==== : " + type);
 
-        // TODO: 可以用 Map<String, Controller> 优化
+        // Map<String, Controller>
         RequestController requestController = controllerMap.get(type);
         if (requestController != null) {
             try {

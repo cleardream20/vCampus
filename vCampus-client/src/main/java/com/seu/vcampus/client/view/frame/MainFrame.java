@@ -11,7 +11,7 @@ import com.seu.vcampus.client.view.panel.main.UserCenterPanel;
 import com.seu.vcampus.client.view.panel.student.ADPanel;
 import com.seu.vcampus.client.view.panel.student.STPanel;
 import com.seu.vcampus.common.model.User;
-import com.seu.vcampus.client.view.panel.LoginPanel;
+import com.seu.vcampus.client.view.panel.login.LoginPanel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +28,8 @@ public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainPanel; // 主容器面板
 
+    private LoginPanel loginPanel;
+    private RegisterPanel registerPanel;
     private UserCenterPanel userCenterPanel;
     // 声明新的 LibraryMainPanel 实例（延迟初始化）
     private LibraryMainPanel libraryMainPanel;
@@ -67,8 +69,8 @@ public class MainFrame extends JFrame {
         mainPanel = new JPanel(cardLayout);
 
         // 初始化各个面板（不包括 LibraryMainPanel，因为需要用户信息）
-        LoginPanel loginPanel = new LoginPanel();
-        RegisterPanel registerPanel = new RegisterPanel();
+        loginPanel = new LoginPanel();
+        registerPanel = new RegisterPanel();
         MainPanel userMainPanel = new MainPanel();
 
         // 添加基础面板
@@ -92,7 +94,15 @@ public class MainFrame extends JFrame {
     }
 
     // 具体的面板切换方法
+//    public void showLoginPanel() {
+//        showPanel("LOGIN");
+//    }
+
     public void showLoginPanel() {
+        loginPanel.refreshPanel(new User());
+        mainPanel.add(loginPanel, "LOGIN");
+        mainPanel.revalidate();
+        mainPanel.repaint();
         showPanel("LOGIN");
     }
 

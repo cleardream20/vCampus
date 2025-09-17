@@ -39,6 +39,10 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
     // 教师特有
     private JTextField titleField, hireDateField;
 
+    // 修改按钮
+    private JButton editButton;
+    private boolean isEditMode = false;
+
     public UserCenterPanel() {
         currentUser = MainFrame.getInstance().getCurrentUser();
         loginService = new LoginService();
@@ -52,7 +56,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         String[] options = {"个人信息", "账户管理"};
         JList<String> navList = new JList<>(options);
         navList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        navList.setSelectedIndex(0); // 默认选中“个人信息”
+        navList.setSelectedIndex(0); // 默认选中"个人信息"
         navList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selected = navList.getSelectedValue();
@@ -76,7 +80,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
     }
 
     /**
-     * 创建“个人信息”面板
+     * 创建"个人信息"面板
      */
     private JPanel createInfoPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -121,28 +125,105 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
             }
         }
 
-        // 修改按钮下拉菜单
-        JComboBox<String> editCombo = new JComboBox<>(new String[]{"修改...", "修改基本信息", "修改所有信息"});
-        editCombo.addActionListener(e -> {
-            String selection = (String) editCombo.getSelectedItem();
-            if ("修改基本信息".equals(selection)) {
-                enterBasicEditMode();
-            } else if ("修改所有信息".equals(selection)) {
-                enterFullEditMode();
-            }
-        });
+        // 修改/确定/取消按钮
+        editButton = new JButton("修改");
+        JButton cancelButton = new JButton("取消");
+        cancelButton.setVisible(false);
+
+        editButton.addActionListener(e -> toggleEditMode());
+        cancelButton.addActionListener(e -> cancelEdit());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(editButton);
+        buttonPanel.add(cancelButton);
 
         gbc.gridx = 0;
         gbc.gridy = y;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(editCombo, gbc);
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(buttonPanel, gbc);
 
         return panel;
     }
 
     /**
-     * 创建“账户管理”面板
+     * 切换编辑模式
+     */
+    private void toggleEditMode() {
+        if (!isEditMode) {
+            // 进入编辑模式
+            setAllEditable(true);
+            editButton.setText("确定");
+            isEditMode = true;
+            // 显示取消按钮
+            ((JButton) ((JPanel) editButton.getParent()).getComponent(1)).setVisible(true);
+        } else {
+            // 保存修改
+            saveChanges();
+        }
+    }
+
+    /**
+     * 取消编辑
+     */
+    private void cancelEdit() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "确定要取消修改吗？所有未保存的更改将丢失。",
+                "确认取消", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            // 刷新数据，恢复原状
+            refreshPanel(currentUser);
+            setEditMode(false);
+        }
+    }
+
+    /**
+     * 设置编辑模式状态
+     */
+    private void setEditMode(boolean editMode) {
+        isEditMode = editMode;
+        editButton.setText(editMode ? "确定" : "修改");
+        setAllEditable(editMode);
+        // 隐藏取消按钮
+        ((JButton) ((JPanel) editButton.getParent()).getComponent(1)).setVisible(editMode);
+    }
+
+    /**
+     * 保存修改
+     */
+    private void saveChanges() {
+        // 收集修改后的数据
+        if (currentUser != null) {
+            currentUser.setPhone(phoneField.getText());
+            currentUser.setEmail(emailField.getText());
+
+            // 如果是学生，更新学生信息
+            if ("ST".equals(currentUser.getRole())) {
+                Student student = MainFrame.getInstance().getCurrentStudent();
+                if (student != null) {
+                    student.setAddress(addressField.getText());
+                    student.setNid(idCardField.getText());
+                    student.setGrade(gradeField.getText());
+                    student.setEs(studentTypeField.getText());
+                    student.setEndate(endateField.getText());
+                    // 更新当前学生对象
+                    MainFrame.getInstance().setCurrentStudent(student);
+                }
+            }
+
+            // 调用服务更新用户信息
+            if (userService.updateUser(currentUser)) {
+                JOptionPane.showMessageDialog(this, "信息更新成功！", "成功", JOptionPane.INFORMATION_MESSAGE);
+                setEditMode(false);
+            } else {
+                JOptionPane.showMessageDialog(this, "信息更新失败，请重试！", "错误", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * 创建"账户管理"面板
      */
     private JPanel createAccountPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -220,67 +301,28 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
      */
     private void setAllEditable(boolean editable) {
         cidField.setEditable(false); // 一卡通号不能改
+        tsidField.setEditable(false); // 学号/工号不能改
         nameField.setEditable(false);
         genderField.setEditable(false);
         ageField.setEditable(false);
         birthDateField.setEditable(false);
-        tsidField.setEditable(false); // 学号/工号不能直接改
 
+        // 可编辑的字段
         phoneField.setEditable(editable);
         emailField.setEditable(editable);
         addressField.setEditable(editable);
         idCardField.setEditable(editable);
-        gradeField.setEditable(editable);
-        studentTypeField.setEditable(editable);
-        endateField.setEditable(editable);
-        titleField.setEditable(editable);
-        hireDateField.setEditable(editable);
         collegeField.setEditable(editable);
-    }
 
-    /**
-     * 进入“修改基本信息”模式
-     */
-    private void enterBasicEditMode() {
-        setAllEditable(true);
-        phoneField.setEditable(true);
-        emailField.setEditable(true);
-        addressField.setEditable(true);
-
+        // 角色特有字段
         if ("ST".equals(currentUser.getRole())) {
-            gradeField.setEditable(true);
+            gradeField.setEditable(editable);
+            studentTypeField.setEditable(editable);
+            endateField.setEditable(editable);
         } else if ("TC".equals(currentUser.getRole())) {
-            // 教师只有三项可基本修改
-            titleField.setEditable(false);
-            hireDateField.setEditable(false);
-            collegeField.setEditable(false);
+            titleField.setEditable(editable);
+            hireDateField.setEditable(editable);
         }
-
-        JOptionPane.showMessageDialog(this,
-                "已进入【修改基本信息】模式\n可修改：电话、邮箱、地址" +
-                        ("ST".equals(currentUser.getRole()) ? "、年级" : ""),
-                "提示", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /**
-     * 进入“修改所有信息”模式（需审批）
-     */
-    private void enterFullEditMode() {
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "您正在修改敏感信息（如身份证号），\n修改后需管理员审核通过才生效。\n是否继续？",
-                "敏感信息修改", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        setAllEditable(true);
-        JOptionPane.showMessageDialog(this,
-                "已进入【修改所有信息】模式\n修改后需管理员审批才能生效。",
-                "提示", JOptionPane.INFORMATION_MESSAGE);
-
-        // TODO: 在这里可以记录原始值，用于提交审批请求
-        // sendMessage(Message.TYPE_UPDATE_USER_PENDING, userDataMap);
     }
 
     /**
@@ -309,39 +351,26 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
     private void showChangePasswordDialog() {
         // 1. 第一步：输入原密码，获取验证码
         JPasswordField oldPf = new JPasswordField(10);
-        JTextField emailOrPhoneField = new JTextField(20); // 假设显示用户邮箱或手机号
+        JTextField emailOrPhoneField = new JTextField(20);
         JButton getCodeBtn = new JButton("获取验证码");
         JTextField verifyCodeField = new JTextField(10);
 
-        // 假设从 currentUser 获取联系方式，这里优先使用邮箱
         String contact = currentUser.getEmail() != null && !currentUser.getEmail().isEmpty() ?
                 currentUser.getEmail() : currentUser.getPhone();
         if (contact == null || contact.isEmpty()) {
             JOptionPane.showMessageDialog(this, "无法获取您的联系方式，请联系管理员！", "错误", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        emailOrPhoneField.setText(contact); // TODO 显示脱敏后的联系方式
+        emailOrPhoneField.setText(contact);
         emailOrPhoneField.setEditable(false);
 
-        // 记录验证码（实际项目中应由后端生成并存储，前端仅用于演示）
-        final String[] storedCode = {""};
+        final String[] storedCode = {"123456"}; // 模拟验证码
         final boolean[] codeSent = {false};
 
-        // 设置获取验证码按钮逻辑
         getCodeBtn.addActionListener(e -> {
-            // TODO: 调用后端接口发送验证码
-            // 示例：ClientSocket.getInstance().sendMessage(Message.TYPE_SEND_VERIFY_CODE, Map.of("cid", currentUser.getCid()));
-
-            // 模拟生成验证码（仅用于演示，生产环境由服务器生成）
-//            String code = String.format("%06d", new java.util.Random().nextInt(1000000));
-            String code = "123456";
-            storedCode[0] = code;
+            storedCode[0] = "123456";
             codeSent[0] = true;
-
-            // 模拟发送成功提示
             JOptionPane.showMessageDialog(this, "验证码已发送至 " + contact, "提示", JOptionPane.INFORMATION_MESSAGE);
-
-            // 禁用按钮60秒（防止重复点击）
             getCodeBtn.setEnabled(false);
             new Thread(() -> {
                 try {
@@ -360,13 +389,12 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
 
         int option = JOptionPane.showConfirmDialog(this, step1, "修改密码 - 第一步", JOptionPane.OK_CANCEL_OPTION);
         if (option != JOptionPane.OK_OPTION) {
-            return; // 用户取消
+            return;
         }
 
         char[] oldPass = oldPf.getPassword();
         String inputCode = verifyCodeField.getText().trim();
 
-        // 验证验证码
         if (!codeSent[0]) {
             JOptionPane.showMessageDialog(this, "请先获取验证码！", "错误", JOptionPane.ERROR_MESSAGE);
             return;
@@ -403,22 +431,14 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
             return;
         }
 
-        // TODO: 发送修改密码请求到服务器（已通过验证码验证）
-        // Map<String, Object> data = new HashMap<>();
-        // data.put("cid", currentUser.getCid());
-        // data.put("newPassword", new String(newPass));
-        // data.put("verifyCode", inputCode); // 后端需校验此验证码
-        // ClientSocket.getInstance().sendMessage(Message.TYPE_CHANGE_PASSWORD, data);
         User user = MainFrame.getInstance().getCurrentUser();
-        String oldPassword = user.getPassword();
         user.setPassword(new String(confirmPass));
         if (userService.updateUser(user)) {
             JOptionPane.showMessageDialog(this, "密码修改成功，请重新登录。", "成功", JOptionPane.INFORMATION_MESSAGE);
             performLogout();
-        }
-        else
+        } else {
             JOptionPane.showMessageDialog(this, "密码修改失败，请重试。", "失败", JOptionPane.INFORMATION_MESSAGE);
-
+        }
     }
 
     /**
@@ -450,32 +470,37 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
             nameField.setText(user.getName());
             phoneField.setText(user.getPhone());
             emailField.setText(user.getEmail());
-//            addressField.setText(user.getAddress());
-//            idCardField.setText(user.getIdCard());
-//            genderField.setText(user.getGender());
-//            collegeField.setText(user.getCollege());
 
             // 角色相关数据填充
             if ("ST".equals(user.getRole())) {
                 Student st = MainFrame.getInstance().getCurrentStudent();
-                tsidField.setText(user.getTsid());
-                endateField.setText(st.getEndate());
-//                gradeField.setText(user.getGrade());
-//                studentTypeField.setText(user.getStudentType());
+                if (st != null) {
+                    tsidField.setText(user.getTsid());
+                    endateField.setText(st.getEndate());
+                    addressField.setText(st.getAddress());
+                    idCardField.setText(st.getNid());
+                    gradeField.setText(st.getGrade());
+                    studentTypeField.setText(st.getEs());
+                    // 设置性别和学院（根据你的实际字段名调整）
+                    genderField.setText(st.getSex());
+                    collegeField.setText(st.getMajor()); // 假设major对应学院
+                }
             } else if ("TC".equals(user.getRole())) {
                 tsidField.setText(user.getTsid());
-//                hireDateField.setText(user.getHireDate());
-//                titleField.setText(user.getTitle());
+                // 教师信息填充（根据你的实际字段名调整）
             }
             // 更新年龄和生日
             updateFromIdCard();
         }
 
+        // 重置编辑模式
+        setEditMode(false);
+
         // 刷新视图
         contentPanel.removeAll();
         contentPanel.add(createInfoPanel(), "INFO");
         contentPanel.add(createAccountPanel(), "ACCOUNT");
-        cardLayout.show(contentPanel, "INFO"); // 默认显示信息页
+        cardLayout.show(contentPanel, "INFO");
     }
 
     @Override

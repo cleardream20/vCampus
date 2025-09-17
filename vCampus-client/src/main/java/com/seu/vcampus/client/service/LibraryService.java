@@ -1,8 +1,10 @@
 package com.seu.vcampus.client.service;
 
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.common.model.Book;
 import com.seu.vcampus.common.model.BorrowRecord;
 import com.seu.vcampus.client.socket.ClientSocketUtil;
+import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.LibraryMessage;
 
@@ -25,7 +27,10 @@ public class LibraryService {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Book>) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<List<Book>>() {}.getType()
+                );
             } else {
                 System.err.println("获取所有图书失败: " + response.getData());
                 return Collections.emptyList();
@@ -45,7 +50,10 @@ public class LibraryService {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Book>) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<List<Book>>() {}.getType()
+                );
             } else {
                 System.err.println("搜索图书失败: " + response.getData());
                 return Collections.emptyList();
@@ -85,7 +93,10 @@ public class LibraryService {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<BorrowRecord>) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<List<BorrowRecord>>() {}.getType()
+                );
             } else {
                 System.err.println("搜索借阅图书列表失败: " + response.getData());
                 return Collections.emptyList();

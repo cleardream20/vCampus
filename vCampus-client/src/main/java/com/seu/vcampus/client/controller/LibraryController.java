@@ -52,7 +52,10 @@ public class LibraryController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Book>) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<List<Book>>() {}.getType()
+                );
             } else {
                 System.err.println("搜索图书失败: " + response.getData());
                 return Collections.emptyList();
@@ -92,7 +95,10 @@ public class LibraryController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<BorrowRecord>) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<List<BorrowRecord>>() {}.getType()
+                );
             } else {
                 System.err.println("搜索借阅图书列表失败: " + response.getData());
                 return Collections.emptyList();
@@ -112,7 +118,10 @@ public class LibraryController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Reservation>) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<List<Reservation>>() {}.getType()
+                );
             } else {
                 System.err.println("搜索预约图书列表失败: " + response.getData());
                 return Collections.emptyList();

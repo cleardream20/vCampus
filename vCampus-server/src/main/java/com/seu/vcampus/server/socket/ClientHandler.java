@@ -1,8 +1,10 @@
 package com.seu.vcampus.server.socket;
 
+import com.seu.vcampus.common.util.LibraryMessage;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.UserMessage;
 import com.seu.vcampus.server.controller.CourseController;
+import com.seu.vcampus.server.controller.LibraryController;
 import com.seu.vcampus.server.controller.RequestController;
 import com.seu.vcampus.server.controller.UserController;
 
@@ -20,18 +22,21 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final UserController userController;
     private final CourseController courseController;
+    private final LibraryController libraryController;
     private final Map<String, RequestController> controllerMap = new HashMap<>();
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.userController = new UserController(); // 可改为依赖注入
         this.courseController = new CourseController();
+        libraryController = new LibraryController();
         initializeControllers();
     }
 
     private void initializeControllers() {
         addUserHandlers();
         addCourseHandlers();
+        addLibraryHandlers();
     }
 
     private void addUserHandlers() {
@@ -41,9 +46,6 @@ public class ClientHandler implements Runnable {
         controllerMap.put(UserMessage.GET_ST_BY_USER, userController);
         controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
         controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
-//        controllerMap.put(Message.GET_USER_INFO, userController);
-//        controllerMap.put(Message.UPDATE_USER_INFO, userController);
-        // 添加其他用户相关消息类型...
     }
 
     private void addCourseHandlers() {
@@ -66,6 +68,28 @@ public class ClientHandler implements Runnable {
 
         for (String type : courseMessageTypes) {
             controllerMap.put(type, courseController);
+        }
+    }
+
+    private void addLibraryHandlers() {
+        String[] libraryMessageTypes = {
+                LibraryMessage.GET_ALL_BOOKS,
+                LibraryMessage.SEARCH_BOOKS,
+                LibraryMessage.GET_BORROW_BOOKS,
+                LibraryMessage.BORROW_BOOKS,
+                LibraryMessage.RETURN_BOOK,
+                LibraryMessage.ADD_BOOK,
+                LibraryMessage.UPDATE_BOOK,
+                LibraryMessage.DELETE_BOOK,
+                LibraryMessage.RENEW_BOOK,
+                LibraryMessage.GET_BOOKS_BY_ISBN,
+                LibraryMessage.GET_RESERVATIONS,
+                LibraryMessage.RESERVE_BOOKS,
+                LibraryMessage.CANCEL_RESERVATION
+        };
+
+        for (String type : libraryMessageTypes) {
+            controllerMap.put(type, libraryController);
         }
     }
 

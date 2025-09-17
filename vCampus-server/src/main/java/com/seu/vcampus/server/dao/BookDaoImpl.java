@@ -17,7 +17,7 @@ public class BookDaoImpl implements IBookDao {
 
     public BookDaoImpl() {
         ensureConnection();
-        outputAllBooks();
+//        outputAllBooks();
     }
 
     private void ensureConnection() {

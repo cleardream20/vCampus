@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model.course;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SelectionRecord implements Serializable {
+public class SelectionRecord implements Serializable, Jsonable {
     private String recordId; // 对应RecordID (自动编号)
     private String studentId; // 对应StudentID (短文本)
     private String studentName; // 对应StudentName (短文本)

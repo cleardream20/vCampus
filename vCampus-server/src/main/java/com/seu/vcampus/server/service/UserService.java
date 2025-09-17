@@ -1,5 +1,8 @@
 package com.seu.vcampus.server.service;
 
+import com.seu.vcampus.common.model.Admin;
+import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 
 import java.sql.SQLException;
@@ -70,4 +73,10 @@ public interface UserService {
     boolean checkOnlineUser(String cid);
 
     void logout(String cid) throws SQLException;
+
+    Student getStudentByUser(User user) throws  SQLException;
+
+    Teacher getTeacherByUser(User user) throws  SQLException;
+
+    Admin getAdminByUser(User user) throws  SQLException;
 }

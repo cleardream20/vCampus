@@ -1,5 +1,8 @@
 package com.seu.vcampus.server.service;
 
+import com.seu.vcampus.common.model.Admin;
+import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.server.dao.UserDaoImpl;
 
@@ -78,5 +81,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(String cid) throws SQLException {
         onlineUsers.remove(cid);
+    }
+
+    @Override
+    public Student getStudentByUser(User user) throws SQLException {
+        return userDao.getStudentByUser(user);
+    }
+
+    @Override
+    public Teacher getTeacherByUser(User user) throws SQLException {
+        return userDao.getTeacherByUser(user);
+    }
+
+    @Override
+    public Admin getAdminByUser(User user) throws SQLException {
+        return userDao.getAdminByUser(user);
     }
 }

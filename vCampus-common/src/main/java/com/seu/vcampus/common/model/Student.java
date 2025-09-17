@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,13 +27,13 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Student extends User implements Serializable {
+public class Student extends User implements Serializable, Jsonable {
 
     public Student(String cid, String password, String tsid, String name,
                    String email, String phone, String role,
                    String sex, String birthday, String address, String nid,
                    String endate, String grade, String major, String stid,
-                   String es, String esState) {
+                   String es, String esState, int age) {
         // 调用父类构造函数
         super(cid, password, tsid, name, email, phone, role);
         // 设置子类字段
@@ -46,19 +47,38 @@ public class Student extends User implements Serializable {
         this.stid = stid;
         this.es = es;
         this.esState = esState;
+        this.age = age;
+    }
+
+    public Student(User user, String sex, String birthday, String address,
+                   String nid, String endate, String grade, String major,
+                   String stid, String es, String esState, int age) {
+        super(user.getCid(), user.getPassword(), user.getTsid(), user.getName(),
+                user.getEmail(), user.getPhone(), user.getRole());
+        this.sex = sex;
+        this.birthday = birthday;
+        this.address = address;
+        this.nid = nid;
+        this.endate = endate;
+        this.grade = grade;
+        this.major = major;
+        this.stid = stid;
+        this.es = es;
+        this.esState = esState;
+        this.age = age;
     }
 
     public Object[] getRow() {
 //      "一卡通号","身份证号","学号","姓名","性别","电话号码","出生日期","家庭住址","入学日期","学籍号","学院","年级","学制","学籍状态"
-        return new String[] {getCid(), nid, getTsid(), getName(), sex, getPhone(), birthday, address, endate, stid, major, grade, es, esState};
+        return new String[] {getCid(), nid, getTsid(), getName(), sex, getPhone(), birthday, address, endate, stid, major, grade, es, esState, String.valueOf(age)};
     }
 
-    public static Student randomStudent() {
-        return new Student("1", "2","1", "2","1", "2","1", "2","1", "2");
-    }
+//    public static Student randomStudent() {
+//        return new Student("1", "2","1", "2","1", "2","1", "2","1", "2");
+//    }
 
     private String sex;
-//    private int age;
+    private int age;
     private String birthday; // 出生日期 YY-MM-DD
     private String address;
     private String nid;

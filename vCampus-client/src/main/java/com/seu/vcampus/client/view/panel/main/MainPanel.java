@@ -9,6 +9,7 @@ import java.awt.*;
 
 public class MainPanel extends JPanel implements NavigatablePanel {
     private JButton btnUserCenter;
+    private JButton btnUserManage;
     private JButton btnStudent;
     private JButton btnCourse;
     private JButton btnLibrary;
@@ -54,13 +55,14 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
         buttonPanel.setBackground(Color.WHITE);
 
+        btnUserManage = new JButton("用户管理");
         btnStudent = new JButton("学生学籍管理");
         btnCourse = new JButton("选课系统");
         btnLibrary = new JButton("图书馆");
         btnShop = new JButton("商店");
         btnDorm = new JButton("宿舍");
 
-        JButton[] buttons = {btnStudent, btnCourse, btnLibrary, btnShop, btnDorm};
+        JButton[] buttons = {btnUserManage, btnStudent, btnCourse, btnLibrary, btnShop, btnDorm};
         for (JButton btn : buttons) {
             btn.setFont(btnFont);
             btn.setPreferredSize(btnSize);
@@ -76,15 +78,23 @@ public class MainPanel extends JPanel implements NavigatablePanel {
         add(buttonPanel, gbc);
 
         // 事件监听
+        btnUserManage.addActionListener(e -> attemptEnterUserManagement());
         btnUserCenter.addActionListener(e -> attemptEnterUserCenter());
         btnStudent.addActionListener(e -> attemptEnterStudent());
         btnLibrary.addActionListener(e -> attemptEnterLibrary());
         btnCourse.addActionListener(e -> attemptEnterCourse());
+        btnShop.addActionListener(e -> attemptEnterShop());
+        btnDorm.addActionListener(e -> attemptEnterDorm());
     }
 
     private void attemptEnterUserCenter() {
         MainFrame mainFrame = MainFrame.getInstance();
         mainFrame.showUserCenterPanel();
+    }
+
+    private void attemptEnterUserManagement() {
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.showUserManagementPanel();
     }
 
     private void attemptEnterStudent() {
@@ -100,6 +110,16 @@ public class MainPanel extends JPanel implements NavigatablePanel {
     private void attemptEnterCourse() {
         MainFrame mainFrame = MainFrame.getInstance();
         mainFrame.showCoursePanel();
+    }
+
+    private void attemptEnterShop() {
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.showShopPanel();
+    }
+
+    private void attemptEnterDorm() {
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.showDormPanel();
     }
 
     @Override

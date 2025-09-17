@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model.course;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.Objects;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseSchedule implements Serializable {
+public class CourseSchedule implements Serializable, Jsonable {
     private String studentId; // 学生ID
     private String studentName; // 学生姓名（可选）
     private String semester; // 学期（如：2023-2024学年第一学期）

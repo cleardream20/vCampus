@@ -15,10 +15,17 @@ import java.io.Serializable;
 public class Message implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    // 用户相关
     public static final String LOGIN = "LOGIN";
     public static final String REGISTER = "REGISTER";
     public static final String LOGOUT = "LOGOUT";
     public static final String KICKED = "KICKED";
+    public static final String DELETE_USER = "DELETE_USER";
+    public static final String ADD_USER = "ADD_USER";
+    public static final String GET_USER = "GET_USER";
+    public static final String UPDATE_USER = "UPDATE_USER";
+
+
     public static final String RESPONSE = "RESPONSE";
     public static final String ENTER_USER_CENTER = "ENTER_USER_CENTER";
     public static final String AD_STUDENT =  "AD_STUDENT";

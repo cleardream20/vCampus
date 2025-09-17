@@ -1,6 +1,7 @@
 package com.seu.vcampus.server.socket;
 
 import com.seu.vcampus.common.util.Message;
+import com.seu.vcampus.common.util.UserMessage;
 import com.seu.vcampus.server.controller.CourseController;
 import com.seu.vcampus.server.controller.RequestController;
 import com.seu.vcampus.server.controller.UserController;
@@ -36,6 +37,10 @@ public class ClientHandler implements Runnable {
     private void addUserHandlers() {
         controllerMap.put(Message.LOGIN, userController);
         controllerMap.put(Message.REGISTER, userController);
+        controllerMap.put(Message.LOGOUT, userController);
+        controllerMap.put(UserMessage.GET_ST_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
 //        controllerMap.put(Message.GET_USER_INFO, userController);
 //        controllerMap.put(Message.UPDATE_USER_INFO, userController);
         // 添加其他用户相关消息类型...
@@ -118,7 +123,7 @@ public class ClientHandler implements Runnable {
 
         System.out.println("==== 请求类型==== : " + type);
 
-        // TODO: 可以用 Map<String, Controller> 优化
+        // Map<String, Controller>
         RequestController requestController = controllerMap.get(type);
         if (requestController != null) {
             try {

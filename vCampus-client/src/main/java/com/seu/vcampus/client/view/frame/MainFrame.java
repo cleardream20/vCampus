@@ -131,14 +131,13 @@ public class MainFrame extends JFrame {
 //            return;
 //        }
 
-        String userId = currentUser.getCid();        // 获取用户ID
-        String userRole = currentUser.getRole();     // 获取用户角色 ("user" 或 "admin")
+            // 获取用户角色 ("user" 或 "admin")
 
 //        if (libraryMainPanel != null) {
 //            mainPanel.remove(libraryMainPanel);
 //        }
 
-        libraryMainPanel = new LibraryMainPanel(userId, userRole);
+        libraryMainPanel = new LibraryMainPanel(currentUser);
 
         mainPanel.add(libraryMainPanel, "LIBRARY");
 

@@ -19,13 +19,13 @@ public class StudentDaoImpl implements StudentDao {
         //一卡通号、身份证号、学号、姓名、性别、电话号码、出生日期、家庭住址、入学日期、学籍号、学院、年级、学制、学籍状态
         String[] args = new String[] {"cid", "nid", "tsid", "name", "sex", "phone", "birthday", "address", "endate", "stid", "major", "grade", "es", "esState"};
         String sql = "select tu.cid as cid, tu.*, ts.* from tblStudent ts " +
-                "inner join tblUser tu on ts.cid = tu.cid " +
-                "where 1 = 1";
+                     "inner join tblUser tu on ts.cid = tu.cid " +
+                     "where 1 = 1 ";
         if(filters != null && !filters.isEmpty()){
             for(HashMap.Entry<Integer, String> entry : filters.entrySet()){
                 String filterText = entry.getValue().trim();
                 if (!filterText.isEmpty()) {
-                    sql += "and" + args[entry.getKey()] + " like %" + filterText + "%";
+                    sql += "and " + args[entry.getKey()] + " like '%" + filterText + "%'";
                 }
             }
         }
@@ -69,8 +69,8 @@ public class StudentDaoImpl implements StudentDao {
     public Student getStudent(String cid) throws SQLException {
         Student student = null;
         String sql = "select tu.cid as cid, tu.*, ts.* from tblStudent ts " +
-                "inner join tblUser tu on ts.cid = tu.cid " +
-                "where ts.cid = ?";
+                     "inner join tblUser tu on ts.cid = tu.cid " +
+                     "where ts.cid = ?";
         try (Connection conn = DBConnector.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, cid);
             try (ResultSet rs = ps.executeQuery()) {

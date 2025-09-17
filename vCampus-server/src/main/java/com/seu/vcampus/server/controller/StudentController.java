@@ -16,7 +16,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class StudentController {
+public class StudentController implements RequestController {
 
     private final StudentServiceImpl studentService = new StudentServiceImpl();
 
@@ -25,8 +25,7 @@ public class StudentController {
 
         switch (type) {
             case Message.ST_STUDENT :
-                Map<String, Object> data = Jsonable.fromJson(Jsonable.toJson(request.getData()) , Map.class);
-                String cid = (String) data.get("cid");
+                String cid = Jsonable.fromJson(Jsonable.toJson(request.getData()) , String.class);
                 Student student = studentService.getStudent(cid);
                 if (student == null) {
                     return Message.fromData(type, false, null, "意外错误");
@@ -34,9 +33,7 @@ public class StudentController {
                     return Message.fromData(type, true, student, "查询成功");
                 }
             case Message.AD_STUDENT:
-                Map<String, Object> _data = Jsonable.fromJson(Jsonable.toJson(request.getData()) , new TypeToken<Map<String, Object>>() {}.getType());
-
-                HashMap<Integer, String> filter = (HashMap<Integer, String>) _data.get("filter");
+                HashMap<Integer, String> filter = Jsonable.fromJson(Jsonable.toJson(request.getData()) , new TypeToken<HashMap<Integer, String>>() {}.getType());
                 List<Student> students = studentService.getAllStudents(filter);
                 return Message.fromData(type, true, students, "查询成功");
             default:

@@ -3,10 +3,7 @@ package com.seu.vcampus.server.socket;
 import com.seu.vcampus.common.util.LibraryMessage;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.UserMessage;
-import com.seu.vcampus.server.controller.CourseController;
-import com.seu.vcampus.server.controller.LibraryController;
-import com.seu.vcampus.server.controller.RequestController;
-import com.seu.vcampus.server.controller.UserController;
+import com.seu.vcampus.server.controller.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -22,6 +19,7 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final UserController userController;
     private final CourseController courseController;
+    private final StudentController studentController;
     private final LibraryController libraryController;
     private final Map<String, RequestController> controllerMap = new HashMap<>();
 
@@ -29,6 +27,7 @@ public class ClientHandler implements Runnable {
         this.socket = socket;
         this.userController = new UserController(); // 可改为依赖注入
         this.courseController = new CourseController();
+        this.studentController = new StudentController();
         libraryController = new LibraryController();
         initializeControllers();
     }
@@ -37,6 +36,7 @@ public class ClientHandler implements Runnable {
         addUserHandlers();
         addCourseHandlers();
         addLibraryHandlers();
+        addStudentHandlers();
     }
 
     private void addUserHandlers() {
@@ -46,6 +46,11 @@ public class ClientHandler implements Runnable {
         controllerMap.put(UserMessage.GET_ST_BY_USER, userController);
         controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
         controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
+    }
+
+    private void addStudentHandlers() {
+        controllerMap.put(Message.ST_STUDENT, studentController);
+        controllerMap.put(Message.AD_STUDENT, studentController);
     }
 
     private void addCourseHandlers() {

@@ -224,14 +224,13 @@ public class ADPanel extends JPanel implements NavigatablePanel {
 
     private void loadDataWithFilters(){
         // 从数据库获取筛选后的数据
-        List filteredData;
+        List<Student> filteredData;
         try {
             filteredData = service.getDataWithFilters(filters);
 
             // 更新表格模型
             tableModel.setRowCount(0); // 清空现有数据
-            for (Object st : filteredData) {
-                Student student = Jsonable.fromJson(Jsonable.toJson(st), Student.class);
+            for (Student student : filteredData) {
                 Object[] row = student.getRow();
                 tableModel.addRow(row);
             }

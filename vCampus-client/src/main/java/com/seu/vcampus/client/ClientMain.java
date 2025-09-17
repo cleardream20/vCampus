@@ -19,12 +19,6 @@ public class ClientMain {
                 MainFrame mainFrame = MainFrame.getInstance();
                 mainFrame.setVisible(true); // 显示主窗口（默认显示登录页）
 
-//                JFrame jFrame = new JFrame();
-//                jFrame.setVisible(true);
-//                jFrame.setSize(800, 600);
-//                ADPanel adPanel = new ADPanel();
-//                jFrame.add(adPanel);
-
             } catch (Exception e) {
                 showErrorAndExit("客户端启动失败", e);
             }

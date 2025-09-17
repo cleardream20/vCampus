@@ -6,6 +6,7 @@ import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.client.socket.ClientSocketUtil;
 
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,11 +19,6 @@ public class StudentService {
         if(cid == null || cid.trim().isEmpty()) {
             throw new IllegalArgumentException("cid is null");
         }
-
-//        JsonObject data = new JsonObject();
-//        data.addProperty("cid", cid.trim());
-//        Student _student = new Student();
-//        _student.setCid(cid);
 
         Message request = new Message(Message.ST_STUDENT, cid);
         try {
@@ -62,7 +58,7 @@ public class StudentService {
                 throw new Exception(response.getMessage() != null ? response.getMessage() : "查询失败");
             }
 
-            List<Student> students = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToekn(List<Student>){});
+            List<Student> students = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToken<List<Student>>() {}.getType());
             if(students == null) {
                 throw new Exception("信息解析失败");
             }

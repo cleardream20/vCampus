@@ -22,20 +22,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class LibraryPanel extends JPanel implements NavigatablePanel {
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("图书馆管理系统");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1200, 900);
-            frame.setLocationRelativeTo(null);
-
-            LibraryPanel libraryPanel = new LibraryPanel();
-            frame.add(libraryPanel);
-            frame.setVisible(true);
-        });
-    }
-
     // 客户端控制器
     private LibraryController libraryController;
     private static final int MAX_RENEWAL_COUNT = 3;
@@ -45,7 +31,6 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
 
     private JTabbedPane tabbedPane;
     private CardLayout cardLayout;
-    private JMenuBar menuBar;
     private JPanel mainPanel;
     private JButton returnButton;
     private User currentUser;
@@ -109,11 +94,7 @@ public class LibraryPanel extends JPanel implements NavigatablePanel {
             tabbedPane.addTab("管理员界面", new AdminPanel());
         }
 
-
-
         mainContent.add(tabbedPane, BorderLayout.CENTER);
-
-
 
         mainPanel.add(mainContent, "MAIN");
 

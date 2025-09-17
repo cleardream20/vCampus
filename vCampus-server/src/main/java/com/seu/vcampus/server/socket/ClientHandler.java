@@ -1,11 +1,18 @@
 package com.seu.vcampus.server.socket;
 
+import com.seu.vcampus.common.util.LibraryMessage;
 import com.seu.vcampus.common.util.Message;
-import com.seu.vcampus.server.controller.StudentController;
+import com.seu.vcampus.common.util.UserMessage;
+import com.seu.vcampus.server.controller.CourseController;
+import com.seu.vcampus.server.controller.LibraryController;
+import com.seu.vcampus.server.controller.RequestController;
 import com.seu.vcampus.server.controller.UserController;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 处理单个客户端请求的线程
@@ -14,12 +21,76 @@ public class ClientHandler implements Runnable {
 
     private final Socket socket;
     private final UserController userController;
-    private final StudentController studentController;
+    private final CourseController courseController;
+    private final LibraryController libraryController;
+    private final Map<String, RequestController> controllerMap = new HashMap<>();
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.userController = new UserController(); // 可改为依赖注入
-        this.studentController = new StudentController();
+        this.courseController = new CourseController();
+        libraryController = new LibraryController();
+        initializeControllers();
+    }
+
+    private void initializeControllers() {
+        addUserHandlers();
+        addCourseHandlers();
+        addLibraryHandlers();
+    }
+
+    private void addUserHandlers() {
+        controllerMap.put(Message.LOGIN, userController);
+        controllerMap.put(Message.REGISTER, userController);
+        controllerMap.put(Message.LOGOUT, userController);
+        controllerMap.put(UserMessage.GET_ST_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
+    }
+
+    private void addCourseHandlers() {
+        // 所有课程相关消息都路由到CourseController
+        String[] courseMessageTypes = {
+                Message.GET_COURSE_LIST,
+                Message.SELECT_COURSE,
+                Message.DROP_COURSE,
+                Message.DROP_COURSE_AD,
+                Message.GET_COURSE_BY_NAME,
+                Message.GET_COURSE_BY_ID,
+                Message.ADD_COURSE,
+                Message.UPDATE_COURSE,
+                Message.DELETE_COURSE,
+                Message.GET_SELECTED_COURSES,
+                Message.GET_COURSE_SCHEDULE,
+                Message.GET_SELECTION_RECORDS,
+                Message.GET_TEACHING_COURSES
+        };
+
+        for (String type : courseMessageTypes) {
+            controllerMap.put(type, courseController);
+        }
+    }
+
+    private void addLibraryHandlers() {
+        String[] libraryMessageTypes = {
+                LibraryMessage.GET_ALL_BOOKS,
+                LibraryMessage.SEARCH_BOOKS,
+                LibraryMessage.GET_BORROW_BOOKS,
+                LibraryMessage.BORROW_BOOKS,
+                LibraryMessage.RETURN_BOOK,
+                LibraryMessage.ADD_BOOK,
+                LibraryMessage.UPDATE_BOOK,
+                LibraryMessage.DELETE_BOOK,
+                LibraryMessage.RENEW_BOOK,
+                LibraryMessage.GET_BOOKS_BY_ISBN,
+                LibraryMessage.GET_RESERVATIONS,
+                LibraryMessage.RESERVE_BOOKS,
+                LibraryMessage.CANCEL_RESERVATION
+        };
+
+        for (String type : libraryMessageTypes) {
+            controllerMap.put(type, libraryController);
+        }
     }
 
     @Override
@@ -76,32 +147,17 @@ public class ClientHandler implements Runnable {
 
         System.out.println("==== 请求类型==== : " + type);
 
-        // TODO: 可以用 Map<String, Controller> 优化
-        switch (type) {
-            case Message.LOGIN:
-                try {
-                    return userController.handleLogin(request);
-                } catch (Exception e) {
-                    System.err.println("登录异常: " + e.getMessage());
-                    return Message.error(Message.RESPONSE, "服务器登录出错");
-                }
-            case Message.REGISTER:
-                try {
-                    return userController.handleRegister(request);
-                } catch (Exception e) {
-                    System.err.println("传递request异常: " + e.getMessage());
-                    return Message.error(Message.RESPONSE, "服务器注册出错");
-                }
-            case Message.ST_STUDENT:
-                try {
-                    return studentController.handleRequest(request);
-                } catch (Exception e) {
-                    System.err.println("查询异常：" + e.getMessage());
-                    return Message.error(Message.RESPONSE, "查询错误");
-                }
-
-            default:
-                return Message.fromData(Message.RESPONSE, false, null, "未知请求类型: " + type);
+        // Map<String, Controller>
+        RequestController requestController = controllerMap.get(type);
+        if (requestController != null) {
+            try {
+                return requestController.handleRequest(request);
+            } catch (SQLException e) {
+                System.err.println("处理请求异常: " + e.getMessage());
+                return Message.error(type, "服务器处理错误");
+            }
         }
+
+        return Message.error(type, "未知类型: " + type);
     }
 }

@@ -2,6 +2,7 @@ package com.seu.vcampus.client.view.panel.student;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 import com.seu.vcampus.client.service.StudentService;
 import com.seu.vcampus.client.view.NavigatablePanel;
@@ -26,14 +27,15 @@ public class STPanel extends JPanel implements NavigatablePanel {
 //        User user = new User();
         String userId = user.getCid();
         StudentService service = new StudentService();
+        initializeUI();
+        setFieldsEditable(false); // 确保字段不可编辑
         try {
-            this.currentStudent = service.getStudent(userId);
+            this.currentStudent = MainFrame.getInstance().getCurrentStudent();
+//            this.currentStudent = service.getStudent(userId);
+//            this.currentStudent = new Student();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        initializeUI();
-        setFieldsEditable(false); // 确保字段不可编辑
     }
 
     private void initializeUI() {
@@ -160,10 +162,12 @@ public class STPanel extends JPanel implements NavigatablePanel {
 
     private void setupEventListeners() {
         // 只保留返回按钮的事件监听
-        backButton.addActionListener(e -> {
-            // 这里实现返回逻辑，例如返回到上一个界面
-            // 可能需要调用主框架的导航方法
-            System.out.println("返回按钮被点击");
+        backButton.addActionListener(this::handleBackAction);
+    }
+
+    private void handleBackAction(ActionEvent e) {
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(MainFrame.getInstance().getCurrentUser());
         });
     }
 

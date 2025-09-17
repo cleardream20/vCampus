@@ -99,4 +99,32 @@ public class LoginService {
             return false;
         }
     }
+
+    public boolean logout(String cid) {
+        if (cid == null || cid.trim().isEmpty()) {
+            System.err.println("登出失败：一卡通号（用户）不能为空");
+            return false;
+        }
+        Message request = Message.success(Message.LOGOUT, cid, "用户登出请求");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+
+            if (response == null) {
+                System.err.println("登出失败：服务器无响应");
+                return false;
+            }
+
+            if (response.isSuccess()) {
+                System.out.println("登出成功：" + response.getMessage());
+                return true;
+            } else {
+                System.err.println("登出失败：" + response.getMessage());
+                return false;
+            }
+
+        } catch (IOException e) {
+            System.err.println("登出失败：无法连接服务器 - " + e.getMessage());
+            return false;
+        }
+    }
 }

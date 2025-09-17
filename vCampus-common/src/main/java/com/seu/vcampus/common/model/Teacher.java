@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Teacher extends User implements Serializable {
+public class Teacher extends User implements Serializable, Jsonable {
     private static final long serialVersionUID = 1L;
     private int age; // 年龄
     private String gender; // 性别
@@ -21,12 +22,15 @@ public class Teacher extends User implements Serializable {
     private String title; // 职称
     private String department; // 学院
 
-//    public Teacher() {}
-//    // 构造函数 super()
-//    public Teacher(String cid, String password, String tsid, String email, String role,
-//                   String department, String title) {
-//        super(cid, password, tsid, email, role, department, title);
-//        this.department = department;
-//        this.title = title;
-//    }
+    public Teacher(User user, int age, String gender, String address, String nid, String endate, String title, String department) {
+        super(user.getCid(), user.getPassword(), user.getTsid(), user.getName(),
+                user.getEmail(), user.getPhone(), user.getRole());
+        this.age = age;
+        this.gender = gender;
+        this.address = address;
+        this.nid = nid;
+        this.endate = endate;
+        this.title = title;
+        this.department = department;
+    }
 }

@@ -25,7 +25,8 @@ public class StudentController {
 
         switch (type) {
             case Message.ST_STUDENT :
-                String cid = Jsonable.fromJson(Jsonable.toJson(request.getData()) , String.class);
+                Map<String, Object> data = Jsonable.fromJson(Jsonable.toJson(request.getData()) , Map.class);
+                String cid = (String) data.get("cid");
                 Student student = studentService.getStudent(cid);
                 if (student == null) {
                     return Message.fromData(type, false, null, "意外错误");
@@ -33,7 +34,9 @@ public class StudentController {
                     return Message.fromData(type, true, student, "查询成功");
                 }
             case Message.AD_STUDENT:
-                HashMap<Integer, String> filter = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToken<HashMap<Integer, String>>() {}.getType()) ;
+                Map<String, Object> _data = Jsonable.fromJson(Jsonable.toJson(request.getData()) , new TypeToken<Map<String, Object>>() {}.getType());
+
+                HashMap<Integer, String> filter = (HashMap<Integer, String>) _data.get("filter");
                 List<Student> students = studentService.getAllStudents(filter);
                 return Message.fromData(type, true, students, "查询成功");
             default:

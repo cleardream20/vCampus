@@ -3,15 +3,23 @@ package com.seu.vcampus.client.view.frame;
 import javax.swing.*;
 import java.awt.*;
 
-import com.seu.vcampus.client.view.panel.CoursePanel;
+import com.seu.vcampus.client.service.LoginService;
+import com.seu.vcampus.client.service.UserService;
+import com.seu.vcampus.client.view.panel.UserManagementPanel;
+import com.seu.vcampus.client.view.panel.course.CoursePanel;
+import com.seu.vcampus.client.view.panel.dorm.DormPanel;
 import com.seu.vcampus.client.view.panel.main.MainPanel;
 import com.seu.vcampus.client.view.panel.RegisterPanel;
 import com.seu.vcampus.client.view.panel.library.LibraryMainPanel; // 新的图书馆主面板
 import com.seu.vcampus.client.view.panel.main.UserCenterPanel;
+import com.seu.vcampus.client.view.panel.shop.ShopPanel;
 import com.seu.vcampus.client.view.panel.student.ADPanel;
 import com.seu.vcampus.client.view.panel.student.STPanel;
+import com.seu.vcampus.common.model.Admin;
+import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
-import com.seu.vcampus.client.view.panel.LoginPanel;
+import com.seu.vcampus.client.view.panel.login.LoginPanel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,22 +32,41 @@ public class MainFrame extends JFrame {
     @Getter
     @Setter
     private User currentUser;
+    @Getter
+    @Setter
+    private Student currentStudent;
+    @Getter
+    @Setter
+    private Teacher currentTeacher;
+    @Getter
+    @Setter
+    private Admin currentAdmin;
 
     private CardLayout cardLayout;
     private JPanel mainPanel; // 主容器面板
 
+    private LoginService  loginService;
+    private UserService userService;
+
+    private LoginPanel loginPanel;
+    private RegisterPanel registerPanel;
     private UserCenterPanel userCenterPanel;
+    private UserManagementPanel userManagementPanel;
     // 声明新的 LibraryMainPanel 实例（延迟初始化）
     private LibraryMainPanel libraryMainPanel;
     private STPanel stPanel;
     private ADPanel adPanel;
     private CoursePanel coursePanel;
+    private ShopPanel  shopPanel;
+    private DormPanel dormPanel;
 
     // 私有的静态成员变量，用于存储单例实例
     private static volatile MainFrame instance;
 
     // 私有构造函数，防止外部实例化
     private MainFrame() {
+        loginService = new LoginService();
+        userService = new UserService();
         initializeUI();
         showLoginPanel();
     }
@@ -67,8 +94,8 @@ public class MainFrame extends JFrame {
         mainPanel = new JPanel(cardLayout);
 
         // 初始化各个面板（不包括 LibraryMainPanel，因为需要用户信息）
-        LoginPanel loginPanel = new LoginPanel();
-        RegisterPanel registerPanel = new RegisterPanel();
+        loginPanel = new LoginPanel();
+        registerPanel = new RegisterPanel();
         MainPanel userMainPanel = new MainPanel();
 
         // 添加基础面板
@@ -82,8 +109,33 @@ public class MainFrame extends JFrame {
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "STUDENT");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "COURSE");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "USER_CENTER");
+        mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "USER_MANAGEMENT");
+        mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "SHOP");
+        mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "DORM");
 
         add(mainPanel);
+
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                performLogout();
+            }
+        });
+    }
+
+    private void performLogout() {
+        int confirm = JOptionPane.showConfirmDialog(this, "确定要退出吗？", "确认", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (currentUser == null) return;
+
+            if (currentUser.getCid() == null || currentUser.getCid().isEmpty()) {
+                currentUser = null;
+                return;
+            }
+
+            loginService.logout(currentUser.getCid());
+            currentUser = null;
+        }
     }
 
     // 切换面板的方法
@@ -91,8 +143,11 @@ public class MainFrame extends JFrame {
         cardLayout.show(mainPanel, panelName);
     }
 
-    // 具体的面板切换方法
     public void showLoginPanel() {
+        loginPanel.refreshPanel(new User());
+        mainPanel.add(loginPanel, "LOGIN");
+        mainPanel.revalidate();
+        mainPanel.repaint();
         showPanel("LOGIN");
     }
 
@@ -102,6 +157,15 @@ public class MainFrame extends JFrame {
 
     public void showMainPanel(User user) {
         this.currentUser = user;
+
+        if (user.getRole().equals("ST")) this.currentStudent = userService.getStudentByUser(user);
+        if (user.getRole().equals("TC")) this.currentTeacher = userService.getTeacherByUser(user);
+        if (user.getRole().equals("AD")) this.currentAdmin = userService.getAdminByUser(user);
+
+//        System.out.println("获取学生一卡通号：" + this.currentStudent.getCid());
+//        System.out.println("获取教师一卡通号：" + this.currentTeacher.getCid());
+//        System.out.println("获取管理员一卡通号：" + this.currentAdmin.getCid());
+
         Component[] components = mainPanel.getComponents();
         for (Component comp : components) {
             if (comp instanceof MainPanel) {
@@ -120,6 +184,14 @@ public class MainFrame extends JFrame {
         showPanel("USER_CENTER"); // 注意：如果你没有添加 USER_CENTER 面板，请确保已添加
     }
 
+    public void showUserManagementPanel() {
+        userManagementPanel = new UserManagementPanel();
+        mainPanel.add(userManagementPanel, "USER_MANAGEMENT");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        showPanel("USER_MANAGEMENT");
+    }
+
     /**
      * 显示图书馆主面板，根据用户角色动态构建
      */
@@ -131,24 +203,19 @@ public class MainFrame extends JFrame {
 //            return;
 //        }
 
-        String userId = currentUser.getCid();        // 获取用户ID
-        String userRole = currentUser.getRole();     // 获取用户角色 ("user" 或 "admin")
+            // 获取用户角色 ("user" 或 "admin")
 
 //        if (libraryMainPanel != null) {
 //            mainPanel.remove(libraryMainPanel);
 //        }
 
-        // 创建新的 LibraryMainPanel
-        libraryMainPanel = new LibraryMainPanel(userId, userRole);
+        libraryMainPanel = new LibraryMainPanel(currentUser);
 
-        // 将新面板添加到 "LIBRARY" 名称下（覆盖原有）
         mainPanel.add(libraryMainPanel, "LIBRARY");
 
-        // 刷新布局
         mainPanel.revalidate();
         mainPanel.repaint();
 
-        // 显示该面板
         showPanel("LIBRARY");
     }
 
@@ -182,5 +249,21 @@ public class MainFrame extends JFrame {
         mainPanel.revalidate();
         mainPanel.repaint();
         showPanel("COURSE");
+    }
+
+    public void showDormPanel() {
+        dormPanel = new DormPanel();
+        mainPanel.add(dormPanel, "DORM");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        showPanel("DORM");
+    }
+
+    public void showShopPanel() {
+        shopPanel = new ShopPanel();
+        mainPanel.add(shopPanel, "SHOP");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        showPanel("SHOP");
     }
 }

@@ -1,5 +1,8 @@
 package com.seu.vcampus.server.dao;
 
+import com.seu.vcampus.common.model.Admin;
+import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.DBConnector;
 
@@ -120,5 +123,93 @@ public class UserDaoImpl implements UserDao {
         }
 
         return users;
+    }
+
+    @Override
+    public Student getStudentByUser(User user) throws SQLException {
+        String cid = user.getCid();
+        String sql = "select * from tblStudent where cid = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setString(1,cid);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Student student = new Student(
+                            user,
+                            rs.getString("gender"),
+                            rs.getString("birthday"),
+                            rs.getString("address"),
+                            rs.getString("nid"),
+                            rs.getString("endate"),
+                            rs.getString("grade"),
+                            rs.getString("major"),
+                            rs.getString("stid"),
+                            rs.getString("es"),
+                            rs.getString("esState"),
+                            rs.getInt("age")
+                    );
+                    return student;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Teacher getTeacherByUser(User user) throws SQLException {
+        String cid = user.getCid();
+        String sql = "select * from tblTeacher where cid = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setString(1,cid);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Teacher tc = new Teacher(
+                            user,
+                            rs.getInt("age"),
+                            rs.getString("gender"),
+                            rs.getString("address"),
+                            rs.getString("nid"),
+                            rs.getString("endate"),
+                            rs.getString("title"),
+                            rs.getString("department")
+                    );
+                    return tc;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Admin getAdminByUser(User user) throws SQLException {
+        String cid = user.getCid();
+        String sql = "select * from tblAdmin where cid = ?";
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setString(1,cid);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Admin admin = new Admin(
+                            user,
+                            rs.getString("modules")
+                    );
+                    return admin;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+
+        return null;
     }
 }

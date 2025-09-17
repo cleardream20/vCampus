@@ -1,14 +1,16 @@
-package com.seu.vcampus.client.view.panel;
+package com.seu.vcampus.client.view.panel.login;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.concurrent.ExecutionException;
 //import com.seu.vcampus.client.controller.LoginController;
 import com.seu.vcampus.client.service.LoginService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.client.view.frame.MainFrame;
 import com.seu.vcampus.common.model.User;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class LoginPanel extends JPanel implements NavigatablePanel {
     private JTextField txtCid;
@@ -84,17 +86,45 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
         buttonPanel.add(btnRegister);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         add(buttonPanel, gbc);
+
+        // 忘记密码链接
+        JLabel lblForgotPassword = new JLabel("<html><u>忘记密码？</u></html>");
+        lblForgotPassword.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        lblForgotPassword.setForeground(new Color(0, 120, 215)); // 小蓝字
+        lblForgotPassword.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        lblForgotPassword.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showForgotPasswordDialog();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                lblForgotPassword.setForeground(new Color(0, 80, 180));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                lblForgotPassword.setForeground(new Color(0, 120, 215));
+            }
+        });
+
+        gbc.gridx = 1;
+        gbc.gridy = 3; // 调整位置
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        add(lblForgotPassword, gbc);
 
         // 状态标签
         lblStatus = new JLabel("请输入一卡通号和密码", SwingConstants.CENTER);
         lblStatus.setFont(new Font("微软雅黑", Font.PLAIN, 12));
         lblStatus.setForeground(Color.GRAY);
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         gbc.gridwidth = 2;
         add(lblStatus, gbc);
 
@@ -105,6 +135,13 @@ public class LoginPanel extends JPanel implements NavigatablePanel {
         // 回车触发登录
         txtPassword.addActionListener(e -> attemptLogin());
         txtCid.addActionListener(e -> attemptLogin()); // 可选：一卡通号回车也登录
+    }
+
+    private void showForgotPasswordDialog() {
+        ForgotPasswordDialog dialog = new ForgotPasswordDialog(
+                (Frame) SwingUtilities.getWindowAncestor(this)
+        );
+        dialog.setVisible(true);
     }
 
     private void attemptLogin() {

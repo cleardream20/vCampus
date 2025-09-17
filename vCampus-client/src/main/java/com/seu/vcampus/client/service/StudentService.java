@@ -6,12 +6,12 @@ import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.client.socket.ClientSocketUtil;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StudentService {
 
@@ -20,7 +20,10 @@ public class StudentService {
             throw new IllegalArgumentException("cid is null");
         }
 
-        Message request = new Message(Message.ST_STUDENT, cid);
+        Student _student = new Student();
+        _student.setCid(cid);
+
+        Message request = new Message(Message.ST_STUDENT, _student);
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if(response == null) {
@@ -42,12 +45,9 @@ public class StudentService {
         }
     }
 
-    public List<Student> getDataWithFilters(HashMap<Integer, String> filter) throws Exception {
+    public List getDataWithFilters(HashMap<Integer, String> filters) throws Exception {
 
-        JsonObject data = new JsonObject();
-        data.addProperty("filter", filter.toString());
-
-        Message request = new Message(Message.AD_STUDENT, data.toString());
+        Message request = new Message(Message.AD_STUDENT, filters);
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if(response == null) {
@@ -58,7 +58,7 @@ public class StudentService {
                 throw new Exception(response.getMessage() != null ? response.getMessage() : "查询失败");
             }
 
-            List<Student> students = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToken<List<Student>>() {}.getType());
+            List students = Jsonable.fromJson(Jsonable.toJson(response.getData()), List.class);
             if(students == null) {
                 throw new Exception("信息解析失败");
             }

@@ -20,6 +20,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.seu.vcampus.client.service.StudentService;
 import com.seu.vcampus.client.view.NavigatablePanel;
+import com.seu.vcampus.client.view.frame.MainFrame;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.Jsonable;
@@ -131,10 +132,9 @@ public class ADPanel extends JPanel implements NavigatablePanel {
 
     // 返回上一级
     private void returnToPrevious() {
-        Window window = SwingUtilities.getWindowAncestor(this);
-        if (window != null) {
-            window.dispose();
-        }
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(MainFrame.getInstance().getCurrentUser());
+        });
     }
 
     // 创建统一样式的按钮

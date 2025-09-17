@@ -49,7 +49,8 @@ public class StudentDaoImpl implements StudentDao {
                             rs.getString("major"),
                             rs.getString("stid"),
                             rs.getString("es"),
-                            rs.getString("esState")
+                            rs.getString("esState"),
+                            rs.getInt("age")
                     );
                     students.add(student);
                 }
@@ -91,7 +92,8 @@ public class StudentDaoImpl implements StudentDao {
                             rs.getString("major"),
                             rs.getString("stid"),
                             rs.getString("es"),
-                            rs.getString("esState")
+                            rs.getString("esState"),
+                            rs.getInt("age")
                     );
                 }
             } catch (SQLException se) {

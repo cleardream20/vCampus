@@ -4,8 +4,11 @@ import com.seu.vcampus.client.socket.ClientSocketUtil;
 import com.seu.vcampus.common.model.*;
 import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
+import com.seu.vcampus.common.util.UserMessage;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -125,14 +128,85 @@ public class UserService {
     }
 
     public Student getStudentByUser(User user) {
-        return new Student();
+        if (user == null) {
+            System.err.println("获取学生信息时用户不能为空");
+            return null;
+        }
+        Message request = Message.success(UserMessage.GET_ST_BY_USER, user, "根据用户获取学生信息");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("服务器异常，获取学生信息失败");
+                return null;
+            }
+            if (response.isSuccess()) {
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), Student.class);
+            } else {
+                System.err.println("未获取到学生信息");
+                return  null;
+            }
+        } catch (IOException e) {
+            System.err.println("获取学生信息失败，服务器异常：" + e.getMessage());
+            return null;
+        }
     }
 
     public Teacher getTeacherByUser(User user) {
-        return new Teacher();
+        if (user == null) {
+            System.err.println("获取教师信息时用户不能为空");
+            return null;
+        }
+        Message request = Message.success(UserMessage.GET_TC_BY_USER, user, "根据用户获取学生信息");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("服务器异常，获取教师信息失败");
+                return null;
+            }
+            if (response.isSuccess()) {
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), Teacher.class);
+            } else {
+                System.err.println("未获取到教师信息");
+                return  null;
+            }
+        } catch (IOException e) {
+            System.err.println("获取教师信息失败，服务器异常：" + e.getMessage());
+            return null;
+        }
     }
 
     public Admin getAdminByUser(User user) {
-        return new Admin();
+        if (user == null) {
+            System.err.println("获取管理员信息时用户不能为空");
+            return null;
+        }
+        Message request = Message.success(UserMessage.GET_AD_BY_USER, user, "根据用户获取学生信息");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("服务器异常，获取管理员信息失败");
+                return null;
+            }
+            if (response.isSuccess()) {
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), Admin.class);
+            } else {
+                System.err.println("未获取到管理员信息");
+                return  null;
+            }
+        } catch (IOException e) {
+            System.err.println("获取管理员信息失败，服务器异常：" + e.getMessage());
+            return null;
+        }
     }
+
+
+
+
+    public List<User> getAllUsers() { /* 从后端获取 */ return Collections.emptyList();}
+    public void createUser(User u) { /* 发送创建请求 */ }
+//    public void updateUser(User u) { /* 发送更新请求 */ }
+    public void deleteUser(List<String> cids) { /* 删除 */ }
+    public List<UserRequest> getPendingRequests() { /* 获取待审批请求 */ return Collections.emptyList();}
+    public void approveRequest(UserRequest req) { }
+    public void rejectRequest(UserRequest req) { }
 }

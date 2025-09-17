@@ -4,6 +4,7 @@ import com.seu.vcampus.client.service.LoginService;
 import com.seu.vcampus.client.service.UserService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.client.view.frame.MainFrame;
+import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
 
 import javax.swing.*;
@@ -12,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 /**
  * 用户中心面板 - 根据用户角色展示不同信息和功能
@@ -21,6 +23,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel contentPanel = new JPanel(cardLayout);
     private LoginService loginService;
+    private UserService userService;
 
     // 当前用户
     private User currentUser;
@@ -31,7 +34,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
             addressField, idCardField, collegeField;
 
     // 学生特有
-    private JTextField gradeField, studentTypeField, enrollmentDateField;
+    private JTextField gradeField, studentTypeField, endateField;
 
     // 教师特有
     private JTextField titleField, hireDateField;
@@ -39,6 +42,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
     public UserCenterPanel() {
         currentUser = MainFrame.getInstance().getCurrentUser();
         loginService = new LoginService();
+        userService = new UserService();
         setLayout(new BorderLayout());
         initUI();
     }
@@ -102,7 +106,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
             switch (currentUser.getRole()) {
                 case "ST":
                     addRow(panel, gbc, "学号:", tsidField, y++);
-                    addRow(panel, gbc, "入学时间:", enrollmentDateField, y++);
+                    addRow(panel, gbc, "入学时间:", endateField, y++);
                     addRow(panel, gbc, "年级:", gradeField, y++);
                     addRow(panel, gbc, "学生类型:", studentTypeField, y++);
                     break;
@@ -192,7 +196,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
 
         gradeField = new JTextField(20);
         studentTypeField = new JTextField(20);
-        enrollmentDateField = new JTextField(20);
+        endateField = new JTextField(20);
 
         titleField = new JTextField(20);
         hireDateField = new JTextField(20);
@@ -228,7 +232,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         idCardField.setEditable(editable);
         gradeField.setEditable(editable);
         studentTypeField.setEditable(editable);
-        enrollmentDateField.setEditable(editable);
+        endateField.setEditable(editable);
         titleField.setEditable(editable);
         hireDateField.setEditable(editable);
         collegeField.setEditable(editable);
@@ -405,12 +409,16 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         // data.put("newPassword", new String(newPass));
         // data.put("verifyCode", inputCode); // 后端需校验此验证码
         // ClientSocket.getInstance().sendMessage(Message.TYPE_CHANGE_PASSWORD, data);
+        User user = MainFrame.getInstance().getCurrentUser();
+        String oldPassword = user.getPassword();
+        user.setPassword(new String(confirmPass));
+        if (userService.updateUser(user)) {
+            JOptionPane.showMessageDialog(this, "密码修改成功，请重新登录。", "成功", JOptionPane.INFORMATION_MESSAGE);
+            performLogout();
+        }
+        else
+            JOptionPane.showMessageDialog(this, "密码修改失败，请重试。", "失败", JOptionPane.INFORMATION_MESSAGE);
 
-        // 模拟成功
-        JOptionPane.showMessageDialog(this, "密码修改成功，请重新登录。", "成功", JOptionPane.INFORMATION_MESSAGE);
-
-        // 可选：跳转到登录页
-        performLogout(); // 注销当前会话
     }
 
     /**
@@ -449,8 +457,9 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
 
             // 角色相关数据填充
             if ("ST".equals(user.getRole())) {
+                Student st = MainFrame.getInstance().getCurrentStudent();
                 tsidField.setText(user.getTsid());
-//                enrollmentDateField.setText(user.getEnrollmentDate());
+                endateField.setText(st.getEndate());
 //                gradeField.setText(user.getGrade());
 //                studentTypeField.setText(user.getStudentType());
             } else if ("TC".equals(user.getRole())) {

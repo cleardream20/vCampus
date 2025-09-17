@@ -5,6 +5,7 @@ import java.awt.*;
 
 import com.seu.vcampus.client.service.LoginService;
 import com.seu.vcampus.client.service.UserService;
+import com.seu.vcampus.client.view.panel.UserManagementPanel;
 import com.seu.vcampus.client.view.panel.course.CoursePanel;
 import com.seu.vcampus.client.view.panel.dorm.DormPanel;
 import com.seu.vcampus.client.view.panel.main.MainPanel;
@@ -50,6 +51,7 @@ public class MainFrame extends JFrame {
     private LoginPanel loginPanel;
     private RegisterPanel registerPanel;
     private UserCenterPanel userCenterPanel;
+    private UserManagementPanel userManagementPanel;
     // 声明新的 LibraryMainPanel 实例（延迟初始化）
     private LibraryMainPanel libraryMainPanel;
     private STPanel stPanel;
@@ -107,6 +109,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "STUDENT");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "COURSE");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "USER_CENTER");
+        mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "USER_MANAGEMENT");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "SHOP");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "DORM");
 
@@ -159,6 +162,10 @@ public class MainFrame extends JFrame {
         if (user.getRole().equals("TC")) this.currentTeacher = userService.getTeacherByUser(user);
         if (user.getRole().equals("AD")) this.currentAdmin = userService.getAdminByUser(user);
 
+//        System.out.println("获取学生一卡通号：" + this.currentStudent.getCid());
+//        System.out.println("获取教师一卡通号：" + this.currentTeacher.getCid());
+//        System.out.println("获取管理员一卡通号：" + this.currentAdmin.getCid());
+
         Component[] components = mainPanel.getComponents();
         for (Component comp : components) {
             if (comp instanceof MainPanel) {
@@ -175,6 +182,14 @@ public class MainFrame extends JFrame {
         mainPanel.revalidate();
         mainPanel.repaint();
         showPanel("USER_CENTER"); // 注意：如果你没有添加 USER_CENTER 面板，请确保已添加
+    }
+
+    public void showUserManagementPanel() {
+        userManagementPanel = new UserManagementPanel();
+        mainPanel.add(userManagementPanel, "USER_MANAGEMENT");
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        showPanel("USER_MANAGEMENT");
     }
 
     /**

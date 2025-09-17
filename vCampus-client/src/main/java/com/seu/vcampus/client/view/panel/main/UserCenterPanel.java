@@ -56,7 +56,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         String[] options = {"个人信息", "账户管理"};
         JList<String> navList = new JList<>(options);
         navList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        navList.setSelectedIndex(0); // 默认选中"个人信息"
+        navList.setSelectedIndex(0);
         navList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selected = navList.getSelectedValue();
@@ -71,12 +71,33 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         JScrollPane navScrollPane = new JScrollPane(navList);
         navScrollPane.setPreferredSize(new Dimension(150, 0));
 
+        // ✅ 新增：顶部工具栏（放置返回按钮）
+        JPanel topToolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton backToMainBtn = new JButton("返回主界面");
+        backToMainBtn.addActionListener(this::handleReturnAction);
+        topToolbar.add(backToMainBtn);
+
+        // ✅ 使用嵌套面板：左侧导航 + 右侧（顶部工具栏 + 内容）
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.add(topToolbar, BorderLayout.NORTH);
+        rightPanel.add(contentPanel, BorderLayout.CENTER);
+
+        // 添加到主面板
         add(navScrollPane, BorderLayout.WEST);
-        add(contentPanel, BorderLayout.CENTER);
+        add(rightPanel, BorderLayout.CENTER); // 右侧整体加入
 
         // 初始化子面板
         contentPanel.add(createInfoPanel(), "INFO");
         contentPanel.add(createAccountPanel(), "ACCOUNT");
+    }
+
+    /**
+     * 导航到主界面（图书浏览页）
+     */
+    private void handleReturnAction(ActionEvent e) {
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(currentUser);
+        });
     }
 
     /**

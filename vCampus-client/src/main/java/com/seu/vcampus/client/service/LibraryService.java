@@ -75,7 +75,10 @@ public class LibraryService {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (Book) response.getData();
+//                return (Book) response.getData();
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        new TypeToken<Book>() {}.getType());
             } else {
                 System.err.println("搜索图书失败: " + response.getData());
                 return null;
@@ -95,10 +98,13 @@ public class LibraryService {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return Jsonable.fromJson(
+                System.out.println("借阅图书记录：" + response.getData());
+                List<BorrowRecord> brl = Jsonable.fromJson(
                         Jsonable.toJson(response.getData()),
                         new TypeToken<List<BorrowRecord>>() {}.getType()
                 );
+                System.out.println(brl);
+                return brl;
             } else {
                 System.err.println("搜索借阅图书列表失败: " + response.getData());
                 return Collections.emptyList();

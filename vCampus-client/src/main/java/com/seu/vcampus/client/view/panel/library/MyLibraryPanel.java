@@ -261,6 +261,10 @@ public class MyLibraryPanel extends JPanel implements LibraryMainPanel.Refreshab
         this.borrowRecords = libraryService.getBorrowRecordsByUserId(UserID); // 保存图书列表
         borrowTableModel.setRowCount(0);
 
+        if (this.borrowRecords == null || this.borrowRecords.isEmpty()) {
+            return;
+        }
+
         for (BorrowRecord borrows : borrowRecords) {
             Object[] rowData = {
                     borrows.getBookIsbn(),

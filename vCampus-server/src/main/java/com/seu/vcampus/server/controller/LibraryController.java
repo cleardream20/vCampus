@@ -1,6 +1,8 @@
 package com.seu.vcampus.server.controller;
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.common.model.BorrowRecord;
 import com.seu.vcampus.common.model.Reservation;
+import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.server.service.ILibraryService;
 import com.seu.vcampus.server.service.LibraryServiceImpl;
 import com.seu.vcampus.common.util.Message;
@@ -85,7 +87,11 @@ public class LibraryController implements RequestController {
                 }
                 case LibraryMessage.BORROW_BOOKS -> {
 
-                    Map<String, String> borrowRequest = (Map<String, String>) request.getData();
+//                    Map<String, String> borrowRequest = (Map<String, String>) request.getData();
+                    Map<String, String> borrowRequest = Jsonable.fromJson(
+                            Jsonable.toJson(request.getData()),
+                            new TypeToken<Map<String, String>>() {}.getType()
+                    );
                     String userId = borrowRequest.get("userId");
                     String isbn = borrowRequest.get("isbn");
 
@@ -100,7 +106,11 @@ public class LibraryController implements RequestController {
                 }
                 case LibraryMessage.RESERVE_BOOKS -> {
 
-                    Map<String, String> reserveRequest = (Map<String, String>) request.getData();
+//                    Map<String, String> reserveRequest = (Map<String, String>) request.getData();
+                    Map<String, String> reserveRequest = Jsonable.fromJson(
+                            Jsonable.toJson(request.getData()),
+                            new TypeToken<Map<String, String>>() {}.getType()
+                    );
                     String userId = reserveRequest.get("userId");
                     String isbn = reserveRequest.get("isbn");
 

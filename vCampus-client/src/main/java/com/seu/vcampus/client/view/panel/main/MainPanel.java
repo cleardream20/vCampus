@@ -7,6 +7,8 @@ import com.seu.vcampus.common.model.User;
 import javax.swing.*;
 import java.awt.*;
 
+// TODO 管理员切换身份
+
 public class MainPanel extends JPanel implements NavigatablePanel {
     private JButton btnUserCenter;
     private JButton btnUserManage;

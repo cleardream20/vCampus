@@ -21,10 +21,10 @@ public class StudentService {
 
 //        JsonObject data = new JsonObject();
 //        data.addProperty("cid", cid.trim());
-        Student _student = new Student();
-        _student.setCid(cid);
+//        Student _student = new Student();
+//        _student.setCid(cid);
 
-        Message request = new Message(Message.ST_STUDENT, _student);
+        Message request = new Message(Message.ST_STUDENT, cid);
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if(response == null) {
@@ -62,12 +62,7 @@ public class StudentService {
                 throw new Exception(response.getMessage() != null ? response.getMessage() : "查询失败");
             }
 
-            String userData = (String) response.getData();
-            if(userData == null || userData.trim().isEmpty()) {
-                throw new Exception("出错：未返回用户信息");
-            }
-
-            List<Student> students = Jsonable.fromJson(userData, List.class);
+            List<Student> students = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToekn(List<Student>){});
             if(students == null) {
                 throw new Exception("信息解析失败");
             }

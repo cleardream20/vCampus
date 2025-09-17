@@ -1,5 +1,6 @@
 package com.seu.vcampus.common.model;
 
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,7 +27,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Student extends User implements Serializable {
+public class Student extends User implements Serializable, Jsonable {
 
     public Student(String cid, String password, String tsid, String name,
                    String email, String phone, String role,

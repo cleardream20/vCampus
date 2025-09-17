@@ -24,8 +24,7 @@ public class StudentController {
 
         switch (type) {
             case Message.ST_STUDENT :
-                Map<String, Object> data = Jsonable.fromJson(Jsonable.toJson(request.getData()) , Map.class);
-                String cid = (String) data.get("cid");
+                String cid = Jsonable.fromJson(Jsonable.toJson(request.getData()) , String.class);
                 Student student = studentService.getStudent(cid);
 //                System.out.println(request.getData());
 //                String tmp = Jsonable.toJson(request.getData());

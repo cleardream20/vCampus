@@ -1,6 +1,7 @@
 package com.seu.vcampus.client.view.panel.library;
 
 import com.seu.vcampus.client.controller.LibraryController;
+import com.seu.vcampus.client.view.frame.MainFrame;
 import com.seu.vcampus.client.view.panel.LibraryPanel;
 import com.seu.vcampus.common.model.User;
 
@@ -33,8 +34,9 @@ public class LibraryMainPanel extends JPanel {
         add(toolBar, BorderLayout.NORTH); // 添加到顶部
     }
     private void handleReturnAction(ActionEvent e) {
-        // 触发自定义事件通知父容器
-        firePropertyChange("RETURN_TO_MAIN", false, true);
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(currentUser);
+        });
     }
 
     public LibraryMainPanel(User currentUser) {

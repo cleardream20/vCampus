@@ -251,11 +251,11 @@ public class MainFrame extends JFrame {
 
     public void showDormPanel() {
         if (hasAdminRight("Dorm")) {
-            dormPanel = new DormPanel();
-            mainPanel.add(dormPanel, "DORM");
-        } else {
             dormAdminPanel = new DormAdminPanel();
             mainPanel.add(dormAdminPanel, "DORM");
+        } else {
+            dormPanel = new DormPanel();
+            mainPanel.add(dormPanel, "DORM");
         }
         mainPanel.revalidate();
         mainPanel.repaint();

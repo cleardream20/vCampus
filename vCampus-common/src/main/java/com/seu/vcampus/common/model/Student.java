@@ -63,25 +63,30 @@ public class Student extends User implements Serializable, Jsonable {
         this.age = age;
     }
 
-    public Student(Map<Integer, JTextField> map) {
+    public Student(Map<Integer, String> map) {
         //"姓名","电话","邮箱","性别","年龄","出生日期","家庭住址","身份证号","入学日期","年级","专业","学籍号","学制","学籍状态"
-        super(null, null, null, map.get(0).getText(), map.get(2).getText(), map.get(1).getText(), "ST");
-        this.sex = map.get(3).getText();
-        this.birthday = map.get(5).getText();
-        this.address = map.get(6).getText();
-        this.nid = map.get(7).getText();
-        this.endate = map.get(8).getText();
-        this.grade = map.get(9).getText();
-        this.major = map.get(10).getText();
-        this.stid = map.get(11).getText();
-        this.es = map.get(12).getText();
-        this.esState = map.get(13).getText();
-        this.age = Integer.parseInt(map.get(4).getText());
+        super(null, "123456", null, map.get(0), map.get(2), map.get(1), "ST");
+        this.sex = map.get(3);
+        this.birthday = map.get(5);
+        this.address = map.get(6);
+        this.nid = map.get(7);
+        this.endate = map.get(8);
+        this.grade = map.get(9);
+        this.major = map.get(10);
+        this.stid = map.get(11);
+        this.es = map.get(12);
+        this.esState = map.get(13);
+        this.age = Integer.parseInt(map.get(4));
     }
 
     public Object[] getRow() {
 //      "一卡通号","身份证号","学号","姓名","性别","电话号码","出生日期","家庭住址","入学日期","学籍号","学院","年级","学制","学籍状态"
         return new String[] {getCid(), nid, getTsid(), getName(), sex, getPhone(), birthday, address, endate, stid, major, grade, es, esState, String.valueOf(age)};
+    }
+
+    public Object[] getInsertRow() {
+//      "一卡通号","身份证号","学号","姓名","性别","电话号码","出生日期","家庭住址","入学日期","学籍号","学院","年级","学制","学籍状态"
+        return new String[] {getName(), getPhone(), getEmail(), sex, String.valueOf(age), birthday, address, nid, endate, grade, major, es, stid, esState};
     }
 
     private String sex;

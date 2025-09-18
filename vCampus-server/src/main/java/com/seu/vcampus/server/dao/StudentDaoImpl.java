@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 
 public class StudentDaoImpl implements StudentDao {
@@ -77,52 +78,81 @@ public class StudentDaoImpl implements StudentDao {
             conn = DBConnector.getConnection(); // 根据您的实际数据源调整
             conn.setAutoCommit(false);
 
-            // 查询空学生记录
-            String selectSql = "select top " + students.size() + " cid from tblStudent where nid is null order by cid ";
-            selectStmt = conn.prepareStatement(selectSql);
-            rs = selectStmt.executeQuery();
-
             // 收集可用的CID
-            List<String> availableCids = new ArrayList<>();
-            while (rs.next()) {
-                availableCids.add(rs.getString("cid"));
+            List<String> availableCids = new ArrayList<>(students.size());
+
+            for(int i = 0; i < students.size(); i++){
+                Random random = new Random();
+                int randomNumber = 1000000 + random.nextInt(9000000);
+                String tmp = String.valueOf(randomNumber);
+                String cid = "21" + tmp;
+                availableCids.add(cid);
             }
 
-            // 检查是否获取到足够的空记录
-            if (availableCids.size() < students.size()) {
-                conn.rollback();
-                return false;
+            String updateUSql = "insert into tblUser (cid, email, password, tsid, tname, phone, role) " +
+                                "values (?, ?, ?, ?, ?, ?, ?)";
+            updateStmt = conn.prepareStatement(updateUSql);
+
+            // 遍历学生列表进行更新
+            for (int i = 0; i < students.size(); i++) {
+                Student student = students.get(i);
+                String cid = availableCids.get(i);
+                Random random = new Random();
+                int randomNumber = 1000 + random.nextInt(9000);
+                String tmp = String.valueOf(randomNumber);
+                String tsid = "0902" + tmp;
+
+                updateStmt.setString(1, cid);
+                updateStmt.setString(2, student.getEmail());
+                updateStmt.setString(3, student.getPassword());
+                updateStmt.setString(4, tsid);
+                updateStmt.setString(5, student.getName());
+                updateStmt.setString(6, student.getPhone());
+                updateStmt.setString(7, student.getRole());
+
+                updateStmt.addBatch(); // 加入批处理
+            }
+
+            int[] updateUCounts = updateStmt.executeBatch();
+
+            // 验证所有更新是否成功
+            for (int count : updateUCounts) {
+                if (count != 1) { // 每次更新应影响1行
+                    conn.rollback();
+                    return false;
+                }
             }
 
             // 准备更新语句
-            String updateSql = "update tblStudent set gender = ? and birthday = ? and address = ? and nid = ? and endate = ? and grade = ? and major = ? and stid = ? and es = ? and esState = ? where cid = ?";
-            updateStmt = conn.prepareStatement(updateSql);
+            String updateSTSql = "insert into tblStudent (cid, gender, birthday, address, nid, endate, grade, major, stid, es, esState) " +
+                                 "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            updateStmt = conn.prepareStatement(updateSTSql);
 
             // 遍历学生列表进行更新
             for (int i = 0; i < students.size(); i++) {
                 Student student = students.get(i);
                 String cid = availableCids.get(i);
 
-                updateStmt.setString(1, student.getSex());
-                updateStmt.setString(2, student.getBirthday());
-                updateStmt.setString(3, student.getAddress());
-                updateStmt.setString(4, student.getNid());
-                updateStmt.setString(5, student.getEndate());
-                updateStmt.setString(6, student.getGrade());
-                updateStmt.setString(7, student.getMajor());
-                updateStmt.setString(8, student.getStid());
-                updateStmt.setString(9, student.getEs());
-                updateStmt.setString(10, student.getEsState());
-                updateStmt.setString(11, cid);
+                updateStmt.setString(1, cid);
+                updateStmt.setString(2, student.getSex());
+                updateStmt.setString(3, student.getBirthday());
+                updateStmt.setString(4, student.getAddress());
+                updateStmt.setString(5, student.getNid());
+                updateStmt.setString(6, student.getEndate());
+                updateStmt.setString(7, student.getGrade());
+                updateStmt.setString(8, student.getMajor());
+                updateStmt.setString(9, student.getStid());
+                updateStmt.setString(10, student.getEs());
+                updateStmt.setString(11, student.getEsState());
 
                 updateStmt.addBatch(); // 加入批处理
             }
 
             // 执行批处理
-            int[] updateCounts = updateStmt.executeBatch();
+            int[] updateSTCounts = updateStmt.executeBatch();
 
             // 验证所有更新是否成功
-            for (int count : updateCounts) {
+            for (int count : updateSTCounts) {
                 if (count != 1) { // 每次更新应影响1行
                     conn.rollback();
                     return false;

@@ -28,7 +28,7 @@ public class TeacherDaoImpl implements TeacherDao {
                     // 从 User 表获取 name，其他字段从 Teacher 表获取
                     Teacher teacher = new Teacher();
                     teacher.setCid(rs.getString("cid"));
-                    teacher.setName(rs.getString("name")); // 来自 User
+                    teacher.setName(rs.getString("tname")); // 来自 User
                     teacher.setPassword(""); // 敏感信息不返回，或从 User 查询
                     teacher.setTsid(rs.getString("tsid"));
                     teacher.setEmail(rs.getString("email"));
@@ -197,7 +197,7 @@ public class TeacherDaoImpl implements TeacherDao {
             while (rs.next()) {
                 Teacher teacher = new Teacher();
                 teacher.setCid(rs.getString("cid"));
-                teacher.setName(rs.getString("name"));
+                teacher.setName(rs.getString("tname"));
                 teacher.setTsid(rs.getString("tsid"));
                 teacher.setEmail(rs.getString("email"));
                 teacher.setPhone(rs.getString("phone"));

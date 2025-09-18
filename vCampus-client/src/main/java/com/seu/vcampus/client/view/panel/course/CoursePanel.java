@@ -25,11 +25,15 @@ public class CoursePanel extends JPanel {
         initUI();
         initToolbar();
 
-        // 根据用户角色决定初始界面
-        if ("AD".equals(user.getRole())) {
-            showAdminPanel();
-        } else {
-            showUserPanel();
+        switch (MainFrame.getInstance().getRoleToModule("Course")) {
+            case "ADMIN":
+                showAdminPanel();
+                break;
+            case "NORMAL":
+                showUserPanel();
+                break;
+            case "NOADMIN":
+                break;
         }
     }
 

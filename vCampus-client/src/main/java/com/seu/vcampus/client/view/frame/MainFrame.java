@@ -137,14 +137,21 @@ public class MainFrame extends JFrame {
         });
     }
 
-    public boolean hasAdminRight(String module) {
+    public String getRoleToModule(String module) {
         String userRole = currentUser.getRole();
         if (userRole.equals("ST") || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("TC"))) {
-            return false;
+            return "NORMAL";
         } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule(module))) {
-            return false;
+            return "ADMIN";
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "您无权管理该模块",
+                    "权限不足",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
-        return false;
+        return "NOADMIN";
     }
 
     // 切换面板的方法
@@ -194,6 +201,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showUserManagementPanel() {
+        if (getRoleToModule("USER").equals("NOADMIN")) return;
         userManagementPanel = new UserManagementPanel();
         mainPanel.add(userManagementPanel, "USER_MANAGEMENT");
         mainPanel.revalidate();
@@ -202,6 +210,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showLibraryPanel() {
+        if (getRoleToModule("LIBRARY").equals("NOADMIN")) return;
         libraryMainPanel = new LibraryMainPanel(currentUser);
         mainPanel.add(libraryMainPanel, "LIBRARY");
         mainPanel.revalidate();
@@ -210,6 +219,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showStudentPanel() {
+        if (getRoleToModule("STUDENT").equals("NOADMIN")) return;
         String userId = currentUser.getCid();
         String userRole = currentUser.getRole();
 
@@ -242,6 +252,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showCoursePanel() {
+        if (getRoleToModule("COURSE").equals("NOADMIN")) return;
         coursePanel = new CoursePanel(currentUser);
         mainPanel.add(coursePanel, "COURSE");
         mainPanel.revalidate();
@@ -250,12 +261,19 @@ public class MainFrame extends JFrame {
     }
 
     public void showDormPanel() {
-        if (hasAdminRight("Dorm")) {
-            dormPanel = new DormPanel();
-            mainPanel.add(dormPanel, "DORM");
-        } else {
-            dormAdminPanel = new DormAdminPanel();
-            mainPanel.add(dormAdminPanel, "DORM");
+        switch (getRoleToModule("DORM")) {
+            case "NORMAL":
+                dormPanel = new DormPanel();
+                mainPanel.add(dormPanel, "DORM");
+                break;
+            case "ADMIN":
+                dormAdminPanel = new DormAdminPanel();
+                mainPanel.add(dormAdminPanel, "DORM");
+                break;
+            case "NOADMIN":
+                return;
+            default:
+                return;
         }
         mainPanel.revalidate();
         mainPanel.repaint();
@@ -263,6 +281,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showShopPanel() {
+        if (getRoleToModule("SHOP").equals("NOADMIN")) return;
         shopPanel = new ShopPanel();
         mainPanel.add(shopPanel, "SHOP");
         mainPanel.revalidate();

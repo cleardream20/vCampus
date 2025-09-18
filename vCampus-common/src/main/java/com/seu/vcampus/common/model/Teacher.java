@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 public class Teacher extends User implements Serializable, Jsonable {
     private static final long serialVersionUID = 1L;
     private int age; // 年龄
@@ -29,6 +29,34 @@ public class Teacher extends User implements Serializable, Jsonable {
     private String modules;
     private List<String> moduleList;
 
+    public Teacher(String cid, String password, String tsid, String name, String email, String phone, String role,
+                   int age, String gender, String address, String nid, String endate, String title, String department) {
+        super(cid, password, tsid, name, email, phone, role);
+        this.age = age;
+        this.gender = gender;
+        this.address = address;
+        this.nid = nid;
+        this.endate = endate;
+        this.title = title;
+        this.department = department;
+        this.curRole = "TC";
+        this.setModules("");
+    }
+
+    public Teacher(String cid, String password, String tsid, String name, String email, String phone, String role,
+                   int age, String gender, String address, String nid, String endate, String title, String department, String curRole, String modules) {
+        super(cid, password, tsid, name, email, phone, role);
+        this.age = age;
+        this.gender = gender;
+        this.address = address;
+        this.nid = nid;
+        this.endate = endate;
+        this.title = title;
+        this.department = department;
+        this.curRole = curRole;
+        this.setModules(modules);
+    }
+
     // 默认不为管理员
     public Teacher(User user, int age, String gender, String address, String nid, String endate, String title, String department) {
         super(user.getCid(), user.getPassword(), user.getTsid(), user.getName(),
@@ -41,7 +69,7 @@ public class Teacher extends User implements Serializable, Jsonable {
         this.title = title;
         this.department = department;
         this.curRole = "TC";
-        this.modules = "";
+        this.setModules("");
     }
 
     public Teacher(User user, int age, String gender, String address, String nid, String endate, String title, String department, String curRole, String modules) {
@@ -55,7 +83,7 @@ public class Teacher extends User implements Serializable, Jsonable {
         this.title = title;
         this.department = department;
         this.curRole = curRole;
-        this.modules = modules;
+        this.setModules(modules);
     }
 
     // modules: "User|Library|Shop" 转换为 List: ["User", "Library", "Shop"]
@@ -63,6 +91,7 @@ public class Teacher extends User implements Serializable, Jsonable {
         if (modules == null || modules.trim().isEmpty()) {
             return List.of();
         }
+        System.out.println("初始化时modules: " +  modules);
         return Arrays.stream(modules.split("\\|"))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())

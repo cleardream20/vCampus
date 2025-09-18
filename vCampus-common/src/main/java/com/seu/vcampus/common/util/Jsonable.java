@@ -19,7 +19,10 @@ public interface Jsonable {
             "yyyy-MM-dd",
             "yyyy-MM-dd HH:mm:ss",
             "yyyy/MM/dd",
-            "dd/MM/yyyy"
+            "dd/MM/yyyy",
+            "MMM d, yyyy, HH:mm:ss",
+            "MMM d, yyyy, hh:mm:ss a",
+            "MMM d, yyyy, h:mm:ss a"
     };
 
     // 自定义 Date 反序列化器
@@ -28,13 +31,27 @@ public interface Jsonable {
         public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {
             String dateStr = json.getAsString();
+
+            dateStr = dateStr.replace(' ', ' ');
+
             for (String pattern : DATE_FORMAT_PATTERNS) {
                 try {
-                    SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.CHINESE);
+                    Locale locale = pattern.contains("MMM") ? Locale.ENGLISH : Locale.CHINESE;
+                    SimpleDateFormat sdf = new SimpleDateFormat(pattern, locale);
+                    sdf.setLenient(true); // 设置宽松解析模式
                     return sdf.parse(dateStr);
                 } catch (ParseException e) {
                     // 尝试下一个格式
+                    continue;
                 }
+            }
+            // 如果所有格式都失败，尝试使用额外的英文格式
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy, hh:mm:ss a", Locale.ENGLISH);
+                sdf.setLenient(true);
+                return sdf.parse(dateStr);
+            } catch (ParseException e) {
+                // 忽略，继续抛出异常
             }
             throw new JsonParseException("无法解析日期字符串: " + dateStr);
         }
@@ -53,6 +70,8 @@ public interface Jsonable {
             }
         }
     }
+
+
 
     // ✅ 增强版 Gson 实例（关键修改！）
     Gson gson = new GsonBuilder()

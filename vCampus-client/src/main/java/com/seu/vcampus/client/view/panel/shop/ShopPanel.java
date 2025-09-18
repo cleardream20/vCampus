@@ -27,6 +27,7 @@ public class ShopPanel extends JPanel {
     private JTextField searchField;
     private JButton searchButton;
     private List<Product> allProducts; // 缓存所有商品
+    private boolean userClickedFilter = false;   // 判定首次开启商店面板
 
     public ShopPanel() {
         this.currentUser = MainFrame.getInstance().getCurrentUser();
@@ -53,7 +54,10 @@ public class ShopPanel extends JPanel {
         filterPanel.add(new JLabel("分类:"));
         categoryFilter = new JComboBox<>();
         categoryFilter.addItem("所有分类");
-        categoryFilter.addActionListener(e -> filterProducts());
+        categoryFilter.addActionListener(e -> {
+            userClickedFilter = true;   // 置位
+            filterProducts();
+        });
         filterPanel.add(categoryFilter);
 
         // 搜索框
@@ -62,7 +66,10 @@ public class ShopPanel extends JPanel {
         filterPanel.add(searchField);
 
         searchButton = new JButton("搜索");
-        searchButton.addActionListener(e -> filterProducts());
+        searchButton.addActionListener(e -> {
+            userClickedFilter = true;   // 置位
+            filterProducts();
+        });
         filterPanel.add(searchButton);
 
         topPanel.add(filterPanel, BorderLayout.SOUTH);
@@ -252,7 +259,7 @@ public class ShopPanel extends JPanel {
             // 分类筛选
             if (selectedCategory == null) {
                 System.out.println("所选种类为空");
-                continue;
+                return;
             }
 
             if (!"所有分类".equals(selectedCategory) &&
@@ -281,7 +288,7 @@ public class ShopPanel extends JPanel {
             tableModel.addRow(row);
         }
 
-        if (tableModel.getRowCount() == 0) {
+        if (userClickedFilter && tableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this,
                     "没有找到符合条件的商品",
                     "提示",

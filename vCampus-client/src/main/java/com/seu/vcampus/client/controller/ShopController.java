@@ -6,7 +6,7 @@ import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.model.shop.Product;
 import com.seu.vcampus.common.model.shop.CartItem;
-import com.seu.vcampus.common.model.shop.Order;
+import com.seu.vcampus.common.model.shop.Orders;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -219,7 +219,7 @@ public class ShopController {
         return false;
     }
 
-    public List<Order> getUserOrders(String userId) {
+    public List<Orders> getUserOrders(String userId) {
         Message request = new Message();
         request.setType("SHOP_GET_ORDERS");
         request.setData(userId);
@@ -228,7 +228,7 @@ public class ShopController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<Order>>() {}.getType());
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<Orders>>() {}.getType());
             } else {
                 System.err.println("获取用户订单失败: " + response.getData());
                 return Collections.emptyList();
@@ -239,7 +239,7 @@ public class ShopController {
         return Collections.emptyList();
     }
 
-    public Order getOrderById(int orderId) {
+    public Orders getOrderById(int orderId) {
         Message request = new Message();
         request.setType("SHOP_GET_ORDER_DETAIL");
         request.setData(orderId);
@@ -248,7 +248,7 @@ public class ShopController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (Order) response.getData();
+                return (Orders) response.getData();
             } else {
                 System.err.println("获取订单详情失败: " + response.getData());
                 return null;

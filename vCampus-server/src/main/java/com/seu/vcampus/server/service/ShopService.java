@@ -1,7 +1,7 @@
 // ShopService.java
 package com.seu.vcampus.server.service;
 
-import com.seu.vcampus.common.model.shop.Order;
+import com.seu.vcampus.common.model.shop.Orders;
 import com.seu.vcampus.server.dao.shop.CartDao;
 import com.seu.vcampus.server.dao.shop.OrderDao;
 import com.seu.vcampus.server.dao.shop.ProductDao;
@@ -106,6 +106,7 @@ public class ShopService {
         cartItem.setProductName(product.getProductName());
         cartItem.setQuantity(quantity);
         cartItem.setPrice(product.getPrice());
+        cartItem.setAddDate(new Date());
 
         return cartDao.addToCart(cartItem);
     }
@@ -136,11 +137,11 @@ public class ShopService {
     }
 
     // 订单相关方法
-    public List<Order> getUserOrders(String userId) {
+    public List<Orders> getUserOrders(String userId) {
         return orderDao.getOrdersByUserId(userId);
     }
 
-    public Order getOrderById(Integer orderId) {
+    public Orders getOrderById(Integer orderId) {
         return orderDao.getOrderById(orderId);
     }
 
@@ -160,11 +161,11 @@ public class ShopService {
         }
 
         // 创建订单对象
-        Order order = new Order();
-        order.setOrderId(generateOrderId());
-        order.setUserId(userId);
-        order.setOrderDate(new Date());
-        order.setStatus("待付款");
+        Orders orders = new Orders();
+        orders.setOrderId(generateOrderId());
+        orders.setUserId(userId);
+        orders.setOrderDate(new Date());
+        orders.setStatus("待付款");
 
         // 计算订单总金额并创建订单项
         List<OrderItem> orderItems = new ArrayList<>();
@@ -184,10 +185,10 @@ public class ShopService {
             totalAmount = totalAmount.add(subtotal);   // ← BigDecimal 累加
         }
 
-        order.setTotalAmount(totalAmount);
+        orders.setTotalAmount(totalAmount);
 
         // 保存订单
-        boolean success = orderDao.createOrder(order, orderItems);
+        boolean success = orderDao.createOrder(orders, orderItems);
         if (success) {
             // 减少库存
             for (CartItem cartItem : cartItems) {

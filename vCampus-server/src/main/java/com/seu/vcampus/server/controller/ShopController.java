@@ -4,7 +4,7 @@ package com.seu.vcampus.server.controller;
 import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
-import com.seu.vcampus.common.model.shop.Order;
+import com.seu.vcampus.common.model.shop.Orders;
 import com.seu.vcampus.common.model.shop.CartItem;
 import com.seu.vcampus.common.model.shop.Product;
 import com.seu.vcampus.server.service.ShopService;
@@ -89,11 +89,11 @@ public class ShopController implements RequestController {
     }
 
     // 订单相关方法
-    public List<Order> getUserOrders(String userId) {
+    public List<Orders> getUserOrders(String userId) {
         return shopService.getUserOrders(userId);
     }
 
-    public Order getOrderById(Integer orderId) {
+    public Orders getOrderById(Integer orderId) {
         return shopService.getOrderById(orderId);
     }
 
@@ -405,7 +405,7 @@ public class ShopController implements RequestController {
             String userId = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
             System.out.println("获取订单 - 用户ID: " + userId);
 
-            List<Order> orders = shopService.getUserOrders(userId);
+            List<Orders> orders = shopService.getUserOrders(userId);
 
             if (orders != null) {
                 System.out.println("找到 " + orders.size() + " 个订单");
@@ -414,7 +414,7 @@ public class ShopController implements RequestController {
             } else {
                 System.out.println("没有找到订单");
                 response.setStatus(Message.STATUS_SUCCESS);
-                response.setData(new ArrayList<Order>());
+                response.setData(new ArrayList<Orders>());
             }
         } catch (Exception e) {
             System.err.println("获取订单时发生错误: " + e.getMessage());
@@ -431,12 +431,12 @@ public class ShopController implements RequestController {
             Integer orderId = (Integer) request.getData();
             System.out.println("获取订单详情 - 订单ID: " + orderId);
 
-            Order order = shopService.getOrderById(orderId);
+            Orders orders = shopService.getOrderById(orderId);
 
-            if (order != null) {
+            if (orders != null) {
                 System.out.println("找到订单: " + orderId);
                 response.setStatus(Message.STATUS_SUCCESS);
-                response.setData(order);
+                response.setData(orders);
             } else {
                 System.out.println("未找到订单: " + orderId);
                 response.setStatus(Message.STATUS_ERROR);

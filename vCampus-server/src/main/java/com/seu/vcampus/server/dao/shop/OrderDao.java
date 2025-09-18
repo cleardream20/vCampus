@@ -1,16 +1,18 @@
 // OrderDAO.java
 package com.seu.vcampus.server.dao.shop;
 
-import com.seu.vcampus.common.model.shop.Order;
+import com.seu.vcampus.common.model.shop.Orders;
 import com.seu.vcampus.common.util.DBConnector;
 import com.seu.vcampus.common.model.shop.OrderItem;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDao {
 
-    public boolean createOrder(Order order, List<OrderItem> items) {
+    public boolean createOrder(Orders orders, List<OrderItem> items) {
         Connection conn = null;
         try {
             conn = DBConnector.getConnection();
@@ -21,13 +23,13 @@ public class OrderDao {
                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement pstmt = conn.prepareStatement(orderSql)) {
-                pstmt.setInt(1, order.getOrderId());
-                pstmt.setString(2, order.getUserId());
-                pstmt.setTimestamp(3, new Timestamp(order.getOrderDate().getTime()));
-                pstmt.setBigDecimal(4, order.getTotalAmount());
-                pstmt.setString(5, order.getStatus());
-                pstmt.setString(6, order.getShippingAddress());
-                pstmt.setString(7, order.getContactPhone());
+                pstmt.setInt(1, orders.getOrderId());
+                pstmt.setString(2, orders.getUserId());
+                pstmt.setTimestamp(3, new Timestamp(orders.getOrderDate().getTime()));
+                pstmt.setBigDecimal(4, orders.getTotalAmount());
+                pstmt.setString(5, orders.getStatus());
+                pstmt.setString(6, orders.getShippingAddress());
+                pstmt.setString(7, orders.getContactPhone());
 
                 pstmt.executeUpdate();
             }
@@ -38,7 +40,7 @@ public class OrderDao {
 
             try (PreparedStatement pstmt = conn.prepareStatement(itemSql)) {
                 for (OrderItem item : items) {
-                    pstmt.setInt(1, order.getOrderId());
+                    pstmt.setInt(1, orders.getOrderId());
                     pstmt.setString(2, item.getProductId());
                     pstmt.setString(3, item.getProductName());
                     pstmt.setBigDecimal(4, item.getPrice());
@@ -74,8 +76,8 @@ public class OrderDao {
         }
     }
 
-    public List<Order> getOrdersByUserId(String userId) {
-        List<Order> orders = new ArrayList<>();
+    public List<Orders> getOrdersByUserId(String userId) {
+        List<Orders> orders = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE UserId = ? ORDER BY OrderDate DESC";
 
         try (Connection conn = DBConnector.getConnection();
@@ -85,12 +87,14 @@ public class OrderDao {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Order order = new Order();
+                Orders order = new Orders();
                 order.setOrderId(rs.getInt("OrderId"));
                 order.setUserId(rs.getString("UserId"));
                 order.setOrderDate(rs.getTimestamp("OrderDate"));
                 order.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                 order.setStatus(rs.getString("Status"));
+                order.setShippingAddress(rs.getString("ShippingAddress"));
+                order.setContactPhone(rs.getString("ContactPhone"));
 
                 // 获取订单项
                 order.setItems(getOrderItems(order.getOrderId()));
@@ -150,8 +154,8 @@ public class OrderDao {
         }
     }
 
-    public Order getOrderById(Integer orderId) {
-        Order order = null;
+    public Orders getOrderById(Integer orderId) {
+        Orders orders = null;
         String sql = "SELECT * FROM [Order] WHERE OrderId = ?";
 
         try (Connection conn = DBConnector.getConnection();
@@ -161,18 +165,20 @@ public class OrderDao {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                order = new Order();
-                order.setOrderId(rs.getInt("OrderId"));
-                order.setUserId(rs.getString("UserId"));
-                order.setOrderDate(rs.getTimestamp("OrderDate"));
-                order.setTotalAmount(rs.getBigDecimal("TotalAmount"));
-                order.setStatus(rs.getString("Status"));
-                order.setItems(getOrderItems(orderId));
+                orders = new Orders();
+                orders.setOrderId(rs.getInt("OrderId"));
+                orders.setUserId(rs.getString("UserId"));
+                orders.setOrderDate(rs.getTimestamp("OrderDate"));
+                orders.setTotalAmount(rs.getBigDecimal("TotalAmount"));
+                orders.setStatus(rs.getString("Status"));
+                orders.setShippingAddress(rs.getString("ShippingAddress"));
+                orders.setContactPhone(rs.getString("ContactPhone"));
+                orders.setItems(getOrderItems(orderId));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return order;
+        return orders;
     }
 }

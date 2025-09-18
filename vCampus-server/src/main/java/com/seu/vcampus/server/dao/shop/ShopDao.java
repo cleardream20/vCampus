@@ -2,7 +2,7 @@ package com.seu.vcampus.server.dao.shop;
 
 import com.seu.vcampus.common.model.shop.Product;
 import com.seu.vcampus.common.model.shop.CartItem;
-import com.seu.vcampus.common.model.shop.Order;
+import com.seu.vcampus.common.model.shop.Orders;
 import com.seu.vcampus.common.model.shop.OrderItem;
 import com.seu.vcampus.common.util.DBConnector;
 
@@ -217,8 +217,8 @@ public class ShopDao {
         }
     }
 
-    public List<Order> getUserOrders(int userId) {
-        List<Order> orders = new ArrayList<>();
+    public List<Orders> getUserOrders(int userId) {
+        List<Orders> orders = new ArrayList<>();
         String orderSql = "SELECT * FROM Orders WHERE UserID = ? ORDER BY OrderDate DESC";
         String detailSql = "SELECT od.*, p.ProductName FROM OrderDetails od " +
                 "JOIN Products p ON od.ProductID = p.ProductID " +
@@ -231,7 +231,7 @@ public class ShopDao {
             ResultSet orderRs = orderStmt.executeQuery();
 
             while (orderRs.next()) {
-                Order order = new Order();
+                Orders order = new Orders();
                 order.setOrderId(orderRs.getInt("OrderID"));
                 order.setUserId(orderRs.getString("UserID"));
                 order.setOrderDate(orderRs.getTimestamp("OrderDate"));

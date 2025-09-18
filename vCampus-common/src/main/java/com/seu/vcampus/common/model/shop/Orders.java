@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order implements Serializable, Jsonable {
+public class Orders implements Serializable, Jsonable {
     private static final long serialVersionUID = 1L;
 
     private int id;

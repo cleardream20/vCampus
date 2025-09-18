@@ -47,11 +47,34 @@ public class CourseSelectionPanel extends JPanel implements CoursePanel.Refresha
         selectedCoursesTable.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         selectedCoursesTable.setSelectionBackground(new Color(173, 216, 230));
 
-        // 表头样式
-        JTableHeader header = selectedCoursesTable.getTableHeader();
-        header.setFont(new Font("微软雅黑", Font.BOLD, 14));
-        header.setBackground(new Color(70, 130, 180));
-        header.setForeground(Color.WHITE);
+        // ===== 修复表头问题 =====
+        // 创建自定义表头渲染器
+        TableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // 固定设置背景和前景色
+                setBackground(new Color(70, 130, 180)); // 钢蓝色
+                setForeground(Color.WHITE);             // 白色文字
+
+                // 设置字体和居中对齐
+                setFont(new Font("微软雅黑", Font.BOLD, 14));
+                setHorizontalAlignment(JLabel.CENTER);
+
+                // 确保背景绘制
+                setOpaque(true);
+
+                return this;
+            }
+        };
+
+        // 为每个列设置自定义渲染器
+        for (int i = 0; i < selectedCoursesTable.getColumnCount(); i++) {
+            selectedCoursesTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
+        // ===== 表头修复结束 =====
 
         // 设置操作列的渲染器和编辑器
         TableColumn operationColumn = selectedCoursesTable.getColumnModel().getColumn(6);
@@ -77,6 +100,12 @@ public class CourseSelectionPanel extends JPanel implements CoursePanel.Refresha
         // ============== 组装界面 ==============
         add(new JScrollPane(selectedCoursesTable), BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
+
+        // 确保表头设置生效
+        SwingUtilities.invokeLater(() -> {
+            selectedCoursesTable.getTableHeader().revalidate();
+            selectedCoursesTable.getTableHeader().repaint();
+        });
     }
 
     private void loadSelectedCourses() {

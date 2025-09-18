@@ -74,11 +74,34 @@ public class SelectionReportPanel extends JPanel implements CoursePanel.Refresha
         studentTable.setGridColor(new Color(200, 200, 200));
         studentTable.setShowGrid(true);
 
-        // 表头样式
-        JTableHeader header = studentTable.getTableHeader();
-        header.setFont(new Font("微软雅黑", Font.BOLD, 16));
-        header.setBackground(new Color(70, 130, 180));
-        header.setForeground(Color.WHITE);
+        // ===== 修复表头问题 =====
+        // 创建自定义表头渲染器
+        TableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // 固定设置背景和前景色
+                setBackground(new Color(70, 130, 180)); // 钢蓝色
+                setForeground(Color.WHITE);             // 白色文字
+
+                // 设置字体和居中对齐
+                setFont(new Font("微软雅黑", Font.BOLD, 16));
+                setHorizontalAlignment(JLabel.CENTER);
+
+                // 确保背景绘制
+                setOpaque(true);
+
+                return this;
+            }
+        };
+
+        // 为每个列设置自定义渲染器
+        for (int i = 0; i < studentTable.getColumnCount(); i++) {
+            studentTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
+        // ===== 表头修复结束 =====
 
         // 设置操作列的渲染器和编辑器
         TableColumn operationColumn = studentTable.getColumnModel().getColumn(4);
@@ -92,6 +115,12 @@ public class SelectionReportPanel extends JPanel implements CoursePanel.Refresha
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
 
         add(scrollPane, BorderLayout.CENTER);
+
+        // 确保表头设置生效
+        SwingUtilities.invokeLater(() -> {
+            studentTable.getTableHeader().revalidate();
+            studentTable.getTableHeader().repaint();
+        });
     }
 
     private void loadCourseList() {

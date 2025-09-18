@@ -85,11 +85,34 @@ public class CourseManagementPanel extends JPanel implements CoursePanel.Refresh
         courseTable.setRowHeight(30);
         courseTable.setFont(new Font("微软雅黑", Font.PLAIN, 14));
 
-        // 表头样式
-        JTableHeader header = courseTable.getTableHeader();
-        header.setFont(new Font("微软雅黑", Font.BOLD, 14));
-        header.setBackground(new Color(70, 130, 180));
-        header.setForeground(Color.WHITE);
+        // ===== 修复表头问题 =====
+        // 创建自定义表头渲染器
+        TableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // 固定设置背景和前景色
+                setBackground(new Color(70, 130, 180)); // 钢蓝色
+                setForeground(Color.WHITE);             // 白色文字
+
+                // 设置字体和居中对齐
+                setFont(new Font("微软雅黑", Font.BOLD, 14));
+                setHorizontalAlignment(JLabel.CENTER);
+
+                // 确保背景绘制
+                setOpaque(true);
+
+                return this;
+            }
+        };
+
+        // 为每个列设置自定义渲染器
+        for (int i = 0; i < courseTable.getColumnCount(); i++) {
+            courseTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
+        // ===== 表头修复结束 =====
 
         add(new JScrollPane(courseTable), BorderLayout.CENTER);
 
@@ -105,6 +128,12 @@ public class CourseManagementPanel extends JPanel implements CoursePanel.Refresh
         popupMenu.add(deleteMenuItem);
 
         courseTable.setComponentPopupMenu(popupMenu);
+
+        // 确保表头设置生效
+        SwingUtilities.invokeLater(() -> {
+            courseTable.getTableHeader().revalidate();
+            courseTable.getTableHeader().repaint();
+        });
     }
 
 

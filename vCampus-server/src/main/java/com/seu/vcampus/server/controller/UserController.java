@@ -21,7 +21,7 @@ public class UserController implements RequestController {
             case Message.LOGIN -> handleLogin(request);
             case Message.REGISTER -> handleRegister(request);
             case Message.LOGOUT -> handleLogout(request);
-            case UserMessage.GET_ST_BY_USER, UserMessage.GET_TC_BY_USER, UserMessage.GET_AD_BY_USER -> handleGetUser(request);
+            case UserMessage.GET_ST_BY_USER, UserMessage.GET_TC_BY_USER, UserMessage.GET_AD_BY_USER, UserMessage.GET_ALL_USER -> handleGetUser(request);
             default -> Message.fromData(Message.RESPONSE, false, null, "不支持的操作");
         };
     }
@@ -71,6 +71,7 @@ public class UserController implements RequestController {
     }
 
     public Message handleGetUser(Message request) throws SQLException {
+        if (request.getType().equals(UserMessage.GET_ALL_USER)) return Message.success(request.getType(), userService.getAllUsers(), "获取所有用户信息成功");
         User user = Jsonable.fromJson(Jsonable.toJson(request.getData()), User.class);
         if (user == null) return Message.error(request.getType(), "用户为空");
         return switch (request.getType()) {

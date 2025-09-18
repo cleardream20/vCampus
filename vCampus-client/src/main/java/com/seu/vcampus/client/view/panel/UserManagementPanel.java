@@ -3,6 +3,8 @@ package com.seu.vcampus.client.view.panel;
 import com.seu.vcampus.client.service.UserService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.client.view.frame.MainFrame;
+import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.model.UserRequest;
 
@@ -29,7 +31,7 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
     private User currentUser;
 
     // 服务层引用（模拟）
-    private final UserService userService = new UserService();
+    private static final UserService userService = new UserService();
 
     // 导航相关
     private final JList<String> navList = new JList<>(new String[]{"用户管理", "请求处理"});
@@ -57,6 +59,8 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
 
     // 批量删除确认按钮
     private final JButton confirmDeleteButton = new JButton("确认删除");
+
+    private static final int COLS = 30;
 
     public UserManagementPanel() {
         currentUser = MainFrame.getInstance().getCurrentUser();
@@ -114,7 +118,9 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
         // 包装带滚动条的列表
         userTypeTabs.addTab("学生", new JScrollPane(studentList));
         userTypeTabs.addTab("教师", new JScrollPane(teacherList));
-        userTypeTabs.addTab("管理员", new JScrollPane(adminList));
+        // 仅0号管理员可以管理管理员
+        if (currentUser.getCid().equals("000000000"))
+            userTypeTabs.addTab("管理员", new JScrollPane(adminList));
 
         // 双击查看用户
         studentList.addMouseListener(new ListClickHandler());
@@ -185,8 +191,10 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
         userTypeTabs.setComponentAt(index, wrapWithScrollPane(studentList));
         index = userTypeTabs.indexOfTab("教师");
         userTypeTabs.setComponentAt(index, wrapWithScrollPane(teacherList));
-        index = userTypeTabs.indexOfTab("管理员");
-        userTypeTabs.setComponentAt(index, wrapWithScrollPane(adminList));
+        if (currentUser.getCid().equals("000000000")) {
+            index = userTypeTabs.indexOfTab("管理员");
+            userTypeTabs.setComponentAt(index, wrapWithScrollPane(adminList));
+        }
 
         // 重新添加按钮
         JPanel wrapper = new JPanel(new BorderLayout());
@@ -240,12 +248,12 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
 
     // 模拟加载数据
     private void loadData() {
-        List<User> allUsers = userService.getAllUsers(); // 假设存在此方法
+        List<User> allUsers = userService.getAllUsers();
         for (User u : allUsers) {
             switch (u.getRole()) {
-                case "ST": studentModel.addElement(u); break;
-                case "TC": teacherModel.addElement(u); break;
-                case "AD": adminModel.addElement(u); break;
+                case "ST": studentModel.addElement(userService.getStudentByUser(u)); break;
+                case "TC": teacherModel.addElement(userService.getTeacherByUser(u)); break;
+                case "AD": adminModel.addElement(userService.getAdminByUser(u)); break;
             }
         }
 
@@ -279,7 +287,7 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
             User newUser = form.getUserData();
             if (newUser != null) {
                 // 模拟保存
-                userService.createUser(newUser);
+                userService.addUser(newUser);
                 // 刷新对应列表
                 switch (newUser.getRole()) {
                     case "ST": studentModel.addElement(newUser); break;
@@ -356,9 +364,9 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
     private void updateUserInList(User u) {
         removeUserFromAllLists(u.getCid());
         switch (u.getRole()) {
-            case "ST": studentModel.addElement(u); break;
-            case "TC": teacherModel.addElement(u); break;
-            case "AD": adminModel.addElement(u); break;
+            case "ST": studentModel.addElement(userService.getStudentByUser(u)); break;
+            case "TC": teacherModel.addElement(userService.getTeacherByUser(u)); break;
+            case "AD": adminModel.addElement(userService.getAdminByUser(u)); break;
         }
     }
 
@@ -385,7 +393,7 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
 
     // ========== 内部类：列表渲染器 ==========
 
-    class UserListRenderer extends JPanel implements ListCellRenderer<User> {
+    static class UserListRenderer extends JPanel implements ListCellRenderer<User> {
         private final JLabel infoLabel = new JLabel();
         private final JButton viewBtn = new JButton("查看/修改");
 
@@ -415,7 +423,7 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
         }
     }
 
-    class RequestListRenderer extends JPanel implements ListCellRenderer<UserRequest> {
+    static class RequestListRenderer extends JPanel implements ListCellRenderer<UserRequest> {
         private final JLabel label = new JLabel();
         private final JButton approveBtn = new JButton("✓");
         private final JButton rejectBtn = new JButton("✗");
@@ -526,13 +534,13 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
 
     // ========== 表单面板复用 ==========
 
-    class UserInfoFormPanel extends JPanel {
+    static class UserInfoFormPanel extends JPanel {
         private final User originalUser;
         private boolean isStudent, isTeacher, isAdministrator;
 
         // 公共字段
         private JTextField cidField, tsidField, nameField, genderField, ageField,
-                birthDateField, phoneField, emailField, addressField, idCardField, collegeField;
+                birthDateField, phoneField, emailField, addressField, idCardField, departmentField;
 
         // 学生字段
         private JTextField gradeField, studentTypeField, enrollmentDateField;
@@ -569,13 +577,12 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
             addRow(gbc, "电子邮箱:", emailField, y++);
             addRow(gbc, "家庭地址:", addressField, y++);
             addRow(gbc, "身份证号:", idCardField, y++);
-            addRow(gbc, "学院:", collegeField, y++);
+            addRow(gbc, "学院:", departmentField, y++);
 
             if (isStudent || (!isStudent && !isTeacher)) { // 新增时允许选角色
                 addRow(gbc, "学号:", tsidField, y++);
                 addRow(gbc, "入学时间:", enrollmentDateField, y++);
                 addRow(gbc, "年级:", gradeField, y++);
-                addRow(gbc, "学生类型:", studentTypeField, y++);
             }
             if (isTeacher) {
                 addRow(gbc, "教职工号:", tsidField, y++);
@@ -588,24 +595,24 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
         }
 
         private void initializeFields() {
-            cidField = new JTextField(15);
-            tsidField = new JTextField(15);
-            nameField = new JTextField(15);
-            genderField = new JTextField(15);
-            ageField = new JTextField(15);
-            birthDateField = new JTextField(15);
-            phoneField = new JTextField(15);
-            emailField = new JTextField(15);
-            addressField = new JTextField(15);
-            idCardField = new JTextField(15);
-            collegeField = new JTextField(15);
+            cidField = new JTextField(COLS);
+            tsidField = new JTextField(COLS);
+            nameField = new JTextField(COLS);
+            genderField = new JTextField(COLS);
+            ageField = new JTextField(COLS);
+            birthDateField = new JTextField(COLS);
+            phoneField = new JTextField(COLS);
+            emailField = new JTextField(COLS);
+            addressField = new JTextField(COLS);
+            idCardField = new JTextField(COLS);
+            departmentField = new JTextField(COLS);
 
-            gradeField = new JTextField(15);
-            studentTypeField = new JTextField(15);
-            enrollmentDateField = new JTextField(15);
+            gradeField = new JTextField(COLS);
+            studentTypeField = new JTextField(COLS);
+            enrollmentDateField = new JTextField(COLS);
 
-            titleField = new JTextField(15);
-            hireDateField = new JTextField(15);
+            titleField = new JTextField(COLS);
+            hireDateField = new JTextField(COLS);
 
             setAllEditable(false);
 
@@ -636,27 +643,37 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
             add(field, gbc);
         }
 
+        // 初始化/更新用户信息UserInfoFormPanel界面
         private void populateFields(User u) {
             cidField.setText(u.getCid());
             nameField.setText(u.getName());
-//            genderField.setText(u.getGender());
-//            ageField.setText(String.valueOf(u.getAge()));
-//            birthDateField.setText(u.getBirthDate());
             phoneField.setText(u.getPhone());
             emailField.setText(u.getEmail());
-//            addressField.setText(u.getAddress());
-//            idCardField.setText(u.getIdCard());
-//            collegeField.setText(u.getCollege());
             tsidField.setText(u.getTsid());
 
             if ("ST".equals(u.getRole())) {
-//                enrollmentDateField.setText(u.getEnrollmentDate());
-//                gradeField.setText(u.getGrade());
-//                studentTypeField.setText(u.getStudentType());
+                Student st = userService.getStudentByUser(u);
+                enrollmentDateField.setText(st.getEndate());
+                gradeField.setText(st.getGrade());
+
+                ageField.setText(String.valueOf(st.getAge()));
+                genderField.setText(st.getSex());
+                birthDateField.setText(st.getBirthday());
+                addressField.setText(st.getAddress());
+                idCardField.setText(st.getNid());
+                departmentField.setText(st.getMajor());
+                gradeField.setText(st.getGrade());
             } else if ("TC".equals(u.getRole())) {
-//                hireDateField.setText(u.getHireDate());
-//                titleField.setText(u.getTitle());
-            }
+                Teacher tc = userService.getTeacherByUser(u);
+                hireDateField.setText(tc.getEndate());
+                titleField.setText(tc.getTitle());
+
+                ageField.setText(String.valueOf(tc.getAge()));
+                genderField.setText(tc.getGender());
+                addressField.setText(tc.getAddress());
+                idCardField.setText(tc.getNid());
+                departmentField.setText(tc.getDepartment());
+            } // 管理员没有更多的了
         }
 
         public void setReadOnly(boolean readOnly) {
@@ -664,7 +681,7 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
             emailField.setEditable(!readOnly);
             addressField.setEditable(!readOnly);
             idCardField.setEditable(!readOnly);
-            collegeField.setEditable(!readOnly);
+            departmentField.setEditable(!readOnly);
             if (isStudent) {
                 gradeField.setEditable(!readOnly);
                 studentTypeField.setEditable(!readOnly);

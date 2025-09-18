@@ -1,5 +1,6 @@
 package com.seu.vcampus.client.service;
 
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.client.socket.ClientSocketUtil;
 import com.seu.vcampus.common.model.*;
 import com.seu.vcampus.common.util.Jsonable;
@@ -202,10 +203,26 @@ public class UserService {
 
 
 
-    public List<User> getAllUsers() { /* 从后端获取 */ return Collections.emptyList();}
-    public void createUser(User u) { /* 发送创建请求 */ }
-//    public void updateUser(User u) { /* 发送更新请求 */ }
-    public void deleteUser(List<String> cids) { /* 删除 */ }
+    public List<User> getAllUsers() {
+        Message request = Message.success(UserMessage.GET_ALL_USER, null, "获取用户列表");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("服务器异常，获取所有用户信息失败");
+                return null;
+            }
+            if (response.isSuccess()) {
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<User>>() {}.getType());
+            } else {
+                System.err.println("未获取到所有用户信息");
+                return null;
+            }
+        } catch (IOException e) {
+            System.err.println("获取所有用户信息失败，服务器异常：" + e.getMessage());
+            return null;
+        }
+    }
+
     public List<UserRequest> getPendingRequests() { /* 获取待审批请求 */ return Collections.emptyList();}
     public void approveRequest(UserRequest req) { }
     public void rejectRequest(UserRequest req) { }

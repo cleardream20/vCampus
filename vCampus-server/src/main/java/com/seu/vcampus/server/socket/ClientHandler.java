@@ -47,6 +47,7 @@ public class ClientHandler implements Runnable {
         controllerMap.put(UserMessage.GET_ST_BY_USER, userController);
         controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
         controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_ALL_USER, userController);
     }
 
     private void addCourseHandlers() {

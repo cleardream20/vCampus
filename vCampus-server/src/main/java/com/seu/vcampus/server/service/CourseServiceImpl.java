@@ -319,7 +319,7 @@ public class CourseServiceImpl implements CourseService {
             Course course = courseDao.getCourseById(keyword);
             if (course != null) {
                 JsonObject data = new JsonObject();
-                data.addProperty("course", Jsonable.toJson(course));
+                data.addProperty("keyword", Jsonable.toJson(course));
                 Message response = Message.success(Message.GET_COURSE_BY_ID, "查询课程成功");
                 response.setData(data);
                 return response;
@@ -337,7 +337,7 @@ public class CourseServiceImpl implements CourseService {
             List<Course> courses = courseDao.getCoursesByName(keyword);
             if (courses != null && !courses.isEmpty()) {
                 JsonObject data = new JsonObject();
-                data.addProperty("courses", Jsonable.toJson(courses));
+                data.addProperty("keyword", Jsonable.toJson(courses));
                 Message response = Message.success(Message.GET_COURSE_BY_NAME, "查询课程成功");
                 response.setData(data);
                 return response;

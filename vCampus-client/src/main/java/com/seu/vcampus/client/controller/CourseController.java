@@ -93,7 +93,7 @@ public class CourseController {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
                 Map<String, Object> responseData = (Map<String, Object>) response.getData();
-                String courseJson = Jsonable.toJson(responseData.get("course"));
+                String courseJson = Jsonable.toJson(responseData.get("keyword"));
                 return Jsonable.fromJson(courseJson, Course.class);
             }
         } catch (IOException e) {
@@ -112,7 +112,7 @@ public class CourseController {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
                 Map<String, Object> responseData = (Map<String, Object>) response.getData();
-                String coursesJson = Jsonable.toJson(responseData.get("courses"));
+                String coursesJson = Jsonable.toJson(responseData.get("keyword"));
                 return Jsonable.fromJson(coursesJson, new TypeToken<List<Course>>(){}.getType());
             }
         } catch (IOException e) {

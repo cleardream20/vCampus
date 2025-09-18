@@ -1,6 +1,7 @@
 package com.seu.vcampus.server.controller;
 
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.common.model.course.Course;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.Jsonable;
@@ -20,7 +21,9 @@ public class CourseController implements RequestController {
         User user = null;
 
         if (rawData instanceof Map) {
-            dataMap = (Map<String, Object>) rawData;
+//            dataMap = (Map<String, Object>) rawData;
+            dataMap = Jsonable.fromJson(Jsonable.toJson(rawData), new TypeToken<Map<String, Object>>() {}.getType());
+
             user = extractUserFromData(dataMap);
         } else if (rawData instanceof JsonObject) {
             JsonObject data = (JsonObject) rawData;

@@ -79,4 +79,8 @@ public interface UserService {
     Teacher getTeacherByUser(User user) throws  SQLException;
 
     Admin getAdminByUser(User user) throws  SQLException;
+
+    User getUserByEmail(String email) throws SQLException;
+
+    User getUserByPhone(String phone) throws SQLException;
 }

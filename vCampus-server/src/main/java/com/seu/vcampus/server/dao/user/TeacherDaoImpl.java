@@ -28,7 +28,7 @@ public class TeacherDaoImpl implements TeacherDao {
                     // 从 User 表获取 name，其他字段从 Teacher 表获取
                     Teacher teacher = new Teacher();
                     teacher.setCid(rs.getString("cid"));
-                    teacher.setName(rs.getString("name")); // 来自 User
+                    teacher.setName(rs.getString("tname")); // 来自 User
                     teacher.setPassword(""); // 敏感信息不返回，或从 User 查询
                     teacher.setTsid(rs.getString("tsid"));
                     teacher.setEmail(rs.getString("email"));
@@ -41,6 +41,8 @@ public class TeacherDaoImpl implements TeacherDao {
                     teacher.setEndate(rs.getString("endate")); // 假设是字符串格式
                     teacher.setTitle(rs.getString("title"));
                     teacher.setDepartment(rs.getString("department"));
+                    teacher.setCurRole(rs.getString("curRole"));
+                    teacher.setModules(rs.getString("modules"));
                     return teacher;
                 }
             }
@@ -88,8 +90,8 @@ public class TeacherDaoImpl implements TeacherDao {
             }
 
             // 2. 插入 tblTeacher
-            String sql = "INSERT INTO tblTeacher (cid, age, gender, address, nid, endate, title, department) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblTeacher (cid, age, gender, address, nid, endate, title, department, curRole, modules) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
             ps.setString(1, teacher.getCid());
             ps.setInt(2, teacher.getAge());
@@ -99,6 +101,8 @@ public class TeacherDaoImpl implements TeacherDao {
             ps.setDate(6, java.sql.Date.valueOf(LocalDate.parse(teacher.getEndate(), DATE_FORMATTER)));
             ps.setString(7, teacher.getTitle());
             ps.setString(8, teacher.getDepartment());
+            ps.setString(9, teacher.getCurRole());
+            ps.setString(10, teacher.getModules());
 
             int rows = ps.executeUpdate();
             conn.commit();
@@ -124,7 +128,7 @@ public class TeacherDaoImpl implements TeacherDao {
     @Override
     public boolean updateTeacher(Teacher teacher) throws SQLException {
         String sql = "UPDATE tblTeacher SET age = ?, gender = ?, address = ?, nid = ?, " +
-                "endate = ?, title = ?, department = ? WHERE cid = ?";
+                "endate = ?, title = ?, department = ? curRole = ? modules = ? WHERE cid = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -136,6 +140,8 @@ public class TeacherDaoImpl implements TeacherDao {
             ps.setString(6, teacher.getTitle());
             ps.setString(7, teacher.getDepartment());
             ps.setString(8, teacher.getCid());
+            ps.setString(9, teacher.getCurRole());
+            ps.setString(10, teacher.getModules());
 
             int rows = ps.executeUpdate();
 
@@ -191,7 +197,7 @@ public class TeacherDaoImpl implements TeacherDao {
             while (rs.next()) {
                 Teacher teacher = new Teacher();
                 teacher.setCid(rs.getString("cid"));
-                teacher.setName(rs.getString("name"));
+                teacher.setName(rs.getString("tname"));
                 teacher.setTsid(rs.getString("tsid"));
                 teacher.setEmail(rs.getString("email"));
                 teacher.setPhone(rs.getString("phone"));
@@ -203,6 +209,8 @@ public class TeacherDaoImpl implements TeacherDao {
                 teacher.setEndate(rs.getDate("endate").toLocalDate().format(DATE_FORMATTER));
                 teacher.setTitle(rs.getString("title"));
                 teacher.setDepartment(rs.getString("department"));
+                teacher.setCurRole("curRole");
+                teacher.setModules("modules");
                 teachers.add(teacher);
             }
         } catch (SQLException ex) {

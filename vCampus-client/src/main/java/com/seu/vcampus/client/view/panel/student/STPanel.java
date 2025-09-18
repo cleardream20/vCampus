@@ -23,19 +23,9 @@ public class STPanel extends JPanel implements NavigatablePanel {
     private JButton backButton; // 保留返回按钮
 
     public STPanel() {
-        User user = MainFrame.getInstance().getCurrentUser();
-//        User user = new User();
-        String userId = user.getCid();
-        StudentService service = new StudentService();
+        this.currentStudent = MainFrame.getInstance().getCurrentStudent();
         initializeUI();
         setFieldsEditable(false); // 确保字段不可编辑
-        try {
-            this.currentStudent = MainFrame.getInstance().getCurrentStudent();
-//            this.currentStudent = service.getStudent(userId);
-//            this.currentStudent = new Student();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void initializeUI() {
@@ -78,7 +68,7 @@ public class STPanel extends JPanel implements NavigatablePanel {
         formPanel.add(new JLabel("姓名:"), gbc);
 
         gbc.gridx = 1;
-        nameField = new JTextField(currentStudent.getName(), 20);
+        nameField = new JTextField(this.currentStudent.getName(), 20);
         formPanel.add(nameField, gbc);
 
         // 第二行: 邮箱

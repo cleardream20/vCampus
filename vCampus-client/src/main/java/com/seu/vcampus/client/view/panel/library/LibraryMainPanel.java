@@ -61,7 +61,7 @@ public class LibraryMainPanel extends JPanel {
         tabbedPane.addTab("我的图书馆", new MyLibraryPanel(currentUser));
 
         // 管理员面板
-        if ("AD".equals(currentUser.getRole())) {
+        if ("ADMIN".equals(MainFrame.getInstance().getRoleToModule("LIBRARY"))) {
             tabbedPane.addTab("管理员界面", new AdminPanel());
         }
         tabbedPane.addChangeListener(e -> {

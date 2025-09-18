@@ -6,6 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -54,11 +56,13 @@ public interface Jsonable {
         }
     }
 
-    // ✅ 增强版 Gson 实例（关键修改！）
+    // 增强版 Gson 实例（关键修改！）
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(Date.class, new DateDeserializer())
             .registerTypeAdapter(Integer.class, new DoubleToIntDeserializer())
             .registerTypeAdapter(int.class, new DoubleToIntDeserializer())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             // 可选：设置时区或默认日期格式
             .setDateFormat("yyyy-MM-dd HH:mm:ss")
             .create();

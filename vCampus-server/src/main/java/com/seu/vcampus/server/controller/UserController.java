@@ -21,7 +21,8 @@ public class UserController implements RequestController {
             case Message.LOGIN -> handleLogin(request);
             case Message.REGISTER -> handleRegister(request);
             case Message.LOGOUT -> handleLogout(request);
-            case UserMessage.GET_ST_BY_USER, UserMessage.GET_TC_BY_USER, UserMessage.GET_AD_BY_USER -> handleGetUser(request);
+            case UserMessage.GET_ST_BY_USER, UserMessage.GET_TC_BY_USER, UserMessage.GET_AD_BY_USER, UserMessage.GET_ALL_USER -> handleGetUser(request);
+            case UserMessage.GET_USER_BY_PHONE, UserMessage.GET_USER_BY_EMAIL ->  handleGetUserByEP(request);
             default -> Message.fromData(Message.RESPONSE, false, null, "不支持的操作");
         };
     }
@@ -71,6 +72,7 @@ public class UserController implements RequestController {
     }
 
     public Message handleGetUser(Message request) throws SQLException {
+        if (request.getType().equals(UserMessage.GET_ALL_USER)) return Message.success(request.getType(), userService.getAllUsers(), "获取所有用户信息成功");
         User user = Jsonable.fromJson(Jsonable.toJson(request.getData()), User.class);
         if (user == null) return Message.error(request.getType(), "用户为空");
         return switch (request.getType()) {
@@ -80,6 +82,18 @@ public class UserController implements RequestController {
                     Message.success(request.getType(), userService.getTeacherByUser(user), "获取教师信息成功");
             case UserMessage.GET_AD_BY_USER ->
                     Message.success(request.getType(), userService.getAdminByUser(user), "获取管理员信息成功");
+            default -> Message.error(request.getType(), "未定义的类型");
+        };
+    }
+
+    public Message handleGetUserByEP(Message request) throws SQLException {
+        String ep = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+        if (ep == null) return Message.error(request.getType(), "邮箱或电话为空");
+        return switch (request.getType()) {
+            case UserMessage.GET_USER_BY_EMAIL ->
+                Message.success(request.getType(), userService.getUserByEmail(ep), "通过邮箱获取用户信息成功");
+            case UserMessage.GET_USER_BY_PHONE ->
+                Message.success(request.getType(), userService.getUserByPhone(ep), "通过电话获取用户信息成功");
             default -> Message.error(request.getType(), "未定义的类型");
         };
     }

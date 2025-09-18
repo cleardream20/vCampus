@@ -25,7 +25,8 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+//                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                Map<String, Object> responseData = Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<Map<String, Object>>() {}.getType());
                 String coursesJson = Jsonable.toJson(responseData.get("courses"));
                 return Jsonable.fromJson(coursesJson, new TypeToken<List<Course>>(){}.getType());
             }
@@ -92,8 +93,9 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                Map<String, Object> responseData = (Map<String, Object>) response.getData();
-                String courseJson = Jsonable.toJson(responseData.get("keyword"));
+//                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                Map<String, Object> responseData = Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<Map<String, Object>>() {}.getType());
+                String courseJson = (String) responseData.get("course");
                 return Jsonable.fromJson(courseJson, Course.class);
             }
         } catch (IOException e) {
@@ -111,8 +113,9 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                Map<String, Object> responseData = (Map<String, Object>) response.getData();
-                String coursesJson = Jsonable.toJson(responseData.get("keyword"));
+//                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                Map<String, Object> responseData = Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<Map<String, Object>>() {}.getType());
+                String coursesJson = (String) responseData.get("courses");
                 return Jsonable.fromJson(coursesJson, new TypeToken<List<Course>>(){}.getType());
             }
         } catch (IOException e) {
@@ -127,6 +130,7 @@ public class CourseController {
         data.addProperty("studentId", studentId);
         data.addProperty("courseId", courseId);
         data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
+        System.out.println("data: " + data);
         request.setData(data);
 
         try {
@@ -147,7 +151,8 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+//                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                Map<String, Object> responseData = Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<Map<String, Object>>() {}.getType());
                 String coursesJson = Jsonable.toJson(responseData.get("courses"));
                 return Jsonable.fromJson(coursesJson, new TypeToken<List<Course>>(){}.getType());
             }
@@ -185,7 +190,8 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+//                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                Map<String, Object> responseData = Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<Map<String, Object>>() {}.getType());
                 String scheduleJson = Jsonable.toJson(responseData.get("schedule"));
                 return Jsonable.fromJson(scheduleJson, CourseSchedule.class);
             }
@@ -205,8 +211,10 @@ public class CourseController {
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
-                Map<String, Object> responseData = (Map<String, Object>) response.getData();
-                String recordsJson = Jsonable.toJson(responseData.get("records"));
+//                Map<String, Object> responseData = (Map<String, Object>) response.getData();
+                Map<String, Object> responseData = Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<Map<String, Object>>() {}.getType());
+                System.out.println("responseData records: " + responseData.get("records") + responseData.get("records").getClass());
+                String recordsJson = (String) responseData.get("records");
                 return Jsonable.fromJson(recordsJson, new TypeToken<List<SelectionRecord>>(){}.getType());
             }
         } catch (IOException e) {

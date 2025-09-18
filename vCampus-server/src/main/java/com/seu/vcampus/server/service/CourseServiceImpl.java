@@ -192,7 +192,7 @@ public class CourseServiceImpl implements CourseService {
             List<Course> courses = courseDao.getCoursesByTeacherId(teacherId);
             JsonObject data = new JsonObject();
             data.addProperty("courses", Jsonable.toJson(courses));
-            Message response = Message.success(Message.GET_TEACHING_COURSES, "获取授课课程成功");
+            Message response = Message.success(Message.GET_TEACHING_COURSES, data,"获取授课课程成功");
             response.setData(data);
             return response;
         } catch (Exception e) {
@@ -305,7 +305,7 @@ public class CourseServiceImpl implements CourseService {
             JsonObject data = new JsonObject();
             data.add("schedule", gson.toJsonTree(schedule)); // 直接添加JSON对象，不是字符串
 
-            Message response = Message.success(Message.GET_COURSE_SCHEDULE, "获取课表成功");
+            Message response = Message.success(Message.GET_COURSE_SCHEDULE, data,"获取课表成功");
             response.setData(data);
             return response;
         } catch (Exception e) {
@@ -319,8 +319,8 @@ public class CourseServiceImpl implements CourseService {
             Course course = courseDao.getCourseById(keyword);
             if (course != null) {
                 JsonObject data = new JsonObject();
-                data.addProperty("keyword", Jsonable.toJson(course));
-                Message response = Message.success(Message.GET_COURSE_BY_ID, "查询课程成功");
+                data.addProperty("course", Jsonable.toJson(course));
+                Message response = Message.success(Message.GET_COURSE_BY_ID, data,"查询课程成功");
                 response.setData(data);
                 return response;
             } else {
@@ -337,8 +337,8 @@ public class CourseServiceImpl implements CourseService {
             List<Course> courses = courseDao.getCoursesByName(keyword);
             if (courses != null && !courses.isEmpty()) {
                 JsonObject data = new JsonObject();
-                data.addProperty("keyword", Jsonable.toJson(courses));
-                Message response = Message.success(Message.GET_COURSE_BY_NAME, "查询课程成功");
+                data.addProperty("courses", Jsonable.toJson(courses));
+                Message response = Message.success(Message.GET_COURSE_BY_NAME, data,"查询课程成功");
                 response.setData(data);
                 return response;
             } else {
@@ -358,9 +358,12 @@ public class CourseServiceImpl implements CourseService {
             }
 
             List<SelectionRecord> records = courseDao.getSelectionRecords(courseId);
+
+            System.out.println("records: " + records);
+
             JsonObject data = new JsonObject();
             data.addProperty("records", Jsonable.toJson(records));
-            Message response = Message.success(Message.GET_SELECTION_RECORDS, "获取选课记录成功");
+            Message response = Message.success(Message.GET_SELECTION_RECORDS, data,"获取选课记录成功");
             response.setData(data);
             return response;
         } catch (Exception e) {

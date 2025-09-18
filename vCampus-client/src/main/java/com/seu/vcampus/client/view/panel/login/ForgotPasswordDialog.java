@@ -283,6 +283,11 @@ public class ForgotPasswordDialog extends JDialog {
         }
 
         if (user != null) {
+            if (user.getPassword().equals(newPassword)) {
+                JOptionPane.showMessageDialog(this, "新旧密码不能重复！", "失败",  JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
             user.setPassword(newPassword);
             if (userService.updateUser(user)) {
                 JOptionPane.showMessageDialog(this, "密码修改成功！", "成功", JOptionPane.INFORMATION_MESSAGE);

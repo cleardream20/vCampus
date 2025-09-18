@@ -1,5 +1,7 @@
 package com.seu.vcampus.client.view.panel.dorm;
 
+import com.seu.vcampus.client.view.frame.MainFrame;
+
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -46,7 +48,7 @@ public class DormAdminPanel extends JPanel {
         panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
         panel.setBackground(new Color(255, 230, 230)); // 浅红色背景区分管理端
 
-        JButton btnHome = new JButton("管理首页");
+        JButton btnHome = new JButton("首页");
         JButton btnBack = new JButton("返回");
 
         btnHome.setBackground(new Color(255, 210, 210));
@@ -56,7 +58,7 @@ public class DormAdminPanel extends JPanel {
         btnHome.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         btnBack.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-        btnHome.addActionListener(e -> cardLayout.show(cardPanel, CARD_HOME));
+        btnHome.addActionListener(this::handleReturnAction);
         btnBack.addActionListener(e -> cardLayout.show(cardPanel, CARD_HOME));
 
         panel.add(btnHome);
@@ -69,6 +71,12 @@ public class DormAdminPanel extends JPanel {
         panel.add(title);
 
         return panel;
+    }
+
+    private void handleReturnAction(ActionEvent e) {
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(MainFrame.getInstance().getCurrentUser());
+        });
     }
 
     /**

@@ -97,4 +97,14 @@ public class UserServiceImpl implements UserService {
     public Admin getAdminByUser(User user) throws SQLException {
         return userDao.getAdminByUser(user);
     }
+
+    @Override
+    public User getUserByEmail(String email) throws SQLException {
+        return userDao.getUserByEmail(email);
+    }
+
+    @Override
+    public User getUserByPhone(String phone) throws SQLException {
+        return userDao.getUserByPhone(phone);
+    }
 }

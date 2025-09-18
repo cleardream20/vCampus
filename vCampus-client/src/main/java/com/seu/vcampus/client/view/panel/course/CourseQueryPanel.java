@@ -206,7 +206,7 @@ public class CourseQueryPanel extends JPanel implements CoursePanel.Refreshable{
                     // 执行选课操作
                     Message response = courseController.selectCourse(currentUser.getCid(), courseId,currentUser);
 
-                    if (Message.STATUS_SUCCESS.equals(response.getMessage())) {
+                    if (Message.STATUS_SUCCESS.equals(response.getStatus())) {
                         JOptionPane.showMessageDialog(button, "选课成功!");
                         loadCourseData(); // 刷新数据
                     } else {

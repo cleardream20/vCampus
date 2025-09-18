@@ -86,7 +86,8 @@ public class MainFrame extends JFrame {
     private void initializeUI() {
         setTitle("虚拟校园系统");
         setSize(1000, 700);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // 使用 CardLayout 来切换不同面板
@@ -118,24 +119,23 @@ public class MainFrame extends JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                performLogout();
+                // 弹出确认对话框
+                int confirm = JOptionPane.showConfirmDialog(MainFrame.this,
+                        "确定要退出吗？", "确认退出", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // 只有用户点击“是”，才执行登出并退出
+                    if (currentUser != null &&
+                            currentUser.getCid() != null &&
+                            !currentUser.getCid().isEmpty()) {
+                        loginService.logout(currentUser.getCid());
+                    }
+                    // 显式退出 JVM
+                    System.exit(0);
+                }
+                // 如果点击“否”，什么也不做，窗口不会关闭
             }
         });
-    }
-
-    private void performLogout() {
-        int confirm = JOptionPane.showConfirmDialog(this, "确定要退出吗？", "确认", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (currentUser == null) return;
-
-            if (currentUser.getCid() == null || currentUser.getCid().isEmpty()) {
-                currentUser = null;
-                return;
-            }
-
-            loginService.logout(currentUser.getCid());
-            currentUser = null;
-        }
     }
 
     // 切换面板的方法

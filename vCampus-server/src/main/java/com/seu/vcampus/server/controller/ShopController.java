@@ -1,6 +1,8 @@
 // ShopController.java
 package com.seu.vcampus.server.controller;
 
+import com.google.gson.reflect.TypeToken;
+import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.model.shop.Order;
 import com.seu.vcampus.common.model.shop.CartItem;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ShopController {
+public class ShopController implements RequestController {
     private ShopService shopService;
 
     public ShopController() {
@@ -45,11 +47,11 @@ public class ShopController {
     }
 
     // 购物车相关方法
-    public List<CartItem> getCartItems(Integer userId) {
+    public List<CartItem> getCartItems(String userId) {
         return shopService.getCartItems(userId);
     }
 
-    public boolean addToCart(Integer userId, String productId, Integer quantity) {
+    public boolean addToCart(String userId, String productId, Integer quantity) {
         Product product = shopService.getProductById(productId);
         if (product == null) {
             return false;
@@ -65,29 +67,29 @@ public class ShopController {
         return shopService.addToCart(userId, productId, quantity);
     }
 
-    public boolean updateCartItemQuantity(Integer userId, String productId, int quantity) {
+    public boolean updateCartItemQuantity(String userId, String productId, int quantity) {
         return shopService.updateCartItemQuantity(userId, productId, quantity);
     }
 
-    public boolean removeFromCart(Integer userId, String productId) {
+    public boolean removeFromCart(String userId, String productId) {
         return shopService.removeFromCart(userId, productId);
     }
 
-    public CartItem getCartItem(Integer userId, String productId) {
+    public CartItem getCartItem(String userId, String productId) {
         return shopService.getCartItem(userId, productId);
     }
 
-    public boolean clearCart(Integer userId) {
+    public boolean clearCart(String userId) {
         return shopService.clearCart(userId);
     }
 
-    public BigDecimal getCartTotal(Integer userId) {
+    public BigDecimal getCartTotal(String userId) {
         List<CartItem> cartItems = shopService.getCartItems(userId);
         return shopService.calculateCartTotal(cartItems);
     }
 
     // 订单相关方法
-    public List<Order> getUserOrders(Integer userId) {
+    public List<Order> getUserOrders(String userId) {
         return shopService.getUserOrders(userId);
     }
 
@@ -95,7 +97,7 @@ public class ShopController {
         return shopService.getOrderById(orderId);
     }
 
-    public boolean createOrder(Integer userId) {
+    public boolean createOrder(String userId) {
         return shopService.createOrderFromCart(userId);
     }
 
@@ -240,11 +242,11 @@ public class ShopController {
 
     private Message handleAddToCart(Message request, Message response) {
         try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data = (Map<String, Object>) request.getData();
-            Integer userId = (Integer) data.get("userId");
+            Map<String, Object> data = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToken<Map<String, Object>>(){}.getType());
+            
+            String userId = (String) data.get("userId");
             String productId = (String) data.get("productId");
-            Integer quantity = (Integer) data.get("quantity");
+            int quantity = ((Number) data.get("quantity")).intValue();
 
             System.out.println("添加到购物车 - 用户ID: " + userId + ", 商品ID: " + productId + ", 数量: " + quantity);
 
@@ -269,7 +271,7 @@ public class ShopController {
 
     private Message handleGetCartItems(Message request, Message response) {
         try {
-            Integer userId = (Integer) request.getData();
+            String userId = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
             System.out.println("获取购物车商品 - 用户ID: " + userId);
 
             List<CartItem> cartItems = shopService.getCartItems(userId);
@@ -295,9 +297,8 @@ public class ShopController {
 
     private Message handleUpdateCartItem(Message request, Message response) {
         try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data = (Map<String, Object>) request.getData();
-            Integer userId = (Integer) data.get("userId");
+            Map<String, Object> data = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToken<Map<String, Object>>(){}.getType());
+            String userId = (String) data.get("userId");
             String productId = (String) data.get("productId");
             Integer quantity = (Integer) data.get("quantity");
 
@@ -324,9 +325,8 @@ public class ShopController {
 
     private Message handleRemoveFromCart(Message request, Message response) {
         try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data = (Map<String, Object>) request.getData();
-            Integer userId = (Integer) data.get("userId");
+            Map<String, Object> data = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToken<Map<String, Object>>(){}.getType());
+            String userId = (String) data.get("userId");
             String productId = (String) data.get("productId");
 
             System.out.println("从购物车移除 - 用户ID: " + userId + ", 商品ID: " + productId);
@@ -352,7 +352,7 @@ public class ShopController {
 
     private Message handleClearCart(Message request, Message response) {
         try {
-            Integer userId = (Integer) request.getData();
+            String userId = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
             System.out.println("清空购物车 - 用户ID: " + userId);
 
             boolean success = shopService.clearCart(userId);
@@ -376,7 +376,9 @@ public class ShopController {
 
     private Message handleCreateOrder(Message request, Message response) {
         try {
-            Integer userId = (Integer) request.getData();
+//            String userId = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+            Map<String, Object> data = Jsonable.fromJson(Jsonable.toJson(request.getData()), new TypeToken<Map<String, Object>>(){}.getType());
+            String userId = (String) data.get("userId");
             System.out.println("创建订单 - 用户ID: " + userId);
 
             boolean success = shopService.createOrderFromCart(userId);
@@ -400,7 +402,7 @@ public class ShopController {
 
     private Message handleGetOrders(Message request, Message response) {
         try {
-            Integer userId = (Integer) request.getData();
+            String userId = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
             System.out.println("获取订单 - 用户ID: " + userId);
 
             List<Order> orders = shopService.getUserOrders(userId);

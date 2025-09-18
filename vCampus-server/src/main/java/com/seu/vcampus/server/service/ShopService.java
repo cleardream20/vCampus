@@ -85,7 +85,7 @@ public class ShopService {
     }
 
     // 购物车相关方法
-    public List<CartItem> getCartItems(Integer userId) {
+    public List<CartItem> getCartItems(String userId) {
         return cartDao.getCartItemsByUserId(userId);
     }
 
@@ -94,7 +94,7 @@ public class ShopService {
     }
 
     // 购物车相关方法需要处理String类型的productId
-    public boolean addToCart(Integer userId, String productId, int quantity) {
+    public boolean addToCart(String userId, String productId, int quantity) {
         Product product = productDao.getProductById(productId);
         if (product == null) {
             return false;
@@ -110,19 +110,19 @@ public class ShopService {
         return cartDao.addToCart(cartItem);
     }
 
-    public boolean updateCartItemQuantity(Integer userId, String productId, int quantity) {
+    public boolean updateCartItemQuantity(String userId, String productId, int quantity) {
         return cartDao.updateCartItemQuantity(userId, productId, quantity);
     }
 
-    public boolean removeFromCart(Integer userId, String productId) {
+    public boolean removeFromCart(String userId, String productId) {
         return cartDao.removeFromCart(userId, productId);
     }
 
-    public boolean clearCart(Integer userId) {
+    public boolean clearCart(String userId) {
         return cartDao.clearCart(userId);
     }
 
-    public CartItem getCartItem(Integer userId, String productId) {
+    public CartItem getCartItem(String userId, String productId) {
         return cartDao.getCartItem(userId, productId);
     }
 
@@ -136,7 +136,7 @@ public class ShopService {
     }
 
     // 订单相关方法
-    public List<Order> getUserOrders(Integer userId) {
+    public List<Order> getUserOrders(String userId) {
         return orderDao.getOrdersByUserId(userId);
     }
 
@@ -144,7 +144,7 @@ public class ShopService {
         return orderDao.getOrderById(orderId);
     }
 
-    public boolean createOrderFromCart(Integer userId) {
+    public boolean createOrderFromCart(String userId) {
         // 获取购物车中的商品
         List<CartItem> cartItems = cartDao.getCartItemsByUserId(userId);
         if (cartItems.isEmpty()) {

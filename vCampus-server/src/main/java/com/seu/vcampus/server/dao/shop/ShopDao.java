@@ -233,7 +233,7 @@ public class ShopDao {
             while (orderRs.next()) {
                 Order order = new Order();
                 order.setOrderId(orderRs.getInt("OrderID"));
-                order.setUserId(orderRs.getInt("UserID"));
+                order.setUserId(orderRs.getString("UserID"));
                 order.setOrderDate(orderRs.getTimestamp("OrderDate"));
                 order.setTotalAmount(orderRs.getBigDecimal("TotalAmount"));
                 order.setStatus(orderRs.getString("Status"));

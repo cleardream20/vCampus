@@ -2,11 +2,9 @@ package com.seu.vcampus.server.socket;
 
 import com.seu.vcampus.common.util.LibraryMessage;
 import com.seu.vcampus.common.util.Message;
+import com.seu.vcampus.common.util.ShopMessage;
 import com.seu.vcampus.common.util.UserMessage;
-import com.seu.vcampus.server.controller.CourseController;
-import com.seu.vcampus.server.controller.LibraryController;
-import com.seu.vcampus.server.controller.RequestController;
-import com.seu.vcampus.server.controller.UserController;
+import com.seu.vcampus.server.controller.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -23,6 +21,7 @@ public class ClientHandler implements Runnable {
     private final UserController userController;
     private final CourseController courseController;
     private final LibraryController libraryController;
+    private final ShopController shopController;
     private final Map<String, RequestController> controllerMap = new HashMap<>();
 
     public ClientHandler(Socket socket) {
@@ -30,6 +29,7 @@ public class ClientHandler implements Runnable {
         this.userController = new UserController(); // 可改为依赖注入
         this.courseController = new CourseController();
         libraryController = new LibraryController();
+        shopController = new ShopController();
         initializeControllers();
     }
 
@@ -37,6 +37,7 @@ public class ClientHandler implements Runnable {
         addUserHandlers();
         addCourseHandlers();
         addLibraryHandlers();
+        addShopHandlers();
     }
 
     private void addUserHandlers() {
@@ -90,6 +91,26 @@ public class ClientHandler implements Runnable {
 
         for (String type : libraryMessageTypes) {
             controllerMap.put(type, libraryController);
+        }
+    }
+
+    private void addShopHandlers() {
+        String[] libraryMessageTypes = {
+                ShopMessage.SHOP_GET_PRODUCTS,
+                ShopMessage.SHOP_GET_PRODUCTS_BY_CATEGORY,
+                ShopMessage.SHOP_GET_PRODUCT_DETAIL,
+                ShopMessage.SHOP_ADD_TO_CART,
+                ShopMessage.SHOP_GET_CART_ITEMS,
+                ShopMessage.SHOP_UPDATE_CART_ITEM,
+                ShopMessage.SHOP_REMOVE_FROM_CART,
+                ShopMessage.SHOP_CLEAR_CART,
+                ShopMessage.SHOP_CREATE_ORDER,
+                ShopMessage.SHOP_GET_ORDERS,
+                ShopMessage.SHOP_GET_ORDER_DETAIL
+        };
+
+        for (String type : libraryMessageTypes) {
+            controllerMap.put(type, shopController);
         }
     }
 

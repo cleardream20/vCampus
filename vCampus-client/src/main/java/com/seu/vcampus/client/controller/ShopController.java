@@ -1,6 +1,8 @@
 package com.seu.vcampus.client.controller;
 
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.client.socket.ClientSocketUtil;
+import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.model.shop.Product;
 import com.seu.vcampus.common.model.shop.CartItem;
@@ -27,7 +29,7 @@ public class ShopController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Product>) response.getData();
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<Product>>() {}.getType());
             } else {
                 System.err.println("获取所有商品失败: " + response.getData());
                 return Collections.emptyList();
@@ -47,7 +49,7 @@ public class ShopController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Product>) response.getData();
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<Product>>() {}.getType());
             } else {
                 System.err.println("按分类获取商品失败: " + response.getData());
                 return Collections.emptyList();
@@ -112,7 +114,7 @@ public class ShopController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<CartItem>) response.getData();
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<CartItem>>() {}.getType());
             } else {
                 System.err.println("获取购物车失败: " + response.getData());
                 return Collections.emptyList();
@@ -226,7 +228,7 @@ public class ShopController {
             Message response = ClientSocketUtil.sendRequest(request);
 
             if (response.getStatus().equals(Message.STATUS_SUCCESS)) {
-                return (List<Order>) response.getData();
+                return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<Order>>() {}.getType());
             } else {
                 System.err.println("获取用户订单失败: " + response.getData());
                 return Collections.emptyList();

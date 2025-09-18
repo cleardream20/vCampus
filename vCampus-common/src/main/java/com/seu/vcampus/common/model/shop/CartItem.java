@@ -17,7 +17,7 @@ public class CartItem implements Serializable, Jsonable {
     private static final long serialVersionUID = 1L;
 
     private Integer id;
-    private Integer userId;
+    private String userId;
     private String productId;
     private String productName;
     private Integer quantity;

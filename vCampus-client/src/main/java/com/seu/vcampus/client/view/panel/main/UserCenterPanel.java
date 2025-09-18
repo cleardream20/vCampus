@@ -71,13 +71,13 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         JScrollPane navScrollPane = new JScrollPane(navList);
         navScrollPane.setPreferredSize(new Dimension(150, 0));
 
-        // ✅ 新增：顶部工具栏（放置返回按钮）
+        // 新增：顶部工具栏（放置返回按钮）
         JPanel topToolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton backToMainBtn = new JButton("返回主界面");
         backToMainBtn.addActionListener(this::handleReturnAction);
         topToolbar.add(backToMainBtn);
 
-        // ✅ 使用嵌套面板：左侧导航 + 右侧（顶部工具栏 + 内容）
+        // 使用嵌套面板：左侧导航 + 右侧（顶部工具栏 + 内容）
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(topToolbar, BorderLayout.NORTH);
         rightPanel.add(contentPanel, BorderLayout.CENTER);

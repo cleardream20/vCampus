@@ -19,7 +19,7 @@ public class Order implements Serializable, Jsonable {
 
     private int id;
     private Integer orderId;
-    private Integer userId;
+    private String userId;
     private Date orderDate;
     private BigDecimal totalAmount;
     private String status;

@@ -17,12 +17,12 @@ public class OrderDao {
             conn.setAutoCommit(false);
 
             // 插入订单
-            String orderSql = "INSERT INTO [Order] (OrderId, UserId, OrderDate, TotalAmount, Status) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+            String orderSql = "INSERT INTO Orders (OrderId, UserId, OrderDate, TotalAmount, Status, ShippingAddress, ContactPhone) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement pstmt = conn.prepareStatement(orderSql)) {
                 pstmt.setInt(1, order.getOrderId());
-                pstmt.setInt(2, order.getUserId());
+                pstmt.setString(2, order.getUserId());
                 pstmt.setTimestamp(3, new Timestamp(order.getOrderDate().getTime()));
                 pstmt.setBigDecimal(4, order.getTotalAmount());
                 pstmt.setString(5, order.getStatus());
@@ -74,20 +74,20 @@ public class OrderDao {
         }
     }
 
-    public List<Order> getOrdersByUserId(Integer userId) {
+    public List<Order> getOrdersByUserId(String userId) {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT * FROM [Order] WHERE UserId = ? ORDER BY OrderDate DESC";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, userId);
+            pstmt.setString(1, userId);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("OrderId"));
-                order.setUserId(rs.getInt("UserId"));
+                order.setUserId(rs.getString("UserId"));
                 order.setOrderDate(rs.getTimestamp("OrderDate"));
                 order.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                 order.setStatus(rs.getString("Status"));
@@ -163,7 +163,7 @@ public class OrderDao {
             if (rs.next()) {
                 order = new Order();
                 order.setOrderId(rs.getInt("OrderId"));
-                order.setUserId(rs.getInt("UserId"));
+                order.setUserId(rs.getString("UserId"));
                 order.setOrderDate(rs.getTimestamp("OrderDate"));
                 order.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                 order.setStatus(rs.getString("Status"));

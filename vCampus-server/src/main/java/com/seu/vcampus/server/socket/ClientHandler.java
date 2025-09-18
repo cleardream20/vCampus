@@ -51,6 +51,7 @@ public class ClientHandler implements Runnable {
     private void addStudentHandlers() {
         controllerMap.put(Message.ST_STUDENT, studentController);
         controllerMap.put(Message.AD_STUDENT, studentController);
+        controllerMap.put(Message.ADD_STUDENT, studentController);
     }
 
     private void addCourseHandlers() {

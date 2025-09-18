@@ -66,6 +66,79 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
+    public boolean addStudent(List<Student> students) throws SQLException {
+
+        Connection conn = null;
+        PreparedStatement selectStmt = null;
+        PreparedStatement updateStmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnector.getConnection(); // 根据您的实际数据源调整
+            conn.setAutoCommit(false);
+
+            // 查询空学生记录
+            String selectSql = "select top " + students.size() + " cid from tblStudent where nid is null order by cid ";
+            selectStmt = conn.prepareStatement(selectSql);
+            rs = selectStmt.executeQuery();
+
+            // 收集可用的CID
+            List<String> availableCids = new ArrayList<>();
+            while (rs.next()) {
+                availableCids.add(rs.getString("cid"));
+            }
+
+            // 检查是否获取到足够的空记录
+            if (availableCids.size() < students.size()) {
+                conn.rollback();
+                return false;
+            }
+
+            // 准备更新语句
+            String updateSql = "update tblStudent set gender = ? and birthday = ? and address = ? and nid = ? and endate = ? and grade = ? and major = ? and stid = ? and es = ? and esState = ? where cid = ?";
+            updateStmt = conn.prepareStatement(updateSql);
+
+            // 遍历学生列表进行更新
+            for (int i = 0; i < students.size(); i++) {
+                Student student = students.get(i);
+                String cid = availableCids.get(i);
+
+                updateStmt.setString(1, student.getSex());
+                updateStmt.setString(2, student.getBirthday());
+                updateStmt.setString(3, student.getAddress());
+                updateStmt.setString(4, student.getNid());
+                updateStmt.setString(5, student.getEndate());
+                updateStmt.setString(6, student.getGrade());
+                updateStmt.setString(7, student.getMajor());
+                updateStmt.setString(8, student.getStid());
+                updateStmt.setString(9, student.getEs());
+                updateStmt.setString(10, student.getEsState());
+                updateStmt.setString(11, cid);
+
+                updateStmt.addBatch(); // 加入批处理
+            }
+
+            // 执行批处理
+            int[] updateCounts = updateStmt.executeBatch();
+
+            // 验证所有更新是否成功
+            for (int count : updateCounts) {
+                if (count != 1) { // 每次更新应影响1行
+                    conn.rollback();
+                    return false;
+                }
+            }
+
+            conn.commit();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
     public Student getStudent(String cid) throws SQLException {
         Student student = null;
         String sql = "select tu.cid as cid, tu.*, ts.* from tblStudent ts " +

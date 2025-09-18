@@ -67,4 +67,23 @@ public class StudentService {
         }
     }
 
+    public boolean addStudent(List<Student> students) throws Exception {
+
+        Message request = new Message(Message.ADD_STUDENT, students);
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if(response == null) {
+                throw new Exception("服务器无响应");
+            }
+
+            if(!response.isSuccess()) {
+                throw new Exception(response.getMessage() != null ? response.getMessage() : "查询失败");
+            }
+
+            return true;
+        } catch (IOException e) {
+            throw new Exception("无法连接至服务器");
+        }
+    }
+
 }

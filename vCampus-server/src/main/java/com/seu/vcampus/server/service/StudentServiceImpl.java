@@ -24,4 +24,9 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> getAllStudents(HashMap<Integer, String> filters) throws SQLException{
         return studentDao.getStudents(filters);
     }
+
+    @Override
+    public boolean addStudent(List<Student> students) throws SQLException{
+        return studentDao.addStudent(students);
+    }
 }

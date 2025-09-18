@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.swing.*;
 import java.io.Serializable;
+import java.util.Map;
 
 //public class User implements Serializable {
 //    private String cid; // card id 一卡通号
@@ -17,11 +19,6 @@ import java.io.Serializable;
 //    private String phone; // 电话号码
 //    private String role; // 角色：ST | TC | AD
 //}
-
-
-//在校大学生学籍：包括姓名、性别、出生日期、学籍号、专业、入学时间、学制等。
-//
-//学籍状态：如是否在籍、休学、退学或毕业等。
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -34,9 +31,7 @@ public class Student extends User implements Serializable, Jsonable {
                    String sex, String birthday, String address, String nid,
                    String endate, String grade, String major, String stid,
                    String es, String esState, int age) {
-        // 调用父类构造函数
         super(cid, password, tsid, name, email, phone, role);
-        // 设置子类字段
         this.sex = sex;
         this.birthday = birthday;
         this.address = address;
@@ -68,14 +63,26 @@ public class Student extends User implements Serializable, Jsonable {
         this.age = age;
     }
 
+    public Student(Map<Integer, JTextField> map) {
+        //"姓名","电话","邮箱","性别","年龄","出生日期","家庭住址","身份证号","入学日期","年级","专业","学籍号","学制","学籍状态"
+        super(null, null, null, map.get(0).getText(), map.get(2).getText(), map.get(1).getText(), "ST");
+        this.sex = map.get(3).getText();
+        this.birthday = map.get(5).getText();
+        this.address = map.get(6).getText();
+        this.nid = map.get(7).getText();
+        this.endate = map.get(8).getText();
+        this.grade = map.get(9).getText();
+        this.major = map.get(10).getText();
+        this.stid = map.get(11).getText();
+        this.es = map.get(12).getText();
+        this.esState = map.get(13).getText();
+        this.age = Integer.parseInt(map.get(4).getText());
+    }
+
     public Object[] getRow() {
 //      "一卡通号","身份证号","学号","姓名","性别","电话号码","出生日期","家庭住址","入学日期","学籍号","学院","年级","学制","学籍状态"
         return new String[] {getCid(), nid, getTsid(), getName(), sex, getPhone(), birthday, address, endate, stid, major, grade, es, esState, String.valueOf(age)};
     }
-
-//    public static Student randomStudent() {
-//        return new Student("1", "2","1", "2","1", "2","1", "2","1", "2");
-//    }
 
     private String sex;
     private int age;

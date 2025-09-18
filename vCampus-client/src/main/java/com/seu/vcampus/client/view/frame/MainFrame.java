@@ -104,8 +104,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(registerPanel, "REGISTER");
         mainPanel.add(userMainPanel, "MAIN");
 
-        // 先添加一个占位面板，名字为 "LIBRARY"
-        // 后续会被 LibraryMainPanel 替换
+        // 占位面板，后续会被替换
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "LIBRARY");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "STUDENT");
         mainPanel.add(new JLabel("加载中...", SwingConstants.CENTER), "COURSE");
@@ -119,12 +118,10 @@ public class MainFrame extends JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                // 弹出确认对话框
                 int confirm = JOptionPane.showConfirmDialog(MainFrame.this,
                         "确定要退出吗？", "确认退出", JOptionPane.YES_NO_OPTION);
 
                 if (confirm == JOptionPane.YES_OPTION) {
-                    // 只有用户点击“是”，才执行登出并退出
                     if (currentUser != null &&
                             currentUser.getCid() != null &&
                             !currentUser.getCid().isEmpty()) {
@@ -133,7 +130,7 @@ public class MainFrame extends JFrame {
                     // 显式退出 JVM
                     System.exit(0);
                 }
-                // 如果点击“否”，什么也不做，窗口不会关闭
+                // else do nothing
             }
         });
     }
@@ -181,7 +178,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(userCenterPanel, "USER_CENTER");
         mainPanel.revalidate();
         mainPanel.repaint();
-        showPanel("USER_CENTER"); // 注意：如果你没有添加 USER_CENTER 面板，请确保已添加
+        showPanel("USER_CENTER");
     }
 
     public void showUserManagementPanel() {
@@ -192,30 +189,11 @@ public class MainFrame extends JFrame {
         showPanel("USER_MANAGEMENT");
     }
 
-    /**
-     * 显示图书馆主面板，根据用户角色动态构建
-     */
     public void showLibraryPanel() {
-//        // 空用户检查
-//        if (currentUser == null) {
-//            JOptionPane.showMessageDialog(this, "请先登录！", "未登录", JOptionPane.WARNING_MESSAGE);
-//            showLoginPanel(); // 或跳转到登录页
-//            return;
-//        }
-
-            // 获取用户角色 ("user" 或 "admin")
-
-//        if (libraryMainPanel != null) {
-//            mainPanel.remove(libraryMainPanel);
-//        }
-
         libraryMainPanel = new LibraryMainPanel(currentUser);
-
         mainPanel.add(libraryMainPanel, "LIBRARY");
-
         mainPanel.revalidate();
         mainPanel.repaint();
-
         showPanel("LIBRARY");
     }
 
@@ -228,12 +206,19 @@ public class MainFrame extends JFrame {
             mainPanel.add(stPanel, "STUDENT");
         }
 
-        else if (userRole.equals("ST") || userRole.equals("TC")) {
+        else if (userRole.equals("ST") || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("TC"))) {
             stPanel = new STPanel();
             mainPanel.add(stPanel, "STUDENT");
-        } else if ("AD".equals(userRole)) {
+        } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule("STUDENT"))) {
             adPanel = new ADPanel();
             mainPanel.add(adPanel, "STUDENT");
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "您无权管理该模块",
+                    "权限不足",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
         // 刷新布局
         mainPanel.revalidate();

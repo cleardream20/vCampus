@@ -1,4 +1,5 @@
 package com.seu.vcampus.server.controller;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.common.model.BorrowRecord;
 import com.seu.vcampus.common.model.Reservation;
@@ -47,7 +48,7 @@ public class LibraryController implements RequestController {
 
                 }
                 case LibraryMessage.ADD_BOOK -> {
-                    Book book = (Book) request.getData();
+                    Book book = new Gson().fromJson(new Gson().toJson(request.getData()), Book.class);
 
                     boolean success = libraryService.addBook(book);
                     if (success) {
@@ -73,7 +74,7 @@ public class LibraryController implements RequestController {
 
                 }
                 case LibraryMessage.UPDATE_BOOK -> {
-                    Book book = (Book) request.getData();
+                    Book book = new Gson().fromJson(new Gson().toJson(request.getData()), Book.class);
 
                     boolean success = libraryService.updateBook(book);
                     if (success) {
@@ -125,7 +126,7 @@ public class LibraryController implements RequestController {
 
                 }
                 case LibraryMessage.RETURN_BOOK -> {
-                    Long RecordID = (Long) request.getData();
+                    Long RecordID = ((Number) request.getData()).longValue();;
 
                     boolean success = libraryService.returnBook(RecordID);
                     if (success) {
@@ -137,7 +138,7 @@ public class LibraryController implements RequestController {
                     }
                 }
                 case LibraryMessage.RENEW_BOOK -> {
-                    Long RecordID = (Long) request.getData();
+                    Long RecordID = ((Number) request.getData()).longValue();;
 
                     boolean success = libraryService.renewBook(RecordID);
                     if (success) {
@@ -150,7 +151,7 @@ public class LibraryController implements RequestController {
 
                 }
                 case LibraryMessage.CANCEL_RESERVATION -> {
-                    Long RecordID = (Long) request.getData();
+                    Long RecordID = ((Number) request.getData()).longValue();;
 
                     boolean success = libraryService.cancelReservation(RecordID);
                     if (success) {

@@ -48,6 +48,8 @@ public class ClientHandler implements Runnable {
         controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
         controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
         controllerMap.put(UserMessage.GET_ALL_USER, userController);
+        controllerMap.put(UserMessage.GET_USER_BY_EMAIL, userController);
+        controllerMap.put(UserMessage.GET_USER_BY_PHONE, userController);
     }
 
     private void addCourseHandlers() {

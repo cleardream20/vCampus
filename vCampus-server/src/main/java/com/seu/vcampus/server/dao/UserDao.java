@@ -17,6 +17,10 @@ public interface UserDao {
      */
     User getUser(String cid) throws SQLException;
 
+    User getUserByPhone(String phone) throws SQLException;
+
+    User getUserByEmail(String email) throws SQLException;
+
     /**
      * 添加新用户
      * @param user 将要新增的用户

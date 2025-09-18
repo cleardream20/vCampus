@@ -96,11 +96,59 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return new User();
+        if (email == null || email.isEmpty()) {
+            System.err.println("邮箱不能为空");
+            return null;
+        }
+        Message request = Message.success(UserMessage.GET_USER_BY_EMAIL, email, "通过邮箱获取用户");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("通过邮箱获取用户失败：服务器无响应");
+                return null;
+            }
+            if (response.isSuccess()) {
+                System.out.println("通过邮箱获取用户成功：" + response.getMessage());
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        User.class
+                );
+            } else {
+                System.out.println("通过邮箱获取用户失败" + response.getMessage());
+            }
+        } catch (IOException e) {
+            System.err.println("通过邮箱获取用户失败：无法连接服务器 - " + e.getMessage());
+            return null;
+        }
+        return null;
     }
 
     public User getUserByPhone(String phone) {
-        return new User();
+        if (phone == null || phone.isEmpty()) {
+            System.err.println("电话不能为空");
+            return null;
+        }
+        Message request = Message.success(UserMessage.GET_USER_BY_PHONE, phone, "通过电话获取用户");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("通过电话获取用户失败：服务器无响应");
+                return null;
+            }
+            if (response.isSuccess()) {
+                System.out.println("通过电话获取用户成功：" + response.getMessage());
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        User.class
+                );
+            } else {
+                System.out.println("通过电话获取用户失败" + response.getMessage());
+            }
+        } catch (IOException e) {
+            System.err.println("通过电话获取用户失败：无法连接服务器 - " + e.getMessage());
+            return null;
+        }
+        return null;
     }
 
     public String generateVerificationCode(String target) {

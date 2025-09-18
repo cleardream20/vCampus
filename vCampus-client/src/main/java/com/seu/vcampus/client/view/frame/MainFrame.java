@@ -7,6 +7,7 @@ import com.seu.vcampus.client.service.LoginService;
 import com.seu.vcampus.client.service.UserService;
 import com.seu.vcampus.client.view.panel.UserManagementPanel;
 import com.seu.vcampus.client.view.panel.course.CoursePanel;
+import com.seu.vcampus.client.view.panel.dorm.DormAdminPanel;
 import com.seu.vcampus.client.view.panel.dorm.DormPanel;
 import com.seu.vcampus.client.view.panel.main.MainPanel;
 import com.seu.vcampus.client.view.panel.RegisterPanel;
@@ -59,6 +60,7 @@ public class MainFrame extends JFrame {
     private CoursePanel coursePanel;
     private ShopPanel  shopPanel;
     private DormPanel dormPanel;
+    private DormAdminPanel dormAdminPanel;
 
     // 私有的静态成员变量，用于存储单例实例
     private static volatile MainFrame instance;
@@ -135,6 +137,16 @@ public class MainFrame extends JFrame {
         });
     }
 
+    public boolean hasAdminRight(String module) {
+        String userRole = currentUser.getRole();
+        if (userRole.equals("ST") || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("TC"))) {
+            return false;
+        } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule(module))) {
+            return false;
+        }
+        return false;
+    }
+
     // 切换面板的方法
     public void showPanel(String panelName) {
         cardLayout.show(mainPanel, panelName);
@@ -207,6 +219,7 @@ public class MainFrame extends JFrame {
         }
 
         else if (userRole.equals("ST") || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("TC"))) {
+            System.out.println(currentUser.getCid() + currentTeacher.getCurRole());
             stPanel = new STPanel();
             mainPanel.add(stPanel, "STUDENT");
         } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule("STUDENT"))) {
@@ -237,8 +250,13 @@ public class MainFrame extends JFrame {
     }
 
     public void showDormPanel() {
-        dormPanel = new DormPanel();
-        mainPanel.add(dormPanel, "DORM");
+        if (hasAdminRight("Dorm")) {
+            dormPanel = new DormPanel();
+            mainPanel.add(dormPanel, "DORM");
+        } else {
+            dormAdminPanel = new DormAdminPanel();
+            mainPanel.add(dormAdminPanel, "DORM");
+        }
         mainPanel.revalidate();
         mainPanel.repaint();
         showPanel("DORM");

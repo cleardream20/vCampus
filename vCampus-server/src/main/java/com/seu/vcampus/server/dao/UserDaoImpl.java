@@ -176,7 +176,9 @@ public class UserDaoImpl implements UserDao {
                             rs.getString("nid"),
                             rs.getString("endate"),
                             rs.getString("title"),
-                            rs.getString("department")
+                            rs.getString("department"),
+                            rs.getString("curRole"),
+                            rs.getString("modules")
                     );
                     return tc;
                 }

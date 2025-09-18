@@ -11,7 +11,6 @@ import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.client.view.frame.MainFrame;
 
 public class STPanel extends JPanel implements NavigatablePanel {
-    private User currentUser;
     private Student currentStudent;
     private JTextField nameField;
     private JTextField emailField;
@@ -24,7 +23,6 @@ public class STPanel extends JPanel implements NavigatablePanel {
     private JButton backButton; // 保留返回按钮
 
     public STPanel() {
-        this.currentUser = MainFrame.getInstance().getCurrentUser();
         this.currentStudent = MainFrame.getInstance().getCurrentStudent();
         initializeUI();
         setFieldsEditable(false); // 确保字段不可编辑

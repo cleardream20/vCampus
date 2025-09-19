@@ -27,15 +27,14 @@ public class STPanel extends JPanel implements NavigatablePanel {
 //        User user = new User();
         String userId = user.getCid();
         StudentService service = new StudentService();
-        initializeUI();
-        setFieldsEditable(false); // 确保字段不可编辑
         try {
             this.currentStudent = MainFrame.getInstance().getCurrentStudent();
 //            this.currentStudent = service.getStudent(userId);
-//            this.currentStudent = new Student();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        initializeUI();
+        setFieldsEditable(false); // 确保字段不可编辑
     }
 
     private void initializeUI() {

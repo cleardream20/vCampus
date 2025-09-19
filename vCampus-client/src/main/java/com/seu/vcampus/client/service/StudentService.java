@@ -21,7 +21,7 @@ public class StudentService {
             throw new IllegalArgumentException("cid is null");
         }
 
-        Message request = new Message(Message.ST_STUDENT, cid);
+        Message request = new Message(Message.ST_STUDENT, (Object) cid);
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if(response == null) {

@@ -18,7 +18,7 @@ public class StudentDaoImpl implements StudentDao {
     public List<Student> getStudents(HashMap<Integer, String> filters) throws SQLException {
         List<Student> students = new ArrayList<>();
         //一卡通号、身份证号、学号、姓名、性别、电话号码、出生日期、家庭住址、入学日期、学籍号、学院、年级、学制、学籍状态
-        String[] args = new String[] {"cid", "nid", "tsid", "name", "sex", "phone", "birthday", "address", "endate", "stid", "major", "grade", "es", "esState"};
+        String[] args = new String[] {"cid", "nid", "tsid", "tname", "sex", "phone", "birthday", "address", "endate", "stid", "major", "grade", "es", "esState"};
         String sql = "select tu.cid as cid, tu.*, ts.* from tblStudent ts " +
                      "inner join tblUser tu on ts.cid = tu.cid " +
                      "where 1 = 1 ";

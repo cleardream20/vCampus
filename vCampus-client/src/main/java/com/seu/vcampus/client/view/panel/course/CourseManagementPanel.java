@@ -3,6 +3,7 @@ package com.seu.vcampus.client.view.panel.course;
 import com.seu.vcampus.client.controller.CourseController;
 import com.seu.vcampus.common.model.course.Course;
 import com.seu.vcampus.common.model.User;
+import com.seu.vcampus.common.util.Jsonable;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -374,6 +375,7 @@ public class CourseManagementPanel extends JPanel implements CoursePanel.Refresh
             newCourse.setStartWeek((Integer) startWeekSpinner.getValue());
             newCourse.setEndWeek((Integer) endWeekSpinner.getValue());
 
+            System.out.println("准备添加的课程: " + Jsonable.toJson(newCourse));
             // 通过控制器添加课程
             if (courseController.addCourse(newCourse,currentUser)) {
                 JOptionPane.showMessageDialog(dialog, "课程添加成功", "成功", JOptionPane.INFORMATION_MESSAGE);

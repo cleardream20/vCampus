@@ -42,7 +42,7 @@ public class CourseController {
         data.addProperty("course", Jsonable.toJson(course));
         data.add("user", Jsonable.gson.toJsonTree(user)); // 修改这里
         request.setData(data);
-
+        System.out.println("发送的请求数据: " + request.toJson());
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             return Message.STATUS_SUCCESS.equals(response.getStatus());

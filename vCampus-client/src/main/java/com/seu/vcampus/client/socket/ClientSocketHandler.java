@@ -7,8 +7,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ClientSocketHandler {
+    private static final String SERVER_HOST = "192.168.8.197";
 //    private static final String SERVER_HOST = "192.168.30.2";
-    private static final String SERVER_HOST = "localhost";
+//    private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 8888;
 
     private Socket socket;

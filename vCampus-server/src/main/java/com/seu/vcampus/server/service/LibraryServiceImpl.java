@@ -47,17 +47,18 @@ public class LibraryServiceImpl implements ILibraryService {
 
     @Override
     public List<Book> searchBooks(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return getAllBooks();
-        }
-
-        String lowerKeyword = keyword.toLowerCase();
-        return books.stream()
-                .filter(book ->
-                        book.getTitle().toLowerCase().contains(lowerKeyword) ||
-                                book.getAuthor().toLowerCase().contains(lowerKeyword) ||
-                                book.getIsbn().toLowerCase().contains(lowerKeyword))
-                .collect(Collectors.toList());
+//        if (keyword == null || keyword.trim().isEmpty()) {
+//            return getAllBooks();
+//        }
+//
+//        String lowerKeyword = keyword.toLowerCase();
+//        return books.stream()
+//                .filter(book ->
+//                        book.getTitle().toLowerCase().contains(lowerKeyword) ||
+//                                book.getAuthor().toLowerCase().contains(lowerKeyword) ||
+//                                book.getIsbn().toLowerCase().contains(lowerKeyword))
+//                .collect(Collectors.toList());
+        return bookDao.searchBooks(keyword);
     }
 
 

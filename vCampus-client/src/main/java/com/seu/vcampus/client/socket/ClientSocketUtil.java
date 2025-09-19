@@ -11,7 +11,8 @@ import java.net.Socket;
 public class ClientSocketUtil {
 //    private static final String SERVER_HOST = "10.208.96.204";
 //    private static final String SERVER_HOST = "192.168.30.2";
-    private static final String SERVER_HOST = "localhost";
+    private static final String SERVER_HOST = "192.168.8.197";
+//    private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 8888;
     private static final Gson gson = new Gson();
 

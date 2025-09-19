@@ -91,6 +91,46 @@ public class BookDaoImpl implements IBookDao {
     }
 
     @Override
+    public List<Book> searchBooks(String keyword) {
+        ensureConnection();
+        List<Book> books = new ArrayList<>();
+
+        // 如果关键词为空，返回空列表
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return books;
+        }
+
+        // 构建SQL查询语句，在多个字段中进行模糊搜索
+        String sql = "SELECT bIsbn, bTitle, bAuthor, bPublisher, bPublishYear, " +
+                "bTotal, bAvailable, bLocation, bImagePath, bDescription " +
+                "FROM tblBook " +
+                "WHERE bTitle LIKE ? OR bAuthor LIKE ? OR bIsbn LIKE ? OR bLocation LIKE ? " +
+                "ORDER BY bTitle ASC";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            // 设置查询参数，添加通配符进行模糊匹配
+            String searchPattern = "%" + keyword.trim() + "%";
+            pstmt.setString(1, searchPattern);
+            pstmt.setString(2, searchPattern);
+            pstmt.setString(3, searchPattern);
+            pstmt.setString(4, searchPattern);
+
+            // 执行查询
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    // 将结果映射为Book对象
+                    Book book = mapResultSetToBook(rs);
+                    books.add(book);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("搜索图书失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return books;
+    }
+    @Override
     public List<BorrowRecord> getBorrowRecordsByUserId(String userId) {
         ensureConnection();
         List<BorrowRecord> records = new ArrayList<>();

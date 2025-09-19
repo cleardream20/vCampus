@@ -14,7 +14,7 @@ public interface IBookDao {
      * @return 图书列表
      */
     List<Book> getAllBooks();
-
+    List<Book> searchBooks(String keyword);
     /**
      * 根据ISBN查询图书
      *

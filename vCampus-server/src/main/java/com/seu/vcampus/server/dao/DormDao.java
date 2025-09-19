@@ -11,13 +11,13 @@ public interface DormDao {
     boolean updateDormInfo(Dorm dorm) throws SQLException;
     boolean addDormInfo(Dorm dorm) throws SQLException;
     boolean deleteDormInfo(String studentId) throws SQLException;
-    
+
     // 住宿申请相关操作
     boolean addApplication(Dorm application) throws SQLException;
     List<Dorm> getApplicationsByStudentId(String studentId) throws SQLException;
     List<Dorm> getPendingApplications() throws SQLException;
     boolean updateApplicationStatus(String applicationId, String status, String reviewer) throws SQLException;
-    
+
     // 宿舍服务相关操作
     boolean addService(Dorm service) throws SQLException;
     List<Dorm> getServicesByStudentId(String studentId) throws SQLException;

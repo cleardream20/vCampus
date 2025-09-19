@@ -2,6 +2,8 @@ package com.seu.vcampus.common.model;
 
 
 import java.util.Date;
+
+import com.seu.vcampus.common.util.Jsonable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,11 +13,11 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * 借阅记录实体类
- * 对应数据库中的 tblBorrowRecord 表
+/*
+  借阅记录实体类
+  对应数据库中的 tblBorrowRecord 表
  */
-public class BorrowRecord implements Serializable {
+public class BorrowRecord implements Serializable, Jsonable {
     private Long recordId;       // 记录ID
     private String userId;       // 用户ID
     private String bookIsbn;     // 图书ISBN

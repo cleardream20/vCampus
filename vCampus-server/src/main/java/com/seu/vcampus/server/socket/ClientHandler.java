@@ -1,10 +1,17 @@
 package com.seu.vcampus.server.socket;
 
+import com.seu.vcampus.common.model.User;
+import com.seu.vcampus.common.util.LibraryMessage;
 import com.seu.vcampus.common.util.Message;
-import com.seu.vcampus.server.controller.UserController;
+import com.seu.vcampus.common.util.ShopMessage;
+import com.seu.vcampus.common.util.UserMessage;
+import com.seu.vcampus.server.controller.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 处理单个客户端请求的线程
@@ -13,10 +20,114 @@ public class ClientHandler implements Runnable {
 
     private final Socket socket;
     private final UserController userController;
+    private final CourseController courseController;
+    private final LibraryController libraryController;
+    private final ShopController shopController;
+    private final Map<String, RequestController> controllerMap = new HashMap<>();
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.userController = new UserController(); // 可改为依赖注入
+        this.courseController = new CourseController();
+        libraryController = new LibraryController();
+        shopController = new ShopController();
+        initializeControllers();
+    }
+
+    private void initializeControllers() {
+        addUserHandlers();
+        addCourseHandlers();
+        addLibraryHandlers();
+        addShopHandlers();
+    }
+
+    private void addUserHandlers() {
+        controllerMap.put(Message.LOGIN, userController);
+        controllerMap.put(Message.REGISTER, userController);
+        controllerMap.put(Message.LOGOUT, userController);
+        controllerMap.put(Message.GET_USER, userController);
+        controllerMap.put(Message.ADD_USER, userController);
+        controllerMap.put(Message.UPDATE_USER, userController);
+        controllerMap.put(Message.DELETE_USER, userController);
+        controllerMap.put(UserMessage.GET_ST_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
+        controllerMap.put(UserMessage.GET_ALL_USER, userController);
+        controllerMap.put(UserMessage.GET_USER_BY_EMAIL, userController);
+        controllerMap.put(UserMessage.GET_USER_BY_PHONE, userController);
+        controllerMap.put(UserMessage.GET_TC, userController);
+        controllerMap.put(UserMessage.ADD_TC, userController);
+        controllerMap.put(UserMessage.UPDATE_TC, userController);
+        controllerMap.put(UserMessage.DELETE_TC, userController);
+        controllerMap.put(UserMessage.GET_AD, userController);
+        controllerMap.put(UserMessage.ADD_AD, userController);
+        controllerMap.put(UserMessage.UPDATE_AD, userController);
+        controllerMap.put(UserMessage.DELETE_AD, userController);
+    }
+
+    private void addCourseHandlers() {
+        // 所有课程相关消息都路由到CourseController
+        String[] courseMessageTypes = {
+                Message.GET_COURSE_LIST,
+                Message.SELECT_COURSE,
+                Message.DROP_COURSE,
+                Message.DROP_COURSE_AD,
+                Message.GET_COURSE_BY_NAME,
+                Message.GET_COURSE_BY_ID,
+                Message.ADD_COURSE,
+                Message.UPDATE_COURSE,
+                Message.DELETE_COURSE,
+                Message.GET_SELECTED_COURSES,
+                Message.GET_COURSE_SCHEDULE,
+                Message.GET_SELECTION_RECORDS,
+                Message.GET_TEACHING_COURSES
+        };
+
+        for (String type : courseMessageTypes) {
+            controllerMap.put(type, courseController);
+        }
+    }
+
+    private void addLibraryHandlers() {
+        String[] libraryMessageTypes = {
+                LibraryMessage.GET_ALL_BOOKS,
+                LibraryMessage.SEARCH_BOOKS,
+                LibraryMessage.GET_BORROW_BOOKS,
+                LibraryMessage.BORROW_BOOKS,
+                LibraryMessage.RETURN_BOOK,
+                LibraryMessage.ADD_BOOK,
+                LibraryMessage.UPDATE_BOOK,
+                LibraryMessage.DELETE_BOOK,
+                LibraryMessage.RENEW_BOOK,
+                LibraryMessage.GET_BOOKS_BY_ISBN,
+                LibraryMessage.GET_RESERVATIONS,
+                LibraryMessage.RESERVE_BOOKS,
+                LibraryMessage.CANCEL_RESERVATION
+        };
+
+        for (String type : libraryMessageTypes) {
+            controllerMap.put(type, libraryController);
+        }
+    }
+
+    private void addShopHandlers() {
+        String[] libraryMessageTypes = {
+                ShopMessage.SHOP_GET_PRODUCTS,
+                ShopMessage.SHOP_GET_PRODUCTS_BY_CATEGORY,
+                ShopMessage.SHOP_GET_PRODUCT_DETAIL,
+                ShopMessage.SHOP_ADD_TO_CART,
+                ShopMessage.SHOP_GET_CART_ITEMS,
+                ShopMessage.SHOP_UPDATE_CART_ITEM,
+                ShopMessage.SHOP_REMOVE_FROM_CART,
+                ShopMessage.SHOP_CLEAR_CART,
+                ShopMessage.SHOP_CREATE_ORDER,
+                ShopMessage.SHOP_GET_ORDERS,
+                ShopMessage.SHOP_GET_ORDER_DETAIL
+        };
+
+        for (String type : libraryMessageTypes) {
+            controllerMap.put(type, shopController);
+        }
     }
 
     @Override
@@ -73,23 +184,17 @@ public class ClientHandler implements Runnable {
 
         System.out.println("==== 请求类型==== : " + type);
 
-        // TODO: 可以用 Map<String, Controller> 优化
-        switch (type) {
-            case Message.LOGIN:
-                try {
-                    return userController.handleRequest(request);
-                } catch (Exception e) {
-                    System.err.println("登录异常: " + e.getMessage());
-                }
-            case Message.REGISTER:
-                try {
-                    return userController.handleRequest(request);
-                } catch (Exception e) {
-                    System.err.println("传递request异常: " + e.getMessage());
-                }
-
-            default:
-                return Message.fromData(Message.RESPONSE, false, null, "未知请求类型: " + type);
+        // Map<String, Controller>
+        RequestController requestController = controllerMap.get(type);
+        if (requestController != null) {
+            try {
+                return requestController.handleRequest(request);
+            } catch (SQLException e) {
+                System.err.println("处理请求异常: " + e.getMessage());
+                return Message.error(type, "服务器处理错误");
+            }
         }
+
+        return Message.error(type, "未知类型: " + type);
     }
 }

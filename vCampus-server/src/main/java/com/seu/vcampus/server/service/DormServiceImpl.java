@@ -11,7 +11,7 @@ public class DormServiceImpl implements IDormService {
     private final DormDaoImpl dormDao = new DormDaoImpl();
 
     // 学生端功能实现
-    
+
     @Override
     public Dorm getDormInfo(String studentId) throws SQLException {
         try {
@@ -38,7 +38,7 @@ public class DormServiceImpl implements IDormService {
             // 设置默认值
             application.setApplicationTime(new Date());
             application.setApplicationStatus("待审核");
-            
+
             return dormDao.addApplication(application);
         } catch (SQLException e) {
             System.err.println("提交申请失败: " + e.getMessage());
@@ -62,7 +62,7 @@ public class DormServiceImpl implements IDormService {
             // 设置默认值
             service.setServiceTime(new Date());
             service.setServiceStatus("待处理");
-            
+
             return dormDao.addService(service);
         } catch (SQLException e) {
             System.err.println("提交服务申请失败: " + e.getMessage());
@@ -71,7 +71,7 @@ public class DormServiceImpl implements IDormService {
     }
 
     // 管理端功能实现
-    
+
     @Override
     public List<Dorm> getAllDormInfo() throws SQLException {
         try {
@@ -99,7 +99,7 @@ public class DormServiceImpl implements IDormService {
             if (!"已批准".equals(status) && !"已拒绝".equals(status)) {
                 throw new SQLException("无效的申请状态: " + status);
             }
-            
+
             return dormDao.updateApplicationStatus(applicationId, status, reviewer);
         } catch (SQLException e) {
             System.err.println("更新申请状态失败: " + e.getMessage());
@@ -124,7 +124,7 @@ public class DormServiceImpl implements IDormService {
             if (!"处理中".equals(status) && !"已完成".equals(status)) {
                 throw new SQLException("无效的服务状态: " + status);
             }
-            
+
             return dormDao.updateServiceStatus(serviceId, status, processor);
         } catch (SQLException e) {
             System.err.println("更新服务状态失败: " + e.getMessage());
@@ -132,4 +132,3 @@ public class DormServiceImpl implements IDormService {
         }
     }
 }
-

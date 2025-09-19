@@ -1,28 +1,27 @@
 package com.seu.vcampus.client.controller;
 
-import com.seu.vcampus.client.socket.ClientSocketUtil;
+import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.model.Dorm;
 import com.seu.vcampus.common.util.DormMessage;
 import com.seu.vcampus.common.util.Message;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class DormController {
+    @Setter
     private String currentUserId;
+    private ClientSocketHandler socketHandler;
 
-    public DormController() {}
-
-    public void setCurrentUserId(String userId) {
-        this.currentUserId = userId;
-    }
+    public DormController() {this.socketHandler = new ClientSocketHandler();}
 
     // 获取当前学生的住宿信息
     public Dorm getDormInfo() {
         try {
             Message request = createRequest(DormMessage.GET_DORM_INFO);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processDormResponse(response);
         } catch (Exception e) {
@@ -35,7 +34,7 @@ public class DormController {
     public List<Dorm> getApplications() {
         try {
             Message request = createRequest(DormMessage.GET_APPLICATIONS);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processDormListResponse(response);
         } catch (Exception e) {
@@ -50,7 +49,7 @@ public class DormController {
             Message request = createRequest(DormMessage.SUBMIT_APPLICATION);
             // 将申请数据设置到消息中
             request.setData(application);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processOperationResponse(response);
         } catch (Exception e) {
@@ -63,7 +62,7 @@ public class DormController {
     public List<Dorm> getServices() {
         try {
             Message request = createRequest(DormMessage.GET_SERVICES);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processDormListResponse(response);
         } catch (Exception e) {
@@ -78,7 +77,7 @@ public class DormController {
             Message request = createRequest(DormMessage.SUBMIT_SERVICE);
             // 将服务数据设置到消息中
             request.setData(service);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processOperationResponse(response);
         } catch (Exception e) {
@@ -91,7 +90,7 @@ public class DormController {
     public List<Dorm> getAllDormInfo() {
         try {
             Message request = createRequest(DormMessage.GET_ALL_DORM_INFO);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processDormListResponse(response);
         } catch (Exception e) {
@@ -104,7 +103,7 @@ public class DormController {
     public List<Dorm> getPendingApplications() {
         try {
             Message request = createRequest(DormMessage.GET_PENDING_APPLICATIONS);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processDormListResponse(response);
         } catch (Exception e) {
@@ -119,7 +118,7 @@ public class DormController {
             Message request = createRequest(DormMessage.UPDATE_APPLICATION_STATUS);
             // 将申请数据设置到消息中
             request.setData(application);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processOperationResponse(response);
         } catch (Exception e) {
@@ -132,7 +131,7 @@ public class DormController {
     public List<Dorm> getAllServices() {
         try {
             Message request = createRequest(DormMessage.GET_ALL_SERVICES);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processDormListResponse(response);
         } catch (Exception e) {
@@ -147,7 +146,7 @@ public class DormController {
             Message request = createRequest(DormMessage.UPDATE_SERVICE_STATUS);
             // 将服务数据设置到消息中
             request.setData(service);
-            Message response = ClientSocketUtil.sendRequest(request);
+            Message response = socketHandler.sendRequest(request);
 
             return processOperationResponse(response);
         } catch (Exception e) {
@@ -200,7 +199,7 @@ public class DormController {
     private Message createRequest(String type) {
         Message request = new Message();
         request.setType(type);
-        request.setSender(currentUserId);
+//        request.setSender(currentUserId);
         return request;
     }
 }

@@ -11,7 +11,7 @@ public interface IDormService {
     boolean submitApplication(Dorm application) throws SQLException;
     List<Dorm> getServices(String studentId) throws SQLException;
     boolean submitService(Dorm service) throws SQLException;
-    
+
     // 管理端功能
     List<Dorm> getAllDormInfo() throws SQLException;
     List<Dorm> getPendingApplications() throws SQLException;

@@ -27,9 +27,10 @@ public class ClientSocketUtil {
             // 不要把 socket 放进 try-with-resources
             try (PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
                  BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-
+                System.out.println("尝试接收信息");
                 writer.println(request.toJson());
                 String responseLine = reader.readLine();
+                System.out.println("response信息: " + responseLine);
                 if (responseLine == null || responseLine.trim().isEmpty()) {
                     throw new IOException("服务器未返回响应");
                 }
@@ -43,21 +44,3 @@ public class ClientSocketUtil {
         }
     }
 }
-
-/*
-ClientSocketUtil: send message 工具人
-// 1. 构造请求
-Message request = new Message("login", userDataJson);
-
-// 2. 发送
-Message response = ClientSocketUtil.sendRequest(request);
-
-// 3. 处理
-if (response.isSuccess()) {
-    User user = User.fromJson(response.getData());
-    UserSession.setUser(user);
-    mainFrame.showHome();
-} else {
-    showError(response.getMessage());
-}
- */

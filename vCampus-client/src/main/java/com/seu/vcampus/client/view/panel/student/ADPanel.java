@@ -11,14 +11,19 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
-import com.seu.vcampus.client.controller.student.ADController;
+import com.seu.vcampus.client.service.StudentService;
 import com.seu.vcampus.client.view.NavigatablePanel;
+import com.seu.vcampus.client.view.frame.MainFrame;
+import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
+import com.seu.vcampus.common.util.Jsonable;
 
 public class ADPanel extends JPanel implements NavigatablePanel {
     private JTable table;
@@ -27,15 +32,14 @@ public class ADPanel extends JPanel implements NavigatablePanel {
     private TableRowSorter<TableModel> sorter;
     private JPanel northPanel;
     private final int[] columnWidths = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100}; // 列宽数组
-    private Map<Integer, String> filters = new HashMap<>();
-    ADController adController;
-
-
+    private HashMap<Integer, String> filters = new HashMap<>();
+    private final String[] columnNames = new String[] {"一卡通号","身份证号","学号","姓名","性别","电话号码","出生日期","家庭住址","入学日期","学籍号","学院","年级","学制","学籍状态"};
+    private StudentService service;
 
     public ADPanel() {
         setLayout(new BorderLayout());
 
-        adController = new ADController();
+        service = new StudentService();
         // 创建北部面板，使用垂直BoxLayout
         northPanel = new JPanel();
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
@@ -51,8 +55,6 @@ public class ADPanel extends JPanel implements NavigatablePanel {
 
     private void initTable() {
         // 初始时不加载数据，表格为空
-        String[] columnNames = adController.getColumnNames();
-
         tableModel = new DefaultTableModel(null, columnNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -130,10 +132,9 @@ public class ADPanel extends JPanel implements NavigatablePanel {
 
     // 返回上一级
     private void returnToPrevious() {
-        Window window = SwingUtilities.getWindowAncestor(this);
-        if (window != null) {
-            window.dispose();
-        }
+        SwingUtilities.invokeLater(() -> {
+            MainFrame.getInstance().showMainPanel(MainFrame.getInstance().getCurrentUser());
+        });
     }
 
     // 创建统一样式的按钮
@@ -163,7 +164,7 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         });
     }
 
-    private void showFilterDialog() {
+    private void showFilterDialog(){
         JDialog filterDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "筛选条件", true);
         filterDialog.setLayout(new BorderLayout());
         filterDialog.setSize(500, 400);
@@ -173,7 +174,6 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         JPanel filterPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         filterPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        String[] columnNames = adController.getColumnNames();
         Map<Integer, JTextField> dialogFilterFields = new HashMap<>();
 
         for (int i = 0; i < columnNames.length; i++) {
@@ -222,18 +222,25 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         filterDialog.setVisible(true);
     }
 
-    private void loadDataWithFilters() {
+    private void loadDataWithFilters(){
         // 从数据库获取筛选后的数据
-        Object[][] filteredData = adController.getDataWithFilters(filters);
+        List filteredData;
+        try {
+            filteredData = service.getDataWithFilters(filters);
 
-        // 更新表格模型
-        tableModel.setRowCount(0); // 清空现有数据
-        for (Object[] row : filteredData) {
-            tableModel.addRow(row);
+            // 更新表格模型
+            tableModel.setRowCount(0); // 清空现有数据
+            for (Object st : filteredData) {
+                Student student = Jsonable.fromJson(Jsonable.toJson(st), Student.class);
+                Object[] row = student.getRow();
+                tableModel.addRow(row);
+            }
+
+            // 更新状态栏
+            updateStatusBar();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        // 更新状态栏
-        updateStatusBar();
     }
 
     private void copySelectedRows() {
@@ -357,5 +364,13 @@ public class ADPanel extends JPanel implements NavigatablePanel {
     @Override
     public String getPanelName() {
         return "StudentAD";
+    }
+
+    public static void main(String[] args){
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        frame.add(new ADPanel());
+        frame.setSize(800,600);
     }
 }

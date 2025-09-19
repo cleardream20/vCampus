@@ -8,7 +8,7 @@ import java.util.List;
 
 public class DormDaoImpl implements DormDao {
     // 住宿信息相关操作实现
-    
+
     @Override
     public Dorm getDormInfoByStudentId(String studentId) throws SQLException {
         String sql = "SELECT * FROM tblDormInfo WHERE studentId = ?";
@@ -23,13 +23,13 @@ public class DormDaoImpl implements DormDao {
                     dorm.setBuilding(rs.getString("building"));
                     dorm.setRoomNumber(rs.getString("roomNumber"));
                     dorm.setBedNumber(rs.getString("bedNumber"));
-                    
+
                     // 处理日期字段
                     java.sql.Date checkInDate = rs.getDate("checkInDate");
                     if (checkInDate != null) {
                         dorm.setCheckInDate(new java.util.Date(checkInDate.getTime()));
                     }
-                    
+
                     dorm.setStatus(rs.getString("status"));
                     return dorm;
                 }
@@ -55,13 +55,13 @@ public class DormDaoImpl implements DormDao {
                 dorm.setBuilding(rs.getString("building"));
                 dorm.setRoomNumber(rs.getString("roomNumber"));
                 dorm.setBedNumber(rs.getString("bedNumber"));
-                
+
                 // 处理日期字段
                 java.sql.Date checkInDate = rs.getDate("checkInDate");
                 if (checkInDate != null) {
                     dorm.setCheckInDate(new java.util.Date(checkInDate.getTime()));
                 }
-                
+
                 dorm.setStatus(rs.getString("status"));
                 dorms.add(dorm);
             }
@@ -75,24 +75,24 @@ public class DormDaoImpl implements DormDao {
     @Override
     public boolean updateDormInfo(Dorm dorm) throws SQLException {
         String sql = "UPDATE tblDormInfo SET name = ?, building = ?, roomNumber = ?, " +
-                     "bedNumber = ?, checkInDate = ?, status = ? WHERE studentId = ?";
+                "bedNumber = ?, checkInDate = ?, status = ? WHERE studentId = ?";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, dorm.getName());
             ps.setString(2, dorm.getBuilding());
             ps.setString(3, dorm.getRoomNumber());
             ps.setString(4, dorm.getBedNumber());
-            
+
             // 处理日期字段
             if (dorm.getCheckInDate() != null) {
                 ps.setDate(5, new java.sql.Date(dorm.getCheckInDate().getTime()));
             } else {
                 ps.setNull(5, Types.DATE);
             }
-            
+
             ps.setString(6, dorm.getStatus());
             ps.setString(7, dorm.getStudentId());
-            
+
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException ex) {
@@ -104,7 +104,7 @@ public class DormDaoImpl implements DormDao {
     @Override
     public boolean addDormInfo(Dorm dorm) throws SQLException {
         String sql = "INSERT INTO tblDormInfo (studentId, name, building, roomNumber, " +
-                     "bedNumber, checkInDate, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "bedNumber, checkInDate, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, dorm.getStudentId());
@@ -112,16 +112,16 @@ public class DormDaoImpl implements DormDao {
             ps.setString(3, dorm.getBuilding());
             ps.setString(4, dorm.getRoomNumber());
             ps.setString(5, dorm.getBedNumber());
-            
+
             // 处理日期字段
             if (dorm.getCheckInDate() != null) {
                 ps.setDate(6, new java.sql.Date(dorm.getCheckInDate().getTime()));
             } else {
                 ps.setNull(6, Types.DATE);
             }
-            
+
             ps.setString(7, dorm.getStatus());
-            
+
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException ex) {
@@ -136,7 +136,7 @@ public class DormDaoImpl implements DormDao {
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, studentId);
-            
+
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException ex) {
@@ -144,28 +144,28 @@ public class DormDaoImpl implements DormDao {
             throw ex;
         }
     }
-    
+
     // 住宿申请相关操作实现
-    
+
     @Override
     public boolean addApplication(Dorm application) throws SQLException {
         String sql = "INSERT INTO tblDormApplication (studentId, applicationType, " +
-                     "applicationTime, applicationStatus, reviewer) VALUES (?, ?, ?, ?, ?)";
+                "applicationTime, applicationStatus, reviewer) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, application.getStudentId());
             ps.setString(2, application.getApplicationType());
-            
+
             // 处理时间字段
             if (application.getApplicationTime() != null) {
                 ps.setTimestamp(3, new Timestamp(application.getApplicationTime().getTime()));
             } else {
                 ps.setNull(3, Types.TIMESTAMP);
             }
-            
+
             ps.setString(4, application.getApplicationStatus());
             ps.setString(5, application.getReviewer());
-            
+
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException ex) {
@@ -187,13 +187,13 @@ public class DormDaoImpl implements DormDao {
                     application.setApplicationId(rs.getString("applicationId"));
                     application.setStudentId(rs.getString("studentId"));
                     application.setApplicationType(rs.getString("applicationType"));
-                    
+
                     // 处理时间字段
                     Timestamp applicationTime = rs.getTimestamp("applicationTime");
                     if (applicationTime != null) {
                         application.setApplicationTime(new java.util.Date(applicationTime.getTime()));
                     }
-                    
+
                     application.setApplicationStatus(rs.getString("applicationStatus"));
                     application.setReviewer(rs.getString("reviewer"));
                     applications.add(application);
@@ -218,13 +218,13 @@ public class DormDaoImpl implements DormDao {
                 application.setApplicationId(rs.getString("applicationId"));
                 application.setStudentId(rs.getString("studentId"));
                 application.setApplicationType(rs.getString("applicationType"));
-                
+
                 // 处理时间字段
                 Timestamp applicationTime = rs.getTimestamp("applicationTime");
                 if (applicationTime != null) {
                     application.setApplicationTime(new java.util.Date(applicationTime.getTime()));
                 }
-                
+
                 application.setApplicationStatus(rs.getString("applicationStatus"));
                 application.setReviewer(rs.getString("reviewer"));
                 applications.add(application);
@@ -244,7 +244,7 @@ public class DormDaoImpl implements DormDao {
             ps.setString(1, status);
             ps.setString(2, reviewer);
             ps.setString(3, applicationId);
-            
+
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException ex) {
@@ -252,28 +252,28 @@ public class DormDaoImpl implements DormDao {
             throw ex;
         }
     }
-    
+
     // 宿舍服务相关操作实现
-    
+
     @Override
     public boolean addService(Dorm service) throws SQLException {
         String sql = "INSERT INTO tblDormService (studentId, serviceDescription, " +
-                     "serviceTime, serviceStatus, serviceProcessor) VALUES (?, ?, ?, ?, ?)";
+                "serviceTime, serviceStatus, serviceProcessor) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, service.getStudentId());
             ps.setString(2, service.getServiceDescription());
-            
+
             // 处理时间字段
             if (service.getServiceTime() != null) {
                 ps.setTimestamp(3, new Timestamp(service.getServiceTime().getTime()));
             } else {
                 ps.setNull(3, Types.TIMESTAMP);
             }
-            
+
             ps.setString(4, service.getServiceStatus());
             ps.setString(5, service.getServiceProcessor());
-            
+
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException ex) {
@@ -295,13 +295,13 @@ public class DormDaoImpl implements DormDao {
                     service.setServiceId(rs.getString("serviceId"));
                     service.setStudentId(rs.getString("studentId"));
                     service.setServiceDescription(rs.getString("serviceDescription"));
-                    
+
                     // 处理时间字段
                     Timestamp serviceTime = rs.getTimestamp("serviceTime");
                     if (serviceTime != null) {
                         service.setServiceTime(new java.util.Date(serviceTime.getTime()));
                     }
-                    
+
                     service.setServiceStatus(rs.getString("serviceStatus"));
                     service.setServiceProcessor(rs.getString("serviceProcessor"));
                     services.add(service);
@@ -326,13 +326,13 @@ public class DormDaoImpl implements DormDao {
                 service.setServiceId(rs.getString("serviceId"));
                 service.setStudentId(rs.getString("studentId"));
                 service.setServiceDescription(rs.getString("serviceDescription"));
-                
+
                 // 处理时间字段
                 Timestamp serviceTime = rs.getTimestamp("serviceTime");
                 if (serviceTime != null) {
                     service.setServiceTime(new java.util.Date(serviceTime.getTime()));
                 }
-                
+
                 service.setServiceStatus(rs.getString("serviceStatus"));
                 service.setServiceProcessor(rs.getString("serviceProcessor"));
                 services.add(service);
@@ -352,7 +352,7 @@ public class DormDaoImpl implements DormDao {
             ps.setString(1, status);
             ps.setString(2, processor);
             ps.setString(3, serviceId);
-            
+
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException ex) {

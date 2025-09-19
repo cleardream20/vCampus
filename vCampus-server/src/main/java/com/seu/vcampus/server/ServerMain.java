@@ -1,7 +1,7 @@
 package com.seu.vcampus.server;
 
 import com.seu.vcampus.server.socket.ServerSocketThread;
-import com.seu.vcampus.server.util.DatabaseInitializer;
+//import com.seu.vcampus.server.util.DatabaseInitializer;
 
 import javax.swing.*;
 
@@ -12,7 +12,7 @@ import javax.swing.*;
 public class ServerMain {
 
     public static void main(String[] args) {
-        DatabaseInitializer.init();
+//        DatabaseInitializer.init();
 
         showServerStatusWindow();
 

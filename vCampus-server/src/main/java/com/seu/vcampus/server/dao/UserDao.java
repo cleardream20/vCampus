@@ -1,5 +1,8 @@
 package com.seu.vcampus.server.dao;
 
+import com.seu.vcampus.common.model.Admin;
+import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 
 import java.sql.SQLException;
@@ -13,6 +16,10 @@ public interface UserDao {
      * @throws SQLException 数据库错误
      */
     User getUser(String cid) throws SQLException;
+
+    User getUserByPhone(String phone) throws SQLException;
+
+    User getUserByEmail(String email) throws SQLException;
 
     /**
      * 添加新用户
@@ -44,4 +51,10 @@ public interface UserDao {
      * @throws SQLException 数据库错误
      */
     List<User> getAllUsers() throws SQLException;
+
+    Student getStudentByUser(User user) throws  SQLException;
+
+    Teacher getTeacherByUser(User user) throws  SQLException;
+
+    Admin getAdminByUser(User user) throws  SQLException;
 }

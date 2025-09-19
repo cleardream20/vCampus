@@ -1,8 +1,10 @@
 package com.seu.vcampus.client.controller;
 
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.client.socket.ClientSocketHandler;
 import com.seu.vcampus.common.model.Dorm;
 import com.seu.vcampus.common.util.DormMessage;
+import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import lombok.Setter;
 
@@ -178,7 +180,8 @@ public class DormController {
         }
 
         if (Objects.equals(response.getStatus(), Message.STATUS_SUCCESS)) {
-            return (List<Dorm>) response.getData();
+//            return (List<Dorm>) response.getData();
+            return Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<Dorm>>() {}.getType());
         } else {
             System.err.println("服务器错误: " + response.getMessage());
             return Collections.emptyList();

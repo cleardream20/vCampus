@@ -1,10 +1,7 @@
 package com.seu.vcampus.server.socket;
 
 import com.seu.vcampus.common.model.User;
-import com.seu.vcampus.common.util.LibraryMessage;
-import com.seu.vcampus.common.util.Message;
-import com.seu.vcampus.common.util.ShopMessage;
-import com.seu.vcampus.common.util.UserMessage;
+import com.seu.vcampus.common.util.*;
 import com.seu.vcampus.server.controller.*;
 
 import java.io.*;
@@ -24,15 +21,17 @@ public class ClientHandler implements Runnable {
     private final CourseController courseController;
     private final LibraryController libraryController;
     private final ShopController shopController;
+    private final DormController dormController;
     private final Map<String, RequestController> controllerMap = new HashMap<>();
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
-        this.userController = new UserController(); // 可改为依赖注入
+        userController = new UserController(); // 可改为依赖注入
         studentController = new StudentController();
-        this.courseController = new CourseController();
+        courseController = new CourseController();
         libraryController = new LibraryController();
         shopController = new ShopController();
+        dormController = new DormController();
         initializeControllers();
     }
 
@@ -42,6 +41,7 @@ public class ClientHandler implements Runnable {
         addCourseHandlers();
         addLibraryHandlers();
         addShopHandlers();
+        addDormHandlers();
     }
 
     private void addUserHandlers() {
@@ -136,6 +136,24 @@ public class ClientHandler implements Runnable {
 
         for (String type : libraryMessageTypes) {
             controllerMap.put(type, shopController);
+        }
+    }
+
+    private void addDormHandlers() {
+        String[] dormMessageTypes = {
+                DormMessage.GET_DORM_INFO,
+                DormMessage.SUBMIT_APPLICATION,
+                DormMessage.GET_APPLICATIONS,
+                DormMessage.SUBMIT_SERVICE,
+                DormMessage.GET_SERVICES,
+                DormMessage.GET_ALL_DORM_INFO,
+                DormMessage.GET_PENDING_APPLICATIONS,
+                DormMessage.UPDATE_APPLICATION_STATUS,
+                DormMessage.GET_ALL_SERVICES,
+                DormMessage.UPDATE_SERVICE_STATUS
+        };
+        for (String type : dormMessageTypes) {
+            controllerMap.put(type, dormController);
         }
     }
 

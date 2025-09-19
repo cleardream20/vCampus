@@ -139,12 +139,12 @@ public class CourseController implements RequestController {
 
         switch (request.getType()) {
             case Message.ADD_COURSE:
-                String courseJson = Jsonable.toJson(dataMap.get("course"));
+                String courseJson = (String) dataMap.get("course");
                 Course newCourse = Jsonable.fromJson(courseJson, Course.class);
                 return courseService.addCourse(newCourse);
 
             case Message.UPDATE_COURSE:
-                String updatedCourseJson = Jsonable.toJson(dataMap.get("course"));
+                String updatedCourseJson = (String) dataMap.get("course");
                 Course updatedCourse = Jsonable.fromJson(updatedCourseJson, Course.class);
                 return courseService.updateCourse(updatedCourse);
 

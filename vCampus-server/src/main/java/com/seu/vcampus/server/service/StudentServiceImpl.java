@@ -15,7 +15,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student getStudent(String cid) throws SQLException {
         if (cid == null) {
-            throw new SQLException("cid is null");
+            throw new SQLException("Cid is null");
         }
         return studentDao.getStudent(cid);
     }
@@ -23,5 +23,10 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> getAllStudents(HashMap<Integer, String> filters) throws SQLException{
         return studentDao.getStudents(filters);
+    }
+
+    @Override
+    public boolean addStudent(List<Student> students) throws SQLException{
+        return studentDao.addStudent(students);
     }
 }

@@ -20,6 +20,7 @@ public class ClientHandler implements Runnable {
 
     private final Socket socket;
     private final UserController userController;
+    private final StudentController studentController;
     private final CourseController courseController;
     private final LibraryController libraryController;
     private final ShopController shopController;
@@ -28,6 +29,7 @@ public class ClientHandler implements Runnable {
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.userController = new UserController(); // 可改为依赖注入
+        studentController = new StudentController();
         this.courseController = new CourseController();
         libraryController = new LibraryController();
         shopController = new ShopController();
@@ -36,6 +38,7 @@ public class ClientHandler implements Runnable {
 
     private void initializeControllers() {
         addUserHandlers();
+        addStudentHandlers();
         addCourseHandlers();
         addLibraryHandlers();
         addShopHandlers();
@@ -63,6 +66,12 @@ public class ClientHandler implements Runnable {
         controllerMap.put(UserMessage.ADD_AD, userController);
         controllerMap.put(UserMessage.UPDATE_AD, userController);
         controllerMap.put(UserMessage.DELETE_AD, userController);
+    }
+
+    private void addStudentHandlers() {
+        controllerMap.put(Message.ST_STUDENT, studentController);
+        controllerMap.put(Message.AD_STUDENT, studentController);
+        controllerMap.put(Message.ADD_STUDENT, studentController);
     }
 
     private void addCourseHandlers() {

@@ -28,8 +28,11 @@ public class Message implements Serializable {
 
     public static final String RESPONSE = "RESPONSE";
     public static final String ENTER_USER_CENTER = "ENTER_USER_CENTER";
+
+    // 学籍相关
     public static final String AD_STUDENT =  "AD_STUDENT";
     public static final String ST_STUDENT =  "ST_STUDENT";
+    public static final String ADD_STUDENT = "ADD_STUDENT";
 
     // 选课相关
     public static final String GET_COURSE_BY_ID = "GET_COURSE_BY_ID";

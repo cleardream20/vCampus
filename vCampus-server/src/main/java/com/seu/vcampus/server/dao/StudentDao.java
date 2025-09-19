@@ -23,4 +23,12 @@ public interface StudentDao {
      */
     List<Student> getStudents(HashMap<Integer, String> filters) throws SQLException;
 
+    /**
+     * 手动添加单个学生，要求有空User
+     * @param students 添加的学生
+     * @return 是否成功
+     * @throws SQLException 数据库错误
+     */
+    boolean addStudent(List<Student> students) throws SQLException;
+
 }

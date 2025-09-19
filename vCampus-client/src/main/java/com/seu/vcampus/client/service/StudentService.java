@@ -1,5 +1,6 @@
 package com.seu.vcampus.client.service;
 
+import com.google.gson.reflect.TypeToken;
 import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.Jsonable;
@@ -20,10 +21,7 @@ public class StudentService {
             throw new IllegalArgumentException("cid is null");
         }
 
-        Student _student = new Student();
-        _student.setCid(cid);
-
-        Message request = new Message(Message.ST_STUDENT, _student);
+        Message request = new Message(Message.ST_STUDENT, cid);
         try {
             Message response = ClientSocketUtil.sendRequest(request);
             if(response == null) {
@@ -45,7 +43,7 @@ public class StudentService {
         }
     }
 
-    public List getDataWithFilters(HashMap<Integer, String> filters) throws Exception {
+    public List<Student> getDataWithFilters(HashMap<Integer, String> filters) throws Exception {
 
         Message request = new Message(Message.AD_STUDENT, filters);
         try {
@@ -58,12 +56,31 @@ public class StudentService {
                 throw new Exception(response.getMessage() != null ? response.getMessage() : "查询失败");
             }
 
-            List students = Jsonable.fromJson(Jsonable.toJson(response.getData()), List.class);
+            List<Student> students = Jsonable.fromJson(Jsonable.toJson(response.getData()), new TypeToken<List<Student>>() {}.getType());
             if(students == null) {
                 throw new Exception("信息解析失败");
             }
 
             return students;
+        } catch (IOException e) {
+            throw new Exception("无法连接至服务器");
+        }
+    }
+
+    public boolean addStudent(List<Student> students) throws Exception {
+
+        Message request = new Message(Message.ADD_STUDENT, students);
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if(response == null) {
+                throw new Exception("服务器无响应");
+            }
+
+            if(!response.isSuccess()) {
+                throw new Exception(response.getMessage() != null ? response.getMessage() : "查询失败");
+            }
+
+            return true;
         } catch (IOException e) {
             throw new Exception("无法连接至服务器");
         }

@@ -22,13 +22,21 @@ public class BookDaoImpl implements IBookDao {
 
     private void ensureConnection() {
         try {
-            connection = DBConnector.getConnection();
             if (connection == null || connection.isClosed()) {
-                System.out.println("数据库连接已关闭，尝试重新连接...");
+                System.out.println("建立新的数据库连接...");
                 connection = DBConnector.getConnection();
+
+                // 测试连接是否有效
+                if (connection != null && connection.isValid(2)) {
+                    System.out.println("数据库连接成功");
+                } else {
+                    System.err.println("数据库连接无效");
+                }
             }
         } catch (SQLException e) {
-            System.err.println("检查连接状态失败: " + e.getMessage());
+            System.err.println("数据库连接失败: " + e.getMessage());
+            e.printStackTrace();
+            connection = null; // 确保connection为null
         }
     }
 
@@ -530,7 +538,7 @@ public class BookDaoImpl implements IBookDao {
             // 8. 处理预约记录
             if (activeReservation != null) {
                 // 更新预约状态为已完成
-                updateReservationStatus(activeReservation.getReserveId(), "FULFILLED");
+                updateReservationStatus(activeReservation.getReserveId(), "CANCELLED");
 
                 // 激活下一个预约（如果有）
                 activateNextReservation(isbn);

@@ -139,9 +139,9 @@ public class MainFrame extends JFrame {
 
     public String getRoleToModule(String module) {
         String userRole = currentUser.getRole();
-        if (userRole.equals("ST") || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("TC"))) {
+        if (userRole.equals("ST") || ("TC".equals(userRole) && currentTeacher!=null && currentTeacher.getCurRole().equals("TC"))) {
             return "NORMAL";
-        } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule(module))) {
+        } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher!=null && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule(module))) {
             return "ADMIN";
         } else {
             JOptionPane.showMessageDialog(
@@ -228,11 +228,18 @@ public class MainFrame extends JFrame {
             mainPanel.add(stPanel, "STUDENT");
         }
 
-        else if (userRole.equals("ST") || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("TC"))) {
-            System.out.println(currentUser.getCid() + currentTeacher.getCurRole());
+        else if (userRole.equals("ST")) {
             stPanel = new STPanel();
             mainPanel.add(stPanel, "STUDENT");
-        } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule("STUDENT"))) {
+        } else if ("TC".equals(userRole) && currentTeacher!=null && currentTeacher.getCurRole().equals("TC")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "老师请您移步其他功能，该功能暂未开放",
+                    "温馨提示",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        } else if ("AD".equals(userRole) || ("TC".equals(userRole) && currentTeacher!=null && currentTeacher.getCurRole().equals("AD") && currentTeacher.hasModule("STUDENT"))) {
             adPanel = new ADPanel();
             mainPanel.add(adPanel, "STUDENT");
         } else {
@@ -242,6 +249,7 @@ public class MainFrame extends JFrame {
                     "权限不足",
                     JOptionPane.WARNING_MESSAGE
             );
+            return;
         }
         // 刷新布局
         mainPanel.revalidate();

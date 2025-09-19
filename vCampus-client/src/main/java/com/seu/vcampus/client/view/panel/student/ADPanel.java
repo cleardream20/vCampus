@@ -100,7 +100,6 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         toolBar.setFloatable(false);
         toolBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40)); // 限制高度
 
-        // 添加返回按钮
         JButton backButton = createStyledButton("返回");
         backButton.addActionListener(e -> returnToPrevious());
 
@@ -110,11 +109,11 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         JButton filterButton = createStyledButton("筛选条件");
         filterButton.addActionListener(e -> showFilterDialog());
 
+        JButton addButton = createStyledButton("添加学生");
+        addButton.addActionListener(e -> showAddDialog());
+
         JButton copyButton = createStyledButton("复制选中行");
         copyButton.addActionListener(e -> copySelectedRows());
-
-        JButton clearButton = createStyledButton("清除选择");
-        clearButton.addActionListener(e -> table.clearSelection());
 
         JButton exportButton = createStyledButton("导出到文件");
         exportButton.addActionListener(e -> exportToFile());
@@ -123,8 +122,8 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         toolBar.add(backButton);
         toolBar.add(queryButton);
         toolBar.add(filterButton);
+        toolBar.add(addButton);
         toolBar.add(copyButton);
-        toolBar.add(clearButton);
         toolBar.add(exportButton);
 
         northPanel.add(toolBar);
@@ -162,6 +161,11 @@ public class ADPanel extends JPanel implements NavigatablePanel {
                 table.selectAll();
             }
         });
+    }
+
+    private void showAddDialog() {
+        ADInsertPanel adInsertPanel = new ADInsertPanel();
+        adInsertPanel.setVisible(true);
     }
 
     private void showFilterDialog(){
@@ -224,14 +228,13 @@ public class ADPanel extends JPanel implements NavigatablePanel {
 
     private void loadDataWithFilters(){
         // 从数据库获取筛选后的数据
-        List filteredData;
+        List<Student> filteredData;
         try {
             filteredData = service.getDataWithFilters(filters);
 
             // 更新表格模型
             tableModel.setRowCount(0); // 清空现有数据
-            for (Object st : filteredData) {
-                Student student = Jsonable.fromJson(Jsonable.toJson(st), Student.class);
+            for (Student student : filteredData) {
                 Object[] row = student.getRow();
                 tableModel.addRow(row);
             }

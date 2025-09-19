@@ -192,10 +192,11 @@ public class AdminPanel extends JPanel implements LibraryMainPanel.Refreshable {
                         JOptionPane.INFORMATION_MESSAGE);
                 refresh(); // 刷新表格
             } else {
+                JOptionPane.showMessageDialog(this, "删除图书失败", "错误",
+                        JOptionPane.ERROR_MESSAGE);
 
             }
-        }                JOptionPane.showMessageDialog(this, "删除图书失败", "错误",
-                        JOptionPane.ERROR_MESSAGE);
+        }
             }
 
     @Override

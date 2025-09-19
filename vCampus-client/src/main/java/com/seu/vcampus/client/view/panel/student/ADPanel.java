@@ -369,7 +369,6 @@ public class ADPanel extends JPanel implements NavigatablePanel {
         }
     }
 
-
     @Override
     public void refreshPanel(User user) {
         // 刷新面板逻辑

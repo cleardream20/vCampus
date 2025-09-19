@@ -7,10 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Clipboard;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -286,6 +284,7 @@ public class ADPanel extends JPanel implements NavigatablePanel {
                 "成功", JOptionPane.INFORMATION_MESSAGE);
     }
 
+
     private void exportToFile() {
         if (tableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "没有数据可导出", "提示", JOptionPane.INFORMATION_MESSAGE);
@@ -304,10 +303,21 @@ public class ADPanel extends JPanel implements NavigatablePanel {
                 fileToSave = new File(fileToSave.getAbsolutePath() + ".csv");
             }
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+            // 使用UTF-8 BOM编码以避免Excel打开时的中文乱码问题
+            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(fileToSave), StandardCharsets.UTF_8))) {
+
+                // 写入UTF-8 BOM标识，帮助Excel正确识别编码
+                writer.write('\uFEFF');
+
                 // 写入表头
                 for (int i = 0; i < table.getColumnCount(); i++) {
-                    writer.write(table.getColumnName(i));
+                    String columnName = table.getColumnName(i);
+                    // 处理表头中的特殊字符
+                    if (columnName.contains(",") || columnName.contains("\"")) {
+                        columnName = "\"" + columnName.replace("\"", "\"\"") + "\"";
+                    }
+                    writer.write(columnName);
                     if (i < table.getColumnCount() - 1) {
                         writer.write(",");
                     }
@@ -319,9 +329,10 @@ public class ADPanel extends JPanel implements NavigatablePanel {
                     for (int col = 0; col < tableModel.getColumnCount(); col++) {
                         Object value = tableModel.getValueAt(row, col);
                         String output = value != null ? value.toString() : "";
-                        // 处理可能包含逗号的值
-                        if (output.contains(",")) {
-                            output = "\"" + output + "\"";
+
+                        // 处理可能包含逗号、引号或换行符的值
+                        if (output.contains(",") || output.contains("\"") || output.contains("\n")) {
+                            output = "\"" + output.replace("\"", "\"\"") + "\"";
                         }
                         writer.write(output);
                         if (col < tableModel.getColumnCount() - 1) {

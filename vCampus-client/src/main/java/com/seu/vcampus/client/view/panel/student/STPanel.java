@@ -20,11 +20,15 @@ public class STPanel extends JPanel implements NavigatablePanel {
     private JTextField addressField;
     private JTextField nidField;
     private JTextField endateField;
+    private JTextField gradeField;
+    private JTextField majorField;
+    private JTextField esField;
+    private JTextField esStateField;
+    private JTextField stField;
     private JButton backButton; // 保留返回按钮
 
     public STPanel() {
         User user = MainFrame.getInstance().getCurrentUser();
-//        User user = new User();
         String userId = user.getCid();
         StudentService service = new StudentService();
         try {
@@ -143,9 +147,54 @@ public class STPanel extends JPanel implements NavigatablePanel {
         endateField = new JTextField(currentStudent.getEndate(), 20);
         formPanel.add(endateField, gbc);
 
-        // 添加空白组件以推动左侧标签右对齐
+        // 第九行: 年级
         gbc.gridx = 0;
         gbc.gridy = 8;
+        formPanel.add(new JLabel("年级:"), gbc);
+
+        gbc.gridx = 1;
+        gradeField = new JTextField(currentStudent.getGrade(), 20);
+        formPanel.add(gradeField, gbc);
+
+        // 第十行: 专业
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        formPanel.add(new JLabel("专业:"), gbc);
+
+        gbc.gridx = 1;
+        majorField = new JTextField(currentStudent.getMajor(), 20);
+        formPanel.add(majorField, gbc);
+
+        // 第十一行: 学制
+        gbc.gridx = 0;
+        gbc.gridy = 10;
+        formPanel.add(new JLabel("学制:"), gbc);
+
+        gbc.gridx = 1;
+        esField = new JTextField(currentStudent.getEs(), 20);
+        formPanel.add(esField, gbc);
+
+        // 第十二行: 学籍状态
+        gbc.gridx = 0;
+        gbc.gridy = 11;
+        formPanel.add(new JLabel("学籍状态:"), gbc);
+
+        gbc.gridx = 1;
+        esStateField = new JTextField(currentStudent.getEsState(), 20);
+        formPanel.add(esStateField, gbc);
+
+        // 第十三行: 学籍号
+        gbc.gridx = 0;
+        gbc.gridy = 12;
+        formPanel.add(new JLabel("学籍号:"), gbc);
+
+        gbc.gridx = 1;
+        stField = new JTextField(currentStudent.getStid(), 20);
+        formPanel.add(stField, gbc);
+
+        // 添加空白组件以推动左侧标签右对齐
+        gbc.gridx = 0;
+        gbc.gridy = 13;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         formPanel.add(Box.createGlue(), gbc);
@@ -179,6 +228,11 @@ public class STPanel extends JPanel implements NavigatablePanel {
         addressField.setEditable(editable);
         nidField.setEditable(editable);
         endateField.setEditable(editable);
+        esField.setEditable(editable);
+        esStateField.setEditable(editable);
+        stField.setEditable(editable);
+        gradeField.setEditable(editable);
+        majorField.setEditable(editable);
 
         // 更改背景色以提示编辑状态
         Color bgColor = editable ? Color.WHITE : new Color(240, 240, 240);
@@ -190,6 +244,11 @@ public class STPanel extends JPanel implements NavigatablePanel {
         addressField.setBackground(bgColor);
         nidField.setBackground(bgColor);
         endateField.setBackground(bgColor);
+        esField.setBackground(bgColor);
+        esStateField.setBackground(bgColor);
+        stField.setBackground(bgColor);
+        gradeField.setBackground(bgColor);
+        majorField.setBackground(bgColor);
     }
 
     @Override
@@ -221,5 +280,13 @@ public class STPanel extends JPanel implements NavigatablePanel {
 
         // 确保字段不可编辑
         setFieldsEditable(false);
+    }
+
+    public static void main(String[] args){
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        frame.add(new STPanel());
+        frame.setSize(800,600);
     }
 }

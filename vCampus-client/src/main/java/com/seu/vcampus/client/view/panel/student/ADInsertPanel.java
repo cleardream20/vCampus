@@ -148,7 +148,19 @@ public class ADInsertPanel extends JFrame {
                 filterFileds.put(entry.getKey(), entry.getValue().getText());
             }
             newStudents.add(new Student(filterFileds));
-            addStudent(newStudents);
+            boolean success = addStudent(newStudents);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this,
+                        "学生信息添加成功！",
+                        "成功",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "学生信息添加失败，请重试！",
+                        "错误",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         });
         buttonPanel.add(okButton);
         filterPanel.add(buttonPanel);
@@ -156,11 +168,12 @@ public class ADInsertPanel extends JFrame {
         return filterPanel;
     }
 
-    public void addStudent(List<Student> studentList) {
+    public boolean addStudent(List<Student> studentList) {
         try {
-            studentService.addStudent(studentList);
+            return studentService.addStudent(studentList);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 

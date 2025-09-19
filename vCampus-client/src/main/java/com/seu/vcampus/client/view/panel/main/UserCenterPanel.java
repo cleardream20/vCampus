@@ -4,7 +4,9 @@ import com.seu.vcampus.client.service.LoginService;
 import com.seu.vcampus.client.service.UserService;
 import com.seu.vcampus.client.view.NavigatablePanel;
 import com.seu.vcampus.client.view.frame.MainFrame;
+import com.seu.vcampus.common.model.Admin;
 import com.seu.vcampus.common.model.Student;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 
 import javax.swing.*;
@@ -31,10 +33,12 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
     // 共用字段
     private JTextField cidField, tsidField, nameField, genderField,
             ageField, birthDateField, phoneField, emailField,
-            addressField, idCardField, collegeField;
+            addressField, idCardField, collegeField, modulesField;
+
+    private JComboBox<String> roleComboBox;
 
     // 学生特有
-    private JTextField gradeField, studentTypeField, endateField;
+    private JTextField gradeField, endateField;
 
     // 教师特有
     private JTextField titleField, hireDateField;
@@ -48,7 +52,9 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         loginService = new LoginService();
         userService = new UserService();
         setLayout(new BorderLayout());
+        initializeFields();
         initUI();
+        refreshPanel(currentUser, "INFO");
     }
 
     private void initUI() {
@@ -110,38 +116,44 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // 初始化所有字段
-        initializeFields();
+//        initializeFields();
 
         int y = 0;
 
         // 添加通用信息
         addRow(panel, gbc, "一卡通号:", cidField, y++);
         addRow(panel, gbc, "姓名:", nameField, y++);
-        addRow(panel, gbc, "性别:", genderField, y++);
-        addRow(panel, gbc, "年龄:", ageField, y++);
-        addRow(panel, gbc, "出生日期:", birthDateField, y++);
         addRow(panel, gbc, "电话号码:", phoneField, y++);
         addRow(panel, gbc, "电子邮箱:", emailField, y++);
-        addRow(panel, gbc, "家庭地址:", addressField, y++);
-        addRow(panel, gbc, "身份证号:", idCardField, y++);
-        addRow(panel, gbc, "学院:", collegeField, y++);
 
         // 根据当前用户角色添加特有字段
         if (currentUser != null) {
             switch (currentUser.getRole()) {
                 case "ST":
                     addRow(panel, gbc, "学号:", tsidField, y++);
+                    addRow(panel, gbc, "性别:", genderField, y++);
+                    addRow(panel, gbc, "年龄:", ageField, y++);
+                    addRow(panel, gbc, "出生日期:", birthDateField, y++);
+                    addRow(panel, gbc, "家庭地址:", addressField, y++);
+                    addRow(panel, gbc, "身份证号:", idCardField, y++);
+                    addRow(panel, gbc, "学院:", collegeField, y++);
                     addRow(panel, gbc, "入学时间:", endateField, y++);
                     addRow(panel, gbc, "年级:", gradeField, y++);
-                    addRow(panel, gbc, "学生类型:", studentTypeField, y++);
                     break;
                 case "TC":
                     addRow(panel, gbc, "教职工号:", tsidField, y++);
+                    addRow(panel, gbc, "性别:", genderField, y++);
+                    addRow(panel, gbc, "年龄:", ageField, y++);
+                    addRow(panel, gbc, "出生日期:", birthDateField, y++);
+                    addRow(panel, gbc, "家庭地址:", addressField, y++);
+                    addRow(panel, gbc, "身份证号:", idCardField, y++);
+                    addRow(panel, gbc, "学院:", collegeField, y++);
                     addRow(panel, gbc, "入职时间:", hireDateField, y++);
                     addRow(panel, gbc, "职称:", titleField, y++);
                     break;
                 case "AD":
-                    // 管理员只显示部分字段，上面已包含
+                    addRow(panel, gbc, "学号/教职工号:", tsidField, y++);
+                    addRow(panel, gbc, "管理模块:", modulesField, y++);
                     break;
             }
         }
@@ -194,7 +206,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
 
         if (confirm == JOptionPane.YES_OPTION) {
             // 刷新数据，恢复原状
-            refreshPanel(currentUser);
+            refreshPanel(currentUser, "INFO");
             setEditMode(false);
         }
     }
@@ -207,12 +219,13 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         editButton.setText(editMode ? "确定" : "修改");
         setAllEditable(editMode);
         // 隐藏取消按钮
-        ((JButton) ((JPanel) editButton.getParent()).getComponent(1)).setVisible(editMode);
+        ((JPanel) editButton.getParent()).getComponent(1).setVisible(editMode);
     }
 
     /**
      * 保存修改
      */
+    // TODO UPDATE ST|TC|AD
     private void saveChanges() {
         // 收集修改后的数据
         if (currentUser != null) {
@@ -223,22 +236,60 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
             if ("ST".equals(currentUser.getRole())) {
                 Student student = MainFrame.getInstance().getCurrentStudent();
                 if (student != null) {
+                    student.setPhone(phoneField.getText());
+                    student.setEmail(emailField.getText());
+
                     student.setAddress(addressField.getText());
                     student.setNid(idCardField.getText());
                     student.setGrade(gradeField.getText());
-                    student.setEs(studentTypeField.getText());
                     student.setEndate(endateField.getText());
+                    student.setMajor(collegeField.getText());
                     // 更新当前学生对象
-                    MainFrame.getInstance().setCurrentStudent(student);
+//                    if (userService.updateStudent(student)) {
+//                        JOptionPane.showMessageDialog(this, "信息更新成功！", "成功", JOptionPane.INFORMATION_MESSAGE);
+//                        setEditMode(false);
+//                        MainFrame.getInstance().setCurrentStudent(student);
+//                    } else {
+//                        JOptionPane.showMessageDialog(this, "信息更新失败，请重试！", "错误", JOptionPane.ERROR_MESSAGE);
+//                    }
                 }
-            }
+            } else if ("TC".equals(currentUser.getRole())) {
+                Teacher teacher = MainFrame.getInstance().getCurrentTeacher();
+                if (teacher != null) {
+                    teacher.setPhone(phoneField.getText());
+                    teacher.setEmail(emailField.getText());
 
-            // 调用服务更新用户信息
-            if (userService.updateUser(currentUser)) {
-                JOptionPane.showMessageDialog(this, "信息更新成功！", "成功", JOptionPane.INFORMATION_MESSAGE);
-                setEditMode(false);
-            } else {
-                JOptionPane.showMessageDialog(this, "信息更新失败，请重试！", "错误", JOptionPane.ERROR_MESSAGE);
+                    teacher.setTsid(tsidField.getText());
+                    teacher.setAddress(addressField.getText());
+                    teacher.setNid(idCardField.getText());
+                    teacher.setEndate(hireDateField.getText());
+                    teacher.setDepartment(collegeField.getText());
+                    teacher.setGender(genderField.getText());
+                    teacher.setTitle(titleField.getText());
+                    if (userService.updateTeacher(teacher)) {
+                        JOptionPane.showMessageDialog(this, "信息更新成功！", "成功", JOptionPane.INFORMATION_MESSAGE);
+                        setEditMode(false);
+                        MainFrame.getInstance().setCurrentTeacher(teacher);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "信息更新失败，请重试！", "错误", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else if ("AD".equals(currentUser.getRole())) {
+                Admin admin = MainFrame.getInstance().getCurrentAdmin();
+                if (admin != null) {
+                    admin.setPhone(phoneField.getText());
+                    admin.setEmail(emailField.getText());
+
+                    admin.setPhone(phoneField.getText());
+                    admin.setEmail(emailField.getText());
+                }
+                if (userService.updateAdmin(admin)) {
+                    JOptionPane.showMessageDialog(this, "信息更新成功！", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    setEditMode(false);
+                    MainFrame.getInstance().setCurrentAdmin(admin);
+                } else {
+                    JOptionPane.showMessageDialog(this, "信息更新失败，请重试！", "错误", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }
@@ -251,21 +302,140 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // 新增：身份选择区域
+        JPanel rolePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rolePanel.add(new JLabel("当前身份:"));
+
+        // 初始化身份下拉框
+        roleComboBox = new JComboBox<>();
+        updateRoleComboBox();
+
+        // 添加下拉框选择监听
+        roleComboBox.addActionListener(e -> {
+//            if (!roleComboBox.isPopupVisible()) { // 防止在填充时触发
+                handleRoleChange();
+//            }
+        });
+
+        rolePanel.add(roleComboBox);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(rolePanel, gbc);
+
+        // 其他按钮
         JButton changePasswordBtn = new JButton("修改密码");
         changePasswordBtn.addActionListener(e -> showChangePasswordDialog());
 
         JButton logoutBtn = new JButton("注销登录");
         logoutBtn.addActionListener(e -> performLogout());
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.gridy = 1;
         panel.add(changePasswordBtn, gbc);
 
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         panel.add(logoutBtn, gbc);
 
         return panel;
+    }
+
+    /**
+     * 更新身份下拉框选项
+     */
+    private void updateRoleComboBox() {
+        roleComboBox.removeAllItems();
+
+        if (currentUser != null) {
+            // 对于教师且有管理权限的情况，添加两个身份选项
+            if ("TC".equals(currentUser.getRole())) {
+                Teacher teacher = MainFrame.getInstance().getCurrentTeacher();
+                System.out.println("教师模块：" + teacher.getModules());
+                if (teacher != null && teacher.getModules() != null && !teacher.getModules().isEmpty()) {
+                    // 教师有管理权限，添加两个选项
+                    roleComboBox.addItem("教师");
+                    roleComboBox.addItem("管理员");
+
+                    // 设置当前选中的角色
+                    String currentRole = "TC".equals(teacher.getCurRole()) ? "教师" : "管理员";
+                    roleComboBox.setSelectedItem(currentRole);
+                    return;
+                }
+            }
+
+            // 对于其他用户，只显示一个选项
+            String currentRoleDisplay = getCurrentRoleDisplay();
+            roleComboBox.addItem(currentRoleDisplay);
+        }
+    }
+
+    /**
+     * 获取当前角色的显示文本
+     */
+    private String getCurrentRoleDisplay() {
+        if (currentUser == null) return "未知身份";
+
+        System.out.println("用户身份：" + currentUser.getRole());
+        switch (currentUser.getRole()) {
+            case "ST":
+                return "学生";
+            case "AD":
+                return "管理员";
+            case "TC":
+                Teacher teacher = MainFrame.getInstance().getCurrentTeacher();
+                if (teacher != null) {
+                    return "TC".equals(teacher.getCurRole()) ?
+                            "教师" : "管理员";
+                }
+                return "教师";
+            default:
+                return "未知身份";
+        }
+    }
+
+    /**
+     * 处理身份变更
+     */
+    private void handleRoleChange() {
+        if (!"TC".equals(currentUser.getRole())) {
+            return; // 只有教师可能有多个身份
+        }
+
+        System.out.println("尝试进行身份更新");
+
+        Teacher teacher = MainFrame.getInstance().getCurrentTeacher();
+        if (teacher == null || teacher.getModules() == null || teacher.getModules().isEmpty()) {
+            return; // 教师没有管理权限
+        }
+
+        String selectedRole = (String) roleComboBox.getSelectedItem();
+        String newCurRole = "教师".equals(selectedRole) ? "TC" : "AD";
+        String currentCurRole = teacher.getCurRole();
+        String currentDisplayRole = "TC".equals(currentCurRole) ? "教师" : "管理员";
+
+        // 只有当选择的角色与当前角色不同时才更新
+        if (!selectedRole.equals(currentDisplayRole)) {
+            System.out.println("从 " + currentDisplayRole + " 切换到 " + selectedRole);
+
+            // 更新教师的当前角色
+            teacher.setCurRole(newCurRole);
+
+            // 调用服务更新教师信息
+            if (userService.updateTeacher(teacher)) {
+                JOptionPane.showMessageDialog(this, "身份切换成功！", "成功", JOptionPane.INFORMATION_MESSAGE);
+
+                // 刷新界面
+                refreshPanel(currentUser, "ACCOUNT");
+
+            } else {
+                JOptionPane.showMessageDialog(this, "身份切换失败，请重试！", "错误", JOptionPane.ERROR_MESSAGE);
+                // 恢复下拉框选择到原来的角色
+                roleComboBox.setSelectedItem(currentDisplayRole);
+            }
+        }
     }
 
     /**
@@ -295,9 +465,9 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         addressField = new JTextField(20);
         idCardField = new JTextField(20);
         collegeField = new JTextField(20);
+        modulesField = new JTextField(20);
 
         gradeField = new JTextField(20);
-        studentTypeField = new JTextField(20);
         endateField = new JTextField(20);
 
         titleField = new JTextField(20);
@@ -327,6 +497,7 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         genderField.setEditable(false);
         ageField.setEditable(false);
         birthDateField.setEditable(false);
+        modulesField.setEditable(false);
 
         // 可编辑的字段
         phoneField.setEditable(editable);
@@ -338,7 +509,6 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         // 角色特有字段
         if ("ST".equals(currentUser.getRole())) {
             gradeField.setEditable(editable);
-            studentTypeField.setEditable(editable);
             endateField.setEditable(editable);
         } else if ("TC".equals(currentUser.getRole())) {
             titleField.setEditable(editable);
@@ -478,12 +648,10 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         }
     }
 
-    @Override
-    public void refreshPanel(User user) {
+    public void refreshPanel(User user, String panelName) {
         this.currentUser = user;
-
         // 清空并重新初始化字段
-        initializeFields();
+//        initializeFields();
 
         // 填充数据
         if (user != null) {
@@ -501,14 +669,23 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
                     addressField.setText(st.getAddress());
                     idCardField.setText(st.getNid());
                     gradeField.setText(st.getGrade());
-                    studentTypeField.setText(st.getEs());
                     // 设置性别和学院（根据你的实际字段名调整）
                     genderField.setText(st.getSex());
                     collegeField.setText(st.getMajor()); // 假设major对应学院
                 }
             } else if ("TC".equals(user.getRole())) {
+                Teacher tc = MainFrame.getInstance().getCurrentTeacher();
                 tsidField.setText(user.getTsid());
-                // 教师信息填充（根据你的实际字段名调整）
+                titleField.setText(tc.getTitle());
+                hireDateField.setText(tc.getEndate());
+
+                addressField.setText(tc.getAddress());
+                idCardField.setText(tc.getNid());
+                genderField.setText(tc.getGender());
+                collegeField.setText(tc.getDepartment());
+            } else if ("AD".equals(user.getRole())) {
+                Admin ad = MainFrame.getInstance().getCurrentAdmin();
+                modulesField.setText(ad.getModules());
             }
             // 更新年龄和生日
             updateFromIdCard();
@@ -521,7 +698,15 @@ public class UserCenterPanel extends JPanel implements NavigatablePanel {
         contentPanel.removeAll();
         contentPanel.add(createInfoPanel(), "INFO");
         contentPanel.add(createAccountPanel(), "ACCOUNT");
-        cardLayout.show(contentPanel, "INFO");
+        cardLayout.show(contentPanel, panelName);
+        revalidate();
+        repaint();
+
+    }
+
+    @Override
+    public void refreshPanel(User user) {
+
     }
 
     @Override

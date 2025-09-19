@@ -35,7 +35,7 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
 
     // 导航相关
     private final JList<String> navList = new JList<>(new String[]{"用户管理", "请求处理"});
-    private final JButton backButton = new JButton("← 返回");
+    private final JButton backButton = new JButton("返回");
 
     // 用户管理页组件
     private final JTabbedPane userTypeTabs = new JTabbedPane();
@@ -250,8 +250,9 @@ public class UserManagementPanel extends JPanel implements NavigatablePanel {
     private void loadData() {
         List<User> allUsers = userService.getAllUsers();
         for (User u : allUsers) {
+            System.out.println("user : " + u);
             switch (u.getRole()) {
-                case "ST": studentModel.addElement(userService.getStudentByUser(u)); break;
+                case "ST": studentModel.addElement(userService.getStudentByUser(u)); System.out.println("ST: " + userService.getStudentByUser(u)); break;
                 case "TC": teacherModel.addElement(userService.getTeacherByUser(u)); break;
                 case "AD": adminModel.addElement(userService.getAdminByUser(u)); break;
             }

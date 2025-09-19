@@ -1,17 +1,25 @@
 package com.seu.vcampus.server.controller;
 
+import com.seu.vcampus.common.model.Admin;
+import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.Jsonable;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.UserMessage;
 import com.seu.vcampus.server.service.UserService;
 import com.seu.vcampus.server.service.UserServiceImpl;
+import com.seu.vcampus.server.service.user.AdminService;
+import com.seu.vcampus.server.service.user.AdminServiceImpl;
+import com.seu.vcampus.server.service.user.TeacherService;
+import com.seu.vcampus.server.service.user.TeacherServiceImpl;
 
 import java.sql.SQLException;
 
 public class UserController implements RequestController {
 
     private final UserService userService = new UserServiceImpl();
+    private final TeacherService teacherService = new TeacherServiceImpl();
+    private final AdminService adminService = new AdminServiceImpl();
 
     @Override
     public Message handleRequest(Message request) throws SQLException {
@@ -23,6 +31,9 @@ public class UserController implements RequestController {
             case Message.LOGOUT -> handleLogout(request);
             case UserMessage.GET_ST_BY_USER, UserMessage.GET_TC_BY_USER, UserMessage.GET_AD_BY_USER, UserMessage.GET_ALL_USER -> handleGetUser(request);
             case UserMessage.GET_USER_BY_PHONE, UserMessage.GET_USER_BY_EMAIL ->  handleGetUserByEP(request);
+            case Message.ADD_USER, Message.DELETE_USER, Message.GET_USER, Message.UPDATE_USER -> handleUser(request);
+            case UserMessage.ADD_TC, UserMessage.DELETE_TC, UserMessage.GET_TC, UserMessage.UPDATE_TC -> handleTeacher(request);
+            case UserMessage.ADD_AD, UserMessage.DELETE_AD, UserMessage.GET_AD, UserMessage.UPDATE_AD -> handleAdmin(request);
             default -> Message.fromData(Message.RESPONSE, false, null, "不支持的操作");
         };
     }
@@ -96,5 +107,94 @@ public class UserController implements RequestController {
                 Message.success(request.getType(), userService.getUserByPhone(ep), "通过电话获取用户信息成功");
             default -> Message.error(request.getType(), "未定义的类型");
         };
+    }
+
+    public Message handleUser(Message request) throws SQLException {
+        switch (request.getType()) {
+            case Message.ADD_USER: {
+                User user = Jsonable.fromJson(Jsonable.toJson(request.getData()), User.class);
+                if (userService.addUser(user)) return Message.success(request.getType(), "增加用户成功");
+                return Message.error(request.getType(), "增加用户失败");
+            }
+            case Message.UPDATE_USER: {
+                User user = Jsonable.fromJson(Jsonable.toJson(request.getData()), User.class);
+                if (userService.updateUser(user)) return Message.success(request.getType(), "更新用户成功");
+                return Message.error(request.getType(), "更新用户失败");
+            }
+            case Message.GET_USER: {
+                String cid = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+                User user = userService.getUser(cid);
+                if (user != null) return Message.success(request.getType(), user, "获取用户成功");
+                return Message.error(request.getType(), "获取用户失败");
+            }
+            case Message.DELETE_USER: {
+                String cid = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+                if (userService.deleteUser(cid)) return Message.success(request.getType(), "删除用户成功");
+                return Message.error(request.getType(), "删除用户失败");
+            }
+            default:
+                return Message.error(request.getType(), "未知的请求类型：" + request.getType());
+        }
+    }
+
+    public Message handleTeacher(Message request) throws SQLException {
+        switch (request.getType()) {
+            case UserMessage.ADD_TC: {
+                Teacher teacher = Jsonable.fromJson(Jsonable.toJson(request.getData()), Teacher.class);
+                if (teacherService.addTeacher(teacher)) return Message.success(request.getType(), "增加教师成功");
+                return Message.error(request.getType(), "增加教师失败");
+            }
+            case UserMessage.UPDATE_TC: {
+                Teacher teacher = Jsonable.fromJson(Jsonable.toJson(request.getData()), Teacher.class);
+                System.out.println("teacher:" + teacher);
+                if (teacherService.updateTeacher(teacher)) {
+                    System.out.println("更新教师成功");
+                    return Message.success(request.getType(), "更新教师成功");
+                }
+                System.out.println("更新教师失败");
+                return Message.error(request.getType(), "更新教师失败");
+            }
+            case UserMessage.GET_TC: {
+                String tid = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+                Teacher teacher = teacherService.getTeacher(tid);
+                if (teacher != null) return Message.success(request.getType(), teacher, "获取教师成功");
+                return Message.error(request.getType(), "获取教师失败");
+            }
+            case UserMessage.DELETE_TC: {
+                String tid = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+                if (teacherService.deleteTeacher(tid)) return Message.success(request.getType(), "删除教师成功");
+                return Message.error(request.getType(), "删除教师失败");
+            }
+            default:
+                return Message.error(request.getType(), "未知的请求类型：" + request.getType());
+        }
+    }
+
+    public Message handleAdmin(Message request) throws SQLException {
+        switch (request.getType()) {
+            case UserMessage.ADD_AD: {
+                Admin admin = Jsonable.fromJson(Jsonable.toJson(request.getData()), Admin.class);
+                if (adminService.addAdmin(admin)) return Message.success(request.getType(), "增加管理员成功");
+                return Message.error(request.getType(), "增加管理员失败");
+            }
+            case UserMessage.UPDATE_AD: {
+                Admin admin = Jsonable.fromJson(Jsonable.toJson(request.getData()), Admin.class);
+                if (adminService.updateAdmin(admin)) return Message.success(request.getType(), "更新管理员成功");
+                return Message.error(request.getType(), "更新管理员失败");
+            }
+            case UserMessage.GET_AD: {
+                String aid = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+                Admin admin = adminService.getAdmin(aid);
+                if (admin != null) return Message.success(request.getType(), admin, "获取管理员成功");
+                return Message.error(request.getType(), "获取管理员失败");
+            }
+            case UserMessage.DELETE_AD: {
+                String cid = Jsonable.fromJson(Jsonable.toJson(request.getData()), String.class);
+                if (adminService.deleteAdmin(cid)) return Message.success(request.getType(), "删除管理员成功");
+                return Message.error(request.getType(), "删除管理员失败");
+            }
+            default:
+                return Message.error(request.getType(), "未知的请求类型：" + request.getType());
+        }
     }
 }

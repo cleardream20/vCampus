@@ -448,47 +448,48 @@ public class BookDaoImpl implements IBookDao {
         ensureConnection();
         boolean success = false;
         boolean originalAutoCommit = false;
-        boolean isReservedUser = false; // 标记是否为预约用户
+        boolean isReservedUser = false;
+        Reservation activeReservation = null;
 
         try {
             // 保存原始自动提交状态
             originalAutoCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
 
-            // 1. 获取图书信息
+            // 1. 检查用户借阅资格
+            if (!canUserBorrow(userId)) {
+                throw new SQLException("用户不符合借书条件");
+            }
+
+            // 2. 获取图书信息
             Book book = getBookByISBN(isbn);
             if (book == null) {
                 throw new SQLException("图书不存在");
             }
 
-            // 2. 检查是否有有效预约
-            Reservation activeReservation = getActiveReservationForBook(isbn);
+            // 3. 检查是否有有效预约
+            activeReservation = getActiveReservationForBook(isbn);
 
-            // 3. 检查用户是否是预约用户
+            // 4. 检查用户是否是预约用户
             if (activeReservation != null && userId.equals(activeReservation.getUserId())) {
                 isReservedUser = true;
                 System.out.println("用户 " + userId + " 是预约用户，借阅图书 " + isbn);
             }
 
-            // 4. 对于非预约用户，检查图书是否可借
+            // 5. 处理非预约用户情况
             if (!isReservedUser) {
+                // 检查图书库存
                 if (book.getAvailableCopies() <= 0) {
                     throw new SQLException("图书不可借，库存不足");
                 }
-            }
 
-            // 5. 如果有有效预约，检查用户是否有权限借阅
-            if (activeReservation != null) {
-                // 只有预约用户才能借阅
-                if (!userId.equals(activeReservation.getUserId())) {
+                // 检查是否有其他用户预约
+                if (activeReservation != null) {
                     throw new SQLException("该图书已被预约，只有预约用户才能借阅");
                 }
-
-                // 更新预约状态为已借阅
-                updateReservationStatus(activeReservation.getReserveId(), "CANCELLED");
             }
 
-            // 6. 减少图书可借数量（仅当不是预约用户时）
+            // 6. 更新图书库存（仅非预约用户需要减库存）
             if (!isReservedUser) {
                 String updateBookSql = "UPDATE tblBook SET bAvailable = bAvailable - 1 " +
                         "WHERE bIsbn = ? AND bAvailable > 0";
@@ -504,8 +505,8 @@ public class BookDaoImpl implements IBookDao {
 
             // 7. 创建借阅记录
             String insertRecordSql = "INSERT INTO tblBorrowRecord " +
-                    "(userId, bookIsbn, bookTitle, borrowDate, dueDate, status) " +
-                    "VALUES (?, ?, ?, ?, ?, 'BORROWED')";
+                    "(userId, bookIsbn, bookTitle, borrowDate, dueDate, status, fineAmount, renewalCount) " +
+                    "VALUES (?, ?, ?, ?, ?, 'BORROWED', 0, 0)";
 
             java.util.Date borrowDate = new java.util.Date();
             Calendar calendar = Calendar.getInstance();
@@ -526,8 +527,12 @@ public class BookDaoImpl implements IBookDao {
                 }
             }
 
-            // 8. 激活下一个预约（如果有）
+            // 8. 处理预约记录
             if (activeReservation != null) {
+                // 更新预约状态为已完成
+                updateReservationStatus(activeReservation.getReserveId(), "FULFILLED");
+
+                // 激活下一个预约（如果有）
                 activateNextReservation(isbn);
             }
 
@@ -567,7 +572,7 @@ public class BookDaoImpl implements IBookDao {
             try (PreparedStatement countStmt = connection.prepareStatement(countSql)) {
                 countStmt.setString(1, userId);
                 try (ResultSet rs = countStmt.executeQuery()) {
-                    if (rs.next() && rs.getInt("count") >= 5) {
+                    if (rs.next() && rs.getInt("count") >= 30) {
                         return false; // 借阅数量已达上限
                     }
                 }

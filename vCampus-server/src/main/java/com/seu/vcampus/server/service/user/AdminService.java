@@ -1,4 +1,4 @@
-package com.seu.vcampus.server.dao.user;
+package com.seu.vcampus.server.service.user;
 
 import com.seu.vcampus.common.model.Admin;
 import com.seu.vcampus.common.model.User;
@@ -6,7 +6,7 @@ import com.seu.vcampus.common.model.User;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface AdminDao {
+public interface AdminService {
     /**
      * 通过cid获取admin信息
      * @param cid 一卡通号

@@ -83,4 +83,6 @@ public interface UserService {
     User getUserByEmail(String email) throws SQLException;
 
     User getUserByPhone(String phone) throws SQLException;
+
+    boolean updateTeacher(Teacher teacher) throws  SQLException;
 }

@@ -1,5 +1,6 @@
 package com.seu.vcampus.server.socket;
 
+import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.common.util.LibraryMessage;
 import com.seu.vcampus.common.util.Message;
 import com.seu.vcampus.common.util.ShopMessage;
@@ -44,12 +45,24 @@ public class ClientHandler implements Runnable {
         controllerMap.put(Message.LOGIN, userController);
         controllerMap.put(Message.REGISTER, userController);
         controllerMap.put(Message.LOGOUT, userController);
+        controllerMap.put(Message.GET_USER, userController);
+        controllerMap.put(Message.ADD_USER, userController);
+        controllerMap.put(Message.UPDATE_USER, userController);
+        controllerMap.put(Message.DELETE_USER, userController);
         controllerMap.put(UserMessage.GET_ST_BY_USER, userController);
         controllerMap.put(UserMessage.GET_TC_BY_USER, userController);
         controllerMap.put(UserMessage.GET_AD_BY_USER, userController);
         controllerMap.put(UserMessage.GET_ALL_USER, userController);
         controllerMap.put(UserMessage.GET_USER_BY_EMAIL, userController);
         controllerMap.put(UserMessage.GET_USER_BY_PHONE, userController);
+        controllerMap.put(UserMessage.GET_TC, userController);
+        controllerMap.put(UserMessage.ADD_TC, userController);
+        controllerMap.put(UserMessage.UPDATE_TC, userController);
+        controllerMap.put(UserMessage.DELETE_TC, userController);
+        controllerMap.put(UserMessage.GET_AD, userController);
+        controllerMap.put(UserMessage.ADD_AD, userController);
+        controllerMap.put(UserMessage.UPDATE_AD, userController);
+        controllerMap.put(UserMessage.DELETE_AD, userController);
     }
 
     private void addCourseHandlers() {

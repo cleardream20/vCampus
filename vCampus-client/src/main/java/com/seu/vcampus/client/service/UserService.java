@@ -274,4 +274,116 @@ public class UserService {
     public List<UserRequest> getPendingRequests() { /* 获取待审批请求 */ return Collections.emptyList();}
     public void approveRequest(UserRequest req) { }
     public void rejectRequest(UserRequest req) { }
+
+    public Teacher getTeacher(String cid) {
+        if(cid == null || cid.isEmpty()) {
+            System.err.println("获取教师失败：一卡通号不能为空");
+            return null;
+        }
+        Message request = Message.success(UserMessage.GET_TC, cid, "获取教师请求");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("更新教师失败：服务器无响应");
+                return null;
+            }
+            if (response.isSuccess()) {
+                System.out.println("更新教师成功：" + response.getMessage());
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        Teacher.class
+                );
+            } else {
+                System.out.println("更新教师失败" + response.getMessage());
+            }
+        } catch (IOException e) {
+            System.err.println("更新教师失败：无法连接服务器 - " + e.getMessage());
+            return null;
+        }
+        return null;
+    }
+
+    public boolean addTeacher(Teacher teacher) {
+        if (teacher == null) {
+            System.err.println("更新失败：教师信息为空");
+        }
+
+        Message request = Message.success(UserMessage.ADD_TC, teacher, "教师更新请求");
+        return getCheckResponse(request, "教师更新");
+    }
+
+    public boolean updateTeacher(Teacher teacher) {
+        if (teacher == null) {
+            System.err.println("更新失败：教师信息为空");
+        }
+
+        Message request = Message.success(UserMessage.UPDATE_TC, teacher, "教师更新请求");
+        return getCheckResponse(request, "教师更新");
+    }
+
+    public boolean deleteTeacher(String cid) {
+        if (cid == null || cid.isEmpty()) {
+            System.err.println("删除教师失败：一卡通号不能为空");
+            return false;
+        }
+
+        Message request = Message.success(UserMessage.DELETE_TC, cid, "教师删除请求");
+        return getCheckResponse(request, "删除教师");
+    }
+
+    public Teacher getAdmin(String cid) {
+        if(cid == null || cid.isEmpty()) {
+            System.err.println("获取管理员失败：一卡通号不能为空");
+            return null;
+        }
+        Message request = Message.success(UserMessage.GET_AD, cid, "获取管理员请求");
+        try {
+            Message response = ClientSocketUtil.sendRequest(request);
+            if (response == null) {
+                System.err.println("更新管理员失败：服务器无响应");
+                return null;
+            }
+            if (response.isSuccess()) {
+                System.out.println("更新管理员成功：" + response.getMessage());
+                return Jsonable.fromJson(
+                        Jsonable.toJson(response.getData()),
+                        Teacher.class
+                );
+            } else {
+                System.out.println("更新管理员失败" + response.getMessage());
+            }
+        } catch (IOException e) {
+            System.err.println("更新管理员失败：无法连接服务器 - " + e.getMessage());
+            return null;
+        }
+        return null;
+    }
+
+    public boolean addAdmin(Admin admin) {
+        if (admin == null) {
+            System.err.println("更新失败：管理员信息为空");
+        }
+
+        Message request = Message.success(UserMessage.ADD_AD, admin, "管理员更新请求");
+        return getCheckResponse(request, "管理员更新");
+    }
+
+    public boolean updateAdmin(Admin admin) {
+        if (admin == null) {
+            System.err.println("更新失败：管理员信息为空");
+        }
+
+        Message request = Message.success(UserMessage.UPDATE_AD, admin, "管理员更新请求");
+        return getCheckResponse(request, "管理员更新");
+    }
+
+    public boolean deleteAdmin(String cid) {
+        if (cid == null || cid.isEmpty()) {
+            System.err.println("删除管理员失败：一卡通号不能为空");
+            return false;
+        }
+
+        Message request = Message.success(UserMessage.DELETE_AD, cid, "管理员删除请求");
+        return getCheckResponse(request, "删除管理员");
+    }
 }

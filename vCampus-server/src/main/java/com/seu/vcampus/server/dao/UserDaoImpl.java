@@ -336,7 +336,9 @@ public class UserDaoImpl implements UserDao {
                             rs.getString("nid"),
                             rs.getString("endate"),
                             rs.getString("title"),
-                            rs.getString("department")
+                            rs.getString("department"),
+                            rs.getString("curRole"),
+                            rs.getString("modules")
                     );
                     return tc;
                 }
@@ -439,7 +441,7 @@ public class UserDaoImpl implements UserDao {
 
     // 辅助方法：更新教师详细信息
     private void updateTeacher(Connection conn, Teacher teacher) throws SQLException {
-        String sql = "UPDATE tblTeacher SET age = ?, gender = ?, address = ?, nid = ?, endate = ?, title = ?, department = ? WHERE cid = ?";
+        String sql = "UPDATE tblTeacher SET age = ?, gender = ?, address = ?, nid = ?, endate = ?, title = ?, department = ?, curRole = ?, modules = ? WHERE cid = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, teacher.getAge());
             ps.setString(2, teacher.getGender());
@@ -448,7 +450,9 @@ public class UserDaoImpl implements UserDao {
             ps.setString(5, teacher.getEndate());
             ps.setString(6, teacher.getTitle());
             ps.setString(7, teacher.getDepartment());
-            ps.setString(8, teacher.getCid());
+            ps.setString(8, teacher.getCurRole());
+            ps.setString(9, teacher.getModules());
+            ps.setString(10, teacher.getCid());
             ps.executeUpdate();
         }
     }

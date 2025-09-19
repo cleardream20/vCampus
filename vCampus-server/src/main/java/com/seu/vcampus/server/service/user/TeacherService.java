@@ -1,4 +1,4 @@
-package com.seu.vcampus.server.dao.user;
+package com.seu.vcampus.server.service.user;
 
 import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
@@ -6,7 +6,7 @@ import com.seu.vcampus.common.model.User;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface TeacherDao {
+public interface TeacherService {
     /**
      * 通过cid寻找教师
      * @param cid 一卡通号
@@ -41,7 +41,7 @@ public interface TeacherDao {
 
     /**
      * 删除教师信息
-     * @param teacher 待删除的教师
+     * @param cid 待删除的教师
      * @return successful or not
      * @throws SQLException 数据库错误
      */

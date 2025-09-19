@@ -5,6 +5,8 @@ import com.seu.vcampus.common.model.Student;
 import com.seu.vcampus.common.model.Teacher;
 import com.seu.vcampus.common.model.User;
 import com.seu.vcampus.server.dao.UserDaoImpl;
+import com.seu.vcampus.server.dao.user.AdminDaoImpl;
+import com.seu.vcampus.server.dao.user.TeacherDaoImpl;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserServiceImpl implements UserService {
 
     private final UserDaoImpl userDao = new UserDaoImpl();
+    private final TeacherDaoImpl teacherDao = new TeacherDaoImpl();
+    private final AdminDaoImpl adminDao = new AdminDaoImpl();
     private static final ConcurrentHashMap<String, User> onlineUsers = new ConcurrentHashMap<String, User>();
 
     @Override
@@ -106,5 +110,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByPhone(String phone) throws SQLException {
         return userDao.getUserByPhone(phone);
+    }
+
+    @Override
+    public boolean updateTeacher(Teacher teacher) throws SQLException {
+        return teacherDao.updateTeacher(teacher);
     }
 }
